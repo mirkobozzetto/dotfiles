@@ -1,0 +1,8 @@
+# 26 MB binary Warp re-downloads on its own
+warp/typescript-language-server/
+
+# App-generated backups - git already keeps the history
+*.bak
+*_backup.json
+
+.DS_Store

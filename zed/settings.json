@@ -1,0 +1,238 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "theme": {
+    "mode": "dark",
+    "light": "HBuilderX Push Light",
+    "dark": "Catppuccin Black",
+  },
+  "wrap_guides": [80],
+  "preferred_line_length": 80,
+
+  "theme_overrides": {
+    "Catppuccin Macchiato": {
+      "editor.background": "#24273a70",
+      "background": "#24273a70",
+      "editor.wrap_guide": "#00000047",
+    },
+  },
+
+  "indent_guides": {
+    "enabled": true,
+    "line_width": 2,
+    "coloring": "indent_aware",
+    "background_coloring": "disabled",
+  },
+
+  "cli_default_open_behavior": "new_window",
+  "disable_ai": false,
+  "which_key": {
+    "enabled": true,
+  },
+  "show_signature_help_after_edits": true,
+  "lsp": {
+    "jdtls": {
+      "settings": {
+        "java_home": "/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home",
+      },
+      "initialization_options": {
+        "project": {
+          "sourcePaths": ["."],
+        },
+      },
+    },
+  },
+  "always_treat_brackets_as_autoclosed": true,
+  "colorize_brackets": true,
+  "diff_view_style": "unified",
+  "outline_panel": {
+    "dock": "right",
+  },
+  "collaboration_panel": {
+    "button": false,
+    "dock": "right",
+  },
+  "git_panel": {
+    "dock": "left",
+  },
+  "soft_wrap": "editor_width",
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry",
+    },
+    "opencode": {
+      "type": "registry",
+    },
+    "gemini": {
+      "type": "registry",
+    },
+    "codex-acp": {
+      "type": "registry",
+    },
+    "claude-acp": {
+      "type": "registry",
+    },
+  },
+  "cursor_shape": "bar",
+  // Désactive l'autocomplétion IA (edit predictions) pendant la saisie
+  "edit_predictions": {
+    "provider": "zed",
+    "mode": "eager",
+  },
+  "show_edit_predictions": true,
+
+  "buffer_font_family": ".ZedMono",
+  "buffer_font_features": {
+    "ss02": false, // Script variant (italic cursif/script)
+    "ss11": true, // Hexadecimal x centré → 0xF
+    "liga": true, // Ligatures de codage (!=, =>, ->, >=, etc.)
+    "calt": true, // Whitespace ligatures (contextuelles)
+    "zero": true, // Slashed zero → 0 barré
+    "ss01": false, // Asterisk normal (moins élevé *)
+    "ss03": false, // Alternative g (variante 1)
+    "ss04": true, // Autre alternative g (variante 2)
+    "ss06": true, // Alternative @ (variante 1)
+    "ss07": true, // Alternative curly brackets {}
+    "ss08": false, // Alternative parenthèses () ← désactivé
+    "ss09": false, // Alternative >= ligature (variante 1)
+    "ss12": true, // Thin backslash (\ plus fin)
+    "ss15": false, // i without serif ← désactivé
+    "ss16": false, // r without serif
+    "ss17": true, // Alternative .= et ..= (utile Rust/Elixir)
+    "ss18": true, // Alternative @ (variante 2, différente de ss06)
+  },
+
+  "terminal": {
+    "font_family": "FiraCode Nerd Font Mono",
+  },
+  "vim_mode": true,
+  "agent": {
+    "inline_assistant_model": {
+      "provider": "google",
+      "model": "gemini-3.5-flash",
+      "enable_thinking": false
+    },
+    "sidebar_side": "right",
+    "dock": "right",
+    "default_model": {
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "enable_thinking": true,
+    },
+    "favorite_models": [],
+    "model_parameters": [],
+  },
+  "project_panel": {
+    "dock": "right",
+  },
+  "base_keymap": "Cursor",
+  "session": {
+    "trust_all_worktrees": true,
+  },
+  "icon_theme": {
+    "mode": "light",
+    "light": "Catppuccin Mocha",
+    "dark": "Catppuccin Frappé",
+  },
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+
+  "format_on_save": "on",
+  "autosave": "on_focus_change",
+  "tabs": {
+    "show_diagnostics": "errors",
+    "file_icons": true,
+    "git_status": true,
+  },
+
+  "languages": {
+    "Java": {
+      "language_servers": ["jdtls", "!java", "..."],
+    },
+    "Python": {
+      "language_servers": [
+        // Disable basedpyright and enable ty, and include all
+        // other registered language servers (ruff, pylsp, pyright).
+        "ty",
+        "!basedpyright",
+        "...",
+      ],
+    },
+    "Markdown": {
+      "format_on_save": "off",
+    },
+    "TypeScript": {
+      "code_actions_on_format": {
+        // This setting causes imports to be reorganized on save. Set to false to prevent this.
+        "source.organizeImports": false,
+        "source.fixAll.eslint": true,
+        "source.removeUnusedImports": true,
+      },
+      "formatter": "prettier",
+    },
+    // Formatage norme 42 pour le C via c_formatter_42 (pip install c-formatter-42)
+    // Formate automatiquement au save via stdin → stdout
+    "C": {
+      "formatter": {
+        "external": {
+          "command": "/Users/mirkobozzetto/Library/Python/3.9/bin/c_formatter_42",
+          "arguments": [],
+        },
+      },
+      "format_on_save": "on",
+      "tab_size": 4,
+      "hard_tabs": true,
+    },
+    "JavaScript": {
+      "language_servers": ["typescript-language-server", "eslint"],
+      "formatter": "prettier",
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true,
+        "source.removeUnusedImports": true,
+      },
+    },
+    "TSX": {
+      "code_actions_on_format": {
+        "source.organizeImports": false,
+        "source.fixAll.eslint": true,
+        "source.removeUnusedImports": true,
+      },
+      "formatter": "prettier",
+    },
+    "CSS": {
+      "language_servers": ["tailwindcss-language-server"],
+    },
+  },
+  "max_tabs": 6,
+  "file_types": {
+    "Shell Script": ["*.sh", "*.bash", "*.zsh", "*.ksh", "*.command"],
+  },
+  // Show Error Lens : https://github.com/zed-industries/zed/issues/4901
+  "diagnostics": {
+    "button": true,
+    "include_warnings": true,
+    "inline": {
+      "enabled": true,
+      "update_debounce_ms": 150,
+      "padding": 4,
+      "min_column": 0,
+      "max_severity": null,
+    },
+  },
+  // Turn off telemetry
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+  // Remove the < > buttons from the tab bar
+  "tab_bar": {
+    "show": true,
+    "show_nav_history_buttons": false,
+  },
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-b": "workspace::ToggleRightDock",
+      "cmd-alt-b": "workspace::ToggleLeftDock",
+      "ctrl-shift-m": "workspace::ToggleZoom",
+    },
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "shift-enter": ["terminal::SendText", "\u001b\r"],
+    },
+  },
+  {
+    "context": "(Editor && mode == full)",
+    "bindings": {
+      "alt-cmd-k": "assistant::InlineAssist",
+    },
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-r cmd-t": "theme_selector::Toggle",
+      "ctrl-r": "projects::OpenRecent",
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "shift-ctrl-h": "editor::ToggleInlayHints",
+    },
+  },
+  {
+    "context": "Editor && edit_prediction",
+    "bindings": {
+      "tab": null,
+    },
+  },
+  {
+    "bindings": {
+      "ctrl-shift-i": "editor::ToggleEditPrediction",
+    },
+  },
+]
