@@ -14,3 +14,10 @@ yazi/bookmark
 nvim/.git/
 *.backup-*
 yazi/plugins/
+
+# gitnexus tooling artifacts, not dotfiles config
+.claude/
+AGENTS.md
+CLAUDE.md
+.trace-state
+trace.md
