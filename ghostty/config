@@ -1,0 +1,78 @@
+# Single config. The one in Application Support is emptied out: Ghostty was
+# loading both and the second one silently won.
+
+theme = Catppuccin Mocha
+font-family = FiraCode Nerd Font
+font-feature = calt
+font-feature = liga
+# left only: right Option keeps macOS composition, otherwise AZERTY dead
+# keys die and ~ { } | \ become untypable
+macos-option-as-alt = left
+mouse-scroll-multiplier = 1
+
+# official | blueprint | chalkboard | microchip | glass | holographic |
+# paper | retro | xray | custom | custom-style
+macos-icon = xray
+# shell integration sets a ghost emoji as the window title: this drops that
+# one feature and keeps the rest (cursor, sudo, cwd reporting)
+shell-integration-features = no-title
+# macos-custom-icon = ~/.config/ghostty/catppuccin-mocha.icns
+scrollback-limit = 10000
+background-blur = 60
+background-opacity = 0.97
+
+# kitty-style animated cursor: the shader needs the block cursor,
+# and to keep running continuously or it freezes when the window loses focus
+cursor-style = block
+custom-shader = shaders/cursor_tail.glsl
+# false: the shader only receives frames when the screen changes, so nothing at rest
+custom-shader-animation = false
+
+confirm-close-surface = false
+window-save-state = always
+
+# via a login shell: otherwise the tmux server inherits macOS apps' minimal
+# PATH (without /opt/homebrew/bin) and plugin scripts fail with 127
+command = /bin/zsh -lc "exec /opt/homebrew/bin/tmux new-session -A -s main"
+
+# tmux, Ctrl+Space prefix (NUL byte): Cmd shortcuts send it for you,
+# you never type the prefix yourself
+keybind = cmd+d=text:\x00|
+keybind = cmd+shift+d=text:\x00-
+keybind = cmd+shift+z=text:\x00z
+keybind = cmd+shift+enter=text:\x00z
+keybind = cmd+shift+w=text:\x00x
+keybind = cmd+t=text:\x00c
+keybind = cmd+p=text:\x00s
+keybind = cmd+shift+p=text:\x00o
+# tabs: Cmd+Shift+arrows (Ctrl+Tab conflicts with macOS screenshot capture)
+keybind = cmd+shift+left=text:\x00p
+keybind = cmd+shift+right=text:\x00n
+keybind = ctrl+tab=text:\x00n
+keybind = ctrl+shift+tab=text:\x00p
+
+# panes: moving between them
+keybind = cmd+alt+left=text:\x00h
+keybind = cmd+alt+right=text:\x00l
+keybind = cmd+alt+up=text:\x00k
+keybind = cmd+alt+down=text:\x00j
+
+# panes: resizing
+keybind = cmd+ctrl+left=text:\x00H
+keybind = cmd+ctrl+right=text:\x00L
+keybind = cmd+ctrl+up=text:\x00K
+keybind = cmd+ctrl+down=text:\x00J
+keybind = cmd+alt+one=text:\x001
+keybind = cmd+alt+two=text:\x002
+keybind = cmd+alt+three=text:\x003
+keybind = cmd+alt+four=text:\x004
+keybind = cmd+alt+five=text:\x005
+
+# Cmd+Enter encodes kitty-style (super = bit 8): nvim decodes it as <D-CR>
+keybind = cmd+enter=text:\x1b[13;9u
+
+# macOS reflexes for moving within the line
+keybind = cmd+left=text:\x01
+keybind = cmd+right=text:\x05
+keybind = cmd+backspace=text:\x15
+keybind = shift+enter=text:\x1b\r

@@ -1,0 +1,35 @@
+# Enter = cd: descend into the hovered directory, then quit. The `y` shell
+# wrapper reads yazi's cwd file, so you land in that directory in the shell.
+# On a file, `enter` is a no-op and only the quit fires.
+[[mgr.prepend_keymap]]
+on = "<Enter>"
+run = [ "enter", "quit" ]
+desc = "cd into the directory and quit"
+
+# keep a way to browse without leaving: right arrow still descends
+[[mgr.prepend_keymap]]
+on = "<Right>"
+run = "enter"
+desc = "Enter a directory, staying in yazi"
+
+# lazygit on the current repo, without leaving yazi
+[[mgr.prepend_keymap]]
+on = "<C-g>"
+run = "plugin lazygit"
+desc = "Open lazygit"
+
+# bookmarks: b adds, B jumps, <C-b> deletes
+[[mgr.prepend_keymap]]
+on = [ "b", "a" ]
+run = "plugin yamb -- save"
+desc = "Bookmark this directory"
+
+[[mgr.prepend_keymap]]
+on = [ "b", "b" ]
+run = "plugin yamb -- jump_by_fzf"
+desc = "Jump to a bookmark"
+
+[[mgr.prepend_keymap]]
+on = [ "b", "d" ]
+run = "plugin yamb -- delete_by_fzf"
+desc = "Delete a bookmark"

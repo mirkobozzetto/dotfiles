@@ -6,3 +6,11 @@ warp/typescript-language-server/
 *_backup.json
 
 .DS_Store
+
+# tmux plugins: git clones, reinstalled by tpm — never commit
+tmux/plugins/
+# per-machine state, not config
+yazi/bookmark
+nvim/.git/
+*.backup-*
+yazi/plugins/

@@ -1,14 +1,14 @@
 ---
-"workspace:toggle_maximize_code_review_panel": shift-cmd-enter
-"pane_group:toggle_maximize_pane": ctrl-shift-M
 "workspace:activate_fourth_tab": "cmd-'"
-"workspace:show_theme_chooser": alt-cmd-t
-"workspace:activate_second_tab": cmd-é
 "workspace:activate_last_tab": cmd-ç
-"workspace:activate_seventh_tab": cmd-è
-"workspace:activate_first_tab": cmd-&
-"workspace:activate_fifth_tab": cmd-(
-"workspace:activate_sixth_tab": cmd-§
 "workspace:activate_third_tab": "cmd-\""
-"workspace:left_panel_project_explorer": shift-cmd-E
 "workspace:activate_eighth_tab": cmd-!
+"workspace:left_panel_project_explorer": shift-cmd-E
+"workspace:show_theme_chooser": alt-cmd-t
+"workspace:activate_sixth_tab": cmd-§
+"workspace:activate_first_tab": cmd-&
+"pane_group:toggle_maximize_pane": shift-cmd-enter
+"workspace:activate_second_tab": cmd-é
+"workspace:activate_seventh_tab": cmd-è
+"workspace:toggle_maximize_code_review_panel": shift-cmd-enter
+"workspace:activate_fifth_tab": cmd-(

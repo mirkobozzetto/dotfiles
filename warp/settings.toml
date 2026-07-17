@@ -54,7 +54,7 @@ spacing = "compact"
 [appearance.window]
 override_blur = 25
 open_windows_at_custom_size = false
-zoom_level = 100
+zoom_level = 80
 override_opacity = 78
 
 [appearance.text]
@@ -82,14 +82,14 @@ use_latest_prompt_as_title = false
 app_icon = "comets"
 
 [appearance.themes]
-theme = "dark"
+theme = "light"
 selected_system_themes = {
   dark = {
     custom = { name = "Catppuccin Mocha", path = "/Users/bozzettomirko/.warp/themes/catppuccin_mocha.yml" },
   },
   light = "light",
 }
-system_theme = false
+system_theme = true
 
 [appearance.cursor]
 cursor_display_type = "bar"

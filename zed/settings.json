@@ -8,10 +8,11 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "theme": {
-    "mode": "dark",
+    "mode": "system",
     "light": "HBuilderX Push Light",
-    "dark": "Catppuccin Black",
+    "dark": "Catppuccin Mocha",
   },
+
   "wrap_guides": [80],
   "preferred_line_length": 80,
 
@@ -46,8 +47,28 @@
           "sourcePaths": ["."],
         },
       },
+    }, // <-- AJOUTEZ CETTE VIRGULE
+    "roslyn": {
+      "settings": {
+        "csharp|inlay_hints": {
+          "dotnet_enable_inlay_hints_for_parameters": true,
+          "dotnet_enable_inlay_hints_for_literal_parameters": true,
+          "dotnet_enable_inlay_hints_for_indexer_parameters": true,
+          "dotnet_enable_inlay_hints_for_object_creation_parameters": true,
+          "dotnet_enable_inlay_hints_for_other_parameters": true,
+          "dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix": false,
+          "dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent": false,
+          "dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name": false,
+          "csharp_enable_inlay_hints_for_types": true,
+          "csharp_enable_inlay_hints_for_implicit_object_creation": true,
+          "csharp_enable_inlay_hints_for_implicit_variable_types": true,
+          "csharp_enable_inlay_hints_for_lambda_parameter_types": true,
+          "csharp_enable_inlay_hints_for_types_in_patterns": true,
+        },
+      },
     },
   },
+
   "always_treat_brackets_as_autoclosed": true,
   "colorize_brackets": true,
   "diff_view_style": "unified",
@@ -116,7 +137,7 @@
     "inline_assistant_model": {
       "provider": "google",
       "model": "gemini-3.5-flash",
-      "enable_thinking": false
+      "enable_thinking": false,
     },
     "sidebar_side": "right",
     "dock": "right",
@@ -137,7 +158,7 @@
   },
   "icon_theme": {
     "mode": "light",
-    "light": "Catppuccin Mocha",
+    "light": "Material Icon Theme",
     "dark": "Catppuccin Frappé",
   },
   "ui_font_size": 16,
@@ -152,6 +173,9 @@
   },
 
   "languages": {
+    "CSharp": {
+      "language_servers": ["csharp-ls", "!roslyn", "!omnisharp", "..."],
+    },
     "Java": {
       "language_servers": ["jdtls", "!java", "..."],
     },
@@ -209,6 +233,14 @@
       "language_servers": ["tailwindcss-language-server"],
     },
   },
+
+  "inlay_hints": {
+    "enabled": false,
+    "show_type_hints": null,
+    "show_parameter_hints": true,
+    "show_other_hints": true,
+  },
+
   "max_tabs": 6,
   "file_types": {
     "Shell Script": ["*.sh", "*.bash", "*.zsh", "*.ksh", "*.command"],

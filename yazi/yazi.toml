@@ -1,0 +1,10 @@
+# EDITOR is "zed --wait", so Enter used to throw files at the IDE and steal focus.
+# Enter now opens nvim right in the pane; O still opens with the macOS default.
+[opener]
+edit = [
+  { run = 'nvim "$@"', desc = "nvim", block = true, for = "unix" },
+]
+
+# git.yazi needs the linemode slot to draw its status column
+[mgr]
+linemode = "git"
