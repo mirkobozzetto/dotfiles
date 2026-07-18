@@ -207,3 +207,5 @@ vim.keymap.set("v", "<S-Right>", "$", { desc = "Line end" })
 vim.keymap.set("v", "<S-Left>", "0", { desc = "Line start" })
 vim.keymap.set("v", "<End>", "$", { desc = "Line end" })
 vim.keymap.set("v", "<Home>", "0", { desc = "Line start" })
+
+vim.keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>silent! write<cr><esc>", { desc = "Save" })

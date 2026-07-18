@@ -43,8 +43,12 @@ keybind = cmd+shift+z=text:\x00z
 keybind = cmd+shift+enter=text:\x00z
 keybind = cmd+shift+w=text:\x00x
 keybind = cmd+t=text:\x00c
-keybind = cmd+p=text:\x00s
-keybind = cmd+shift+p=text:\x00o
+keybind = cmd+p=text:\x00o
+# agent monitor popup (prefix+e)
+keybind = cmd+shift+b=text:\x00e
+# jump to next agent needing you (prefix+g)
+keybind = cmd+shift+g=text:\x00g
+keybind = cmd+shift+p=text:\x00s
 # tabs: Cmd+Shift+arrows (Ctrl+Tab conflicts with macOS screenshot capture)
 keybind = cmd+shift+left=text:\x00p
 keybind = cmd+shift+right=text:\x00n

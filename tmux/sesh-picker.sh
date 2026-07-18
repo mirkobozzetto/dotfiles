@@ -31,7 +31,7 @@ list_projects() {
 # nobody opens a session in, and they drown the real matches.
 list_everything() {
   fd --hidden --type d --max-depth 4 . "$HOME" \
-    --exclude Library --exclude .Trash --exclude node_modules --exclude .git \
+    --exclude Library --exclude .Trash --exclude Documents --exclude Desktop --exclude Downloads --exclude node_modules --exclude .git \
     --exclude target --exclude .venv --exclude dist --exclude build \
     --exclude .next --exclude .cache --exclude Pictures --exclude Music \
     --exclude Movies --exclude .cargo --exclude .rustup --exclude .bun \
