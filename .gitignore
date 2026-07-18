@@ -21,3 +21,6 @@ AGENTS.md
 CLAUDE.md
 .trace-state
 trace.md
+
+# Zed recreates this empty prompt database on launch; it only ever churns
+zed/prompts/
