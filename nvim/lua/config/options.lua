@@ -5,6 +5,13 @@ vim.opt.mousescroll = "ver:2,hor:2"
 vim.opt.textwidth = 80
 vim.opt.colorcolumn = "80"
 
+-- long lines fold onto the next row instead of running off screen.
+-- breakindent keeps the continuation aligned under the first line, so wrapped
+-- code stays readable; :ToggleWrap turns it off per window.
+vim.opt.wrap = true
+vim.opt.linebreak = true
+vim.opt.breakindent = true
+
 -- soft blink: block in normal mode, thin bar in insert mode.
 -- the block is required by Ghostty's trail shader.
 vim.opt.guicursor = table.concat({

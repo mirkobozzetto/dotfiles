@@ -13,6 +13,9 @@ TICK=2
 STATE_DIR="/tmp/agent-auto-jump-state"
 mkdir -p "$STATE_DIR"
 
+LOG="/tmp/agent-auto-jump.log"
+log() { printf '%s %s\n' "$(date '+%H:%M:%S')" "$*" >>"$LOG"; }
+
 LOCK="/tmp/agent-auto-jump.pid"
 if [[ -f "$LOCK" ]] && kill -0 "$(cat "$LOCK" 2>/dev/null)" 2>/dev/null; then
   exit 0
@@ -42,8 +45,13 @@ while tmux has-session 2>/dev/null; do
 
     att="$(tmux show-options -pqv -t "$p" @pane_attention 2>/dev/null)"
     st="$(tmux show-options -pqv -t "$p" @pane_status 2>/dev/null)"
+    # @pane_status goes briefly empty between two hook writes. Treat that as "no
+    # news" rather than a state: recording it would erase the running side of a
+    # running -> idle edge and the finished turn would go unnoticed.
+    [[ -z "$st" && -z "$att" ]] && continue
+
     prev="$(prev_status "$p")"
-    save_status "$p" "$st"
+    [[ "$prev" != "$st" ]] && log "$p: $prev -> $st (attention='$att')"
 
     # blocked on you, or a turn that just ended (running -> idle)
     wants_you=""
@@ -51,18 +59,35 @@ while tmux has-session 2>/dev/null; do
     [[ "$prev" == "running" && "$st" == "idle" ]] && wants_you="finished"
 
     if [[ -z "$wants_you" ]]; then
+      save_status "$p" "$st"
       handled="${handled// $p / }"   # episode over: allow a future jump here
       continue
     fi
 
-    [[ "$handled" == *" $p "* ]] && continue               # already brought you here
-    [[ "$p" == "$cur" ]] && { handled+="$p "; continue; }  # you're already on it
+    # already brought you here, or you are already on it
+    if [[ "$handled" == *" $p "* ]]; then
+      save_status "$p" "$st"
+      continue
+    fi
+    if [[ "$p" == "$cur" ]]; then
+      save_status "$p" "$st"
+      handled+="$p "
+      continue
+    fi
 
-    # don't yank focus while the current pane is still producing output
-    last="$(tmux display-message -p -t "$cur" '#{pane_activity}' 2>/dev/null)"
+    # don't yank focus mid-sentence. client_activity is the last time YOU sent
+    # input; it stays put while a pane streams output, which is what we want -
+    # pane_activity would have meant "an agent is printing", and does not even
+    # exist in this tmux.
+    last="$(tmux display-message -p -t "$client" '#{client_activity}' 2>/dev/null)"
     now="$(date +%s)"
     if [[ "$last" =~ ^[0-9]+$ ]] && ((now - last < IDLE_SECONDS)); then
-      continue   # busy: retry next tick
+      # deliberately do NOT save the status here: `running -> idle` is a single
+      # edge, and recording it would make the next tick see idle -> idle and
+      # forget that a jump is still owed. Leaving prev alone keeps the edge live
+      # until you actually go quiet, however long that takes.
+      log "hold: typed $((now - last))s ago, $p wants you ($wants_you)"
+      continue
     fi
 
     sess="$(tmux display-message -p -t "$p" '#{session_name}' 2>/dev/null)"
@@ -71,6 +96,8 @@ while tmux has-session 2>/dev/null; do
     tmux select-window -t "$win" 2>/dev/null
     tmux select-pane -t "$p" 2>/dev/null
     tmux display-message -c "$client" -- "$sess $wants_you"
+    log "JUMPED to $sess ($p) because it $wants_you"
+    save_status "$p" "$st"
     handled+="$p "
     break
   done

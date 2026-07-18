@@ -18,8 +18,8 @@ macos-icon = xray
 shell-integration-features = no-title
 # macos-custom-icon = ~/.config/ghostty/catppuccin-mocha.icns
 scrollback-limit = 10000
-background-blur = 60
-background-opacity = 0.97
+background-blur = false
+background-opacity = 1
 
 # kitty-style animated cursor: the shader needs the block cursor,
 # and to keep running continuously or it freezes when the window loses focus
@@ -54,6 +54,13 @@ keybind = cmd+shift+left=text:\x00p
 keybind = cmd+shift+right=text:\x00n
 keybind = ctrl+tab=text:\x00n
 keybind = ctrl+shift+tab=text:\x00p
+
+# sessions: hold Option and tap Tab to walk through them. A terminal never
+# reports key release, so there is no held-open switcher like Cmd+Tab -
+# each tap simply switches. Option+` returns to the one you came from.
+keybind = alt+tab=text:\x00)
+keybind = alt+shift+tab=text:\x00(
+keybind = alt+grave_accent=text:\x00\x7f
 
 # panes: moving between them
 keybind = cmd+alt+left=text:\x00h

@@ -1,0 +1,93 @@
+%YAML 1.2
+---
+# Minimal Bicep syntax for bat/syntect. The community one (rwols/sublime-bicep)
+# is syntax format v2 and extends JavaScript, neither of which syntect supports.
+name: Bicep
+file_extensions:
+  - bicep
+  - bicepparam
+scope: source.bicep
+
+contexts:
+  main:
+    - include: comments
+    - include: decorators
+    - include: strings
+    - include: keywords
+    - include: types
+    - include: constants
+    - include: numbers
+    - include: functions
+
+  comments:
+    - match: //
+      scope: punctuation.definition.comment.bicep
+      push:
+        - meta_scope: comment.line.double-slash.bicep
+        - match: $\n?
+          pop: true
+    - match: /\*
+      scope: punctuation.definition.comment.bicep
+      push:
+        - meta_scope: comment.block.bicep
+        - match: \*/
+          pop: true
+
+  decorators:
+    - match: '@[A-Za-z_][A-Za-z0-9_]*'
+      scope: variable.annotation.bicep
+
+  strings:
+    # ''' ... ''' must be tried before the single-quote rule swallows it
+    - match: "'''"
+      scope: punctuation.definition.string.begin.bicep
+      push:
+        - meta_scope: string.quoted.other.bicep
+        - match: "'''"
+          scope: punctuation.definition.string.end.bicep
+          pop: true
+    - match: "'"
+      scope: punctuation.definition.string.begin.bicep
+      push:
+        - meta_scope: string.quoted.single.bicep
+        - match: '\$\{'
+          scope: punctuation.section.interpolation.begin.bicep
+          push:
+            - meta_scope: meta.interpolation.bicep
+            - match: '\}'
+              scope: punctuation.section.interpolation.end.bicep
+              pop: true
+            - include: keywords
+            - include: functions
+            - include: numbers
+        - match: \\.
+          scope: constant.character.escape.bicep
+        - match: "'"
+          scope: punctuation.definition.string.end.bicep
+          pop: true
+        - match: $\n?
+          pop: true
+
+  keywords:
+    - match: \b(param|var|output|resource|module|targetScope|type|func|import|provider|metadata|assert)\b
+      scope: keyword.declaration.bicep
+    - match: \b(existing|if|else|for|in|with|as|extends)\b
+      scope: keyword.control.bicep
+    - match: '(\?\?|=>|::|[!<>=]=|[<>]|\|\||&&|!)'
+      scope: keyword.operator.bicep
+
+  types:
+    - match: \b(string|int|bool|object|array|secureString|secureObject|null|resource)\b
+      scope: storage.type.bicep
+
+  constants:
+    - match: \b(true|false|null)\b
+      scope: constant.language.bicep
+
+  numbers:
+    - match: \b\d+\b
+      scope: constant.numeric.bicep
+
+  functions:
+    - match: '\b([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()'
+      scope: variable.function.bicep

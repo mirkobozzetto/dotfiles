@@ -1,0 +1,6 @@
+git:
+  pagers:
+    - # lazygit ignores core.pager: without this the diff is plain git output,
+      # colored by +/- only, no syntax highlighting.
+      colorArg: always
+      pager: delta --dark --paging=never --syntax-theme="Catppuccin Mocha" --line-numbers
