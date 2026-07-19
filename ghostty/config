@@ -1,7 +1,9 @@
 # Single config. The one in Application Support is emptied out: Ghostty was
 # loading both and the second one silently won.
 
-theme = Catppuccin Mocha
+# two themes: Ghostty follows the macOS appearance and, through mode 2031,
+# tells tmux and Neovim to switch with it.
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
 font-family = FiraCode Nerd Font
 font-feature = calt
 font-feature = liga

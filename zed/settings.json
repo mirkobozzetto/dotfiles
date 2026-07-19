@@ -8,9 +8,9 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "theme": {
-    "mode": "system",
+    "mode": "dark",
     "light": "HBuilderX Push Light",
-    "dark": "Catppuccin Mocha",
+    "dark": "Catppuccin Black",
   },
 
   "wrap_guides": [80],
