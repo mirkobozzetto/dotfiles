@@ -1,6 +1,7 @@
--- Two families, one per appearance: Catppuccin Mocha in the dark, Flexoki Dawn
--- in the light. Flexoki is calibrated in Oklab for reading on screens, where
--- Catppuccin Latte is a pastel palette that washes out on paper-white.
+-- Two families, one per appearance: Catppuccin Mocha in the dark, Quiet Light
+-- in the light. Quiet Light keeps a muted foreground on near-white paper and
+-- lets the accents carry the meaning, where Catppuccin Latte is pastel on both
+-- sides and washes out.
 --
 -- Neovim flips vim.o.background by itself when the terminal announces a theme
 -- change (mode 2031). Reacting to that is all this needs to do - and it must
@@ -14,7 +15,7 @@ local function apply()
     return
   end
   applying = true
-  local want = vim.o.background == "light" and "flexoki-dawn" or "catppuccin"
+  local want = vim.o.background == "light" and "quietlight" or "catppuccin"
   if vim.g.colors_name ~= want then
     pcall(vim.cmd.colorscheme, want)
   end
@@ -49,18 +50,30 @@ return {
     },
   },
   {
-    "nuvic/flexoki-nvim",
-    name = "flexoki",
+    "HUAHUAI23/nvim-quietlight",
+    name = "quietlight",
+    main = "nvim-quietlight",
     opts = {
-      variant = "dawn",
-      styles = { italic = false },
+      -- opaque, unlike the dark side: this theme styles few plugins, and with a
+      -- transparent background the ones it misses show the terminal through
+      -- instead of a readable panel
+      transparent_background = false,
+      plugins = {
+        gitsigns = true,
+        lsp = true,
+        bufferline = true,
+        treesitter = true,
+        notify = true,
+        nvimtree = true,
+        indentline = true,
+      },
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
       colorscheme = function()
-        vim.cmd.colorscheme(vim.o.background == "light" and "flexoki-dawn" or "catppuccin")
+        vim.cmd.colorscheme(vim.o.background == "light" and "quietlight" or "catppuccin")
       end,
     },
   },
