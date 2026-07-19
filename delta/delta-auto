@@ -24,7 +24,7 @@ appearance() {
 }
 
 if [[ "$(appearance)" == "light" ]]; then
-  exec delta --light --syntax-theme="GitHub" --line-numbers "$@"
+  exec delta --light --syntax-theme="Catppuccin Latte" --line-numbers "$@"
 else
   exec delta --dark --syntax-theme="Catppuccin Mocha" --line-numbers "$@"
 fi

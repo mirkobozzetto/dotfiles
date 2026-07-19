@@ -3,7 +3,7 @@
 
 # two themes: Ghostty follows the macOS appearance and, through mode 2031,
 # tells tmux and Neovim to switch with it.
-theme = light:quiet-light,dark:Catppuccin Mocha
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
 font-family = FiraCode Nerd Font
 font-feature = calt
 font-feature = liga
