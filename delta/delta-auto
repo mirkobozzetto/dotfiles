@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# delta with the syntax theme picked from the current appearance, so diffs stay
+# readable when macOS flips to light. Used as the pager by git and by lazygit.
+#
+# delta reads its theme once at startup and both callers are launched fresh
+# every time, so deciding here is enough - no need to signal a running process.
+#
+# tmux is asked first: it tracks what the terminal actually reports (mode 2031),
+# which is the surface these colours land on. `defaults` is the fallback for a
+# shell outside tmux.
+set -uo pipefail
+
+appearance() {
+  local from_tmux
+  from_tmux="$(tmux display-message -p '#{client_theme}' 2>/dev/null)"
+  case "$from_tmux" in
+    light | dark)
+      echo "$from_tmux"
+      return
+      ;;
+  esac
+  [[ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" == "Dark" ]] &&
+    echo dark || echo light
+}
+
+if [[ "$(appearance)" == "light" ]]; then
+  exec delta --light --syntax-theme="Catppuccin Latte" --line-numbers "$@"
+else
+  exec delta --dark --syntax-theme="Catppuccin Mocha" --line-numbers "$@"
+fi
