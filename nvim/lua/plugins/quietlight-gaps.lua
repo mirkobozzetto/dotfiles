@@ -10,7 +10,11 @@ local palette = {
   panel = "#eeeeee",
   border = "#d9d9d9",
   text = "#444963",
-  muted = "#777777",
+  muted = "#6f7280",
+  -- the theme's own greys for secondary text are #aaaaaa and lighter, which is
+  -- around 2:1 on its own paper. These are the darkest values that still read
+  -- as "stand back" while clearing roughly 4.5:1.
+  dim = "#83868f",
   faint = "#aaaaaa",
   purple = "#7a3e9d",
   blue = "#4b83cd",
@@ -43,8 +47,9 @@ local function fill()
     SnacksPickerMatch = { fg = p.red, bold = true },
     SnacksPickerSelected = { fg = p.blue },
     SnacksPickerCursorLine = { bg = p.selection },
-    SnacksPickerPathHidden = { fg = p.faint },
-    SnacksPickerPathIgnored = { fg = p.faint },
+    -- dimmer than a tracked file, still above the ~3:1 the theme's #aaaaaa gave
+    SnacksPickerPathHidden = { fg = p.dim },
+    SnacksPickerPathIgnored = { fg = p.dim },
     SnacksPickerGitStatusUntracked = { fg = p.faint },
     SnacksPickerGitStatusModified = { fg = p.orange },
     SnacksPickerGitStatusAdded = { fg = p.green },
@@ -60,8 +65,31 @@ local function fill()
 
     -- a purple on paper reads as an accent, not as a status bar
     StatusLine = { fg = p.text, bg = p.selection },
-    StatusLineNC = { fg = p.faint, bg = p.panel },
+    StatusLineNC = { fg = p.dim, bg = p.panel },
     WinSeparator = { fg = p.border },
+
+    -- comments at the theme's #aaaaaa sit near 2:1 on its paper: readable as a
+    -- shape, not as words. Muted still reads as secondary at ~4.6:1.
+    Comment = { fg = p.muted, italic = true },
+    ["@comment"] = { fg = p.muted, italic = true },
+    ["@lsp.type.comment"] = { fg = p.muted, italic = true },
+    LineNr = { fg = p.dim },
+    Conceal = { fg = p.dim },
+    NonText = { fg = p.border },
+
+    -- LazyVim's tabs come from bufferline, which the theme does not style
+    BufferLineFill = { bg = p.selection },
+    BufferLineBackground = { fg = p.dim, bg = p.selection },
+    BufferLineBufferSelected = { fg = p.text, bg = p.paper, bold = true, italic = false },
+    BufferLineBufferVisible = { fg = p.muted, bg = p.selection },
+    BufferLineSeparator = { fg = p.border, bg = p.selection },
+    BufferLineSeparatorSelected = { fg = p.border, bg = p.paper },
+    BufferLineSeparatorVisible = { fg = p.border, bg = p.selection },
+    BufferLineIndicatorSelected = { fg = p.purple, bg = p.paper },
+    BufferLineModified = { fg = p.orange, bg = p.selection },
+    BufferLineModifiedSelected = { fg = p.orange, bg = p.paper },
+    BufferLineCloseButton = { fg = p.dim, bg = p.selection },
+    BufferLineCloseButtonSelected = { fg = p.muted, bg = p.paper },
   }
 
   for group, spec in pairs(hl) do
