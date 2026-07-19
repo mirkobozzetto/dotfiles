@@ -52,6 +52,26 @@ stop typing, so it must not record the new status before the jump actually
 happens - otherwise the next tick compares idle to idle and forgets a
 redirection was owed.
 
+## Vibe Island
+
+[Vibe Island](https://vibeisland.app) puts every AI coding session in the
+macOS notch: live status, questions, and one-click jump to the session.
+Optional here, but `tmux/vibe-island-jump-bridge.sh` exists for it.
+
+Clicking a card is supposed to land you on the right tmux pane. In 1.0.42 it
+brings the terminal forward and stops there - the binary contains `list-panes`
+but no `switch-client`, `select-window` or `select-pane`, so it can find the
+pane and not reach it. With every session inside one window, you land wherever
+you already were.
+
+It does log the pane it meant to reach on each click, so the bridge tails that
+log and runs the three missing commands. Clicking works as advertised.
+
+This reads another app's log format, so treat it as a splint, not a fix: if
+they change the format, jumps quietly stop and you are back to today's
+behaviour. `/tmp/vibe-island-jump-bridge.log` shows whether it still fires.
+Delete the script and its two lines in `tmux.conf` to remove it.
+
 ## Layout
 
 ```

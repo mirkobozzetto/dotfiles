@@ -179,6 +179,13 @@ writes on every Claude Code hook event (`@pane_agent`, `@pane_status`,
 | `agent-status-segment.sh` | status-bar counters: red for agents waiting, yellow for agents working |
 | `agent-jump-next.sh` | manual jump to the next blocked agent, cycling |
 | `agent-auto-jump.sh` | switches you automatically once your own pane goes quiet |
+| `vibe-island-jump-bridge.sh` | completes the tmux jump [Vibe Island](https://vibeisland.app) starts but does not finish |
+
+All three long-running ones wait for a session instead of exiting when none
+answers. tmux loads its config, and starts them, before tmux-resurrect has
+restored anything: a `while tmux has-session` loop ends on the first tick after
+a reboot and nothing ever restarts it. A `client-attached` hook relaunches all
+three as well; each holds a pidfile, so that is idempotent.
 
 The auto-jump waits `IDLE_SECONDS` (4 by default) of no typing in your
 current pane before stealing focus, so it never fires mid-keystroke. A
