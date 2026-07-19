@@ -85,7 +85,7 @@ app_icon = "comets"
 theme = "light"
 selected_system_themes = {
   dark = {
-    custom = { name = "Catppuccin Mocha", path = "~/.warp/themes/catppuccin_mocha.yml" },
+    custom = { name = "Catppuccin Mocha", path = "/Users/bozzettomirko/.warp/themes/catppuccin_mocha.yml" },
   },
   light = "light",
 }
