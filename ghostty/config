@@ -81,6 +81,9 @@ keybind = cmd+alt+five=text:\x005
 
 # Cmd+Enter encodes kitty-style (super = bit 8): nvim decodes it as <D-CR>
 keybind = cmd+enter=text:\x1b[13;9u
+# Cmd+S reuses the Ctrl+S byte rather than a kitty-encoded <D-s>: tmux does not
+# forward the kitty keyboard protocol reliably, so <D-s> never reached Neovim.
+keybind = cmd+s=text:\x13
 
 # macOS reflexes for moving within the line
 keybind = cmd+left=text:\x01

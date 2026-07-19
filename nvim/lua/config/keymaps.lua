@@ -208,4 +208,6 @@ vim.keymap.set("v", "<S-Left>", "0", { desc = "Line start" })
 vim.keymap.set("v", "<End>", "$", { desc = "Line end" })
 vim.keymap.set("v", "<Home>", "0", { desc = "Line start" })
 
+-- Ghostty sends Cmd+S as the kitty-encoded <D-s>; both keys do the same :write.
 vim.keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>silent! write<cr><esc>", { desc = "Save" })
+vim.keymap.set({ "n", "i", "v" }, "<D-s>", "<cmd>silent! write<cr><esc>", { desc = "Save" })
