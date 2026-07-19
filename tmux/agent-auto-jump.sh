@@ -35,7 +35,15 @@ active_client() {
 prev_status() { cat "$STATE_DIR/${1//\%/}" 2>/dev/null || echo ""; }
 save_status() { echo "$2" >"$STATE_DIR/${1//\%/}"; }
 
-while tmux has-session 2>/dev/null; do
+# Wait, never exit, when no session answers. tmux loads its config - and starts
+# this - before tmux-resurrect has restored anything, so a `while has-session`
+# loop ends on the very first tick after a reboot and nothing ever restarts it.
+while true; do
+  if ! tmux has-session 2>/dev/null; then
+    sleep "$TICK"
+    continue
+  fi
+
   client="$(active_client)"
   [[ -z "$client" ]] && { sleep "$TICK"; continue; }
   cur="$(tmux display-message -p -t "$client" '#{pane_id}' 2>/dev/null)"
