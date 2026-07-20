@@ -8,6 +8,11 @@
 -- would read as the same colour.
 local hues = { "red", "peach", "yellow", "green", "teal", "blue", "mauve", "pink" }
 
+local levels = {}
+for i = 1, #hues do
+  levels[i] = "SnacksIndent" .. i
+end
+
 local function paint()
   local ok, palettes = pcall(require, "catppuccin.palettes")
   if not ok then
@@ -29,17 +34,12 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
+      -- opts.indent is the module; its own `indent` and `scope` tables are the
+      -- guides and the current-block bar. Setting hl one level up lands on
+      -- Snacks.config.indent.hl, which nothing reads.
       indent = {
-        hl = {
-          "SnacksIndent1",
-          "SnacksIndent2",
-          "SnacksIndent3",
-          "SnacksIndent4",
-          "SnacksIndent5",
-          "SnacksIndent6",
-          "SnacksIndent7",
-          "SnacksIndent8",
-        },
+        indent = { hl = levels },
+        scope = { hl = levels },
       },
     },
     init = paint,
