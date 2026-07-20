@@ -1,16 +1,28 @@
--- One colour per indent level instead of a single grey. snacks.indent cycles
--- through whatever list it is given, and the colours are read from the active
--- Catppuccin palette, so latte and mocha each get their own without a second
--- table to maintain.
+-- One colour per indent level instead of a single grey, but muted: the guides
+-- are scaffolding, not content. Each hue is mixed most of the way into the
+-- background so the eight levels stay distinguishable without competing with
+-- the code, and the scope bar - the only line at full strength - keeps the
+-- contrast its animation needs.
 --
--- Eight hues, spaced around the wheel rather than taken in palette order: at
--- three or four levels deep the eye compares neighbours, and adjacent hues
--- would read as the same colour.
+-- Colours come from the active Catppuccin palette, so latte and mocha each get
+-- their own without a second table to maintain.
 local hues = { "red", "peach", "yellow", "green", "teal", "blue", "mauve", "pink" }
+
+-- how much of the hue survives against the background; the rest is base
+local STRENGTH = 0.3
 
 local levels = {}
 for i = 1, #hues do
   levels[i] = "SnacksIndent" .. i
+end
+
+local function blend(fg, bg, amount)
+  local function channel(shift)
+    local a = math.floor(fg / shift) % 256
+    local b = math.floor(bg / shift) % 256
+    return math.floor(a * amount + b * (1 - amount) + 0.5)
+  end
+  return string.format("#%02x%02x%02x", channel(65536), channel(256), channel(1))
 end
 
 local function paint()
@@ -22,9 +34,11 @@ local function paint()
   if not colors then
     return
   end
+  local bg = tonumber(colors.base:sub(2), 16)
   for i, hue in ipairs(hues) do
+    local fg = tonumber(colors[hue]:sub(2), 16)
     -- nocombine: without it the guide blends with whatever it overlays
-    vim.api.nvim_set_hl(0, "SnacksIndent" .. i, { fg = colors[hue], nocombine = true })
+    vim.api.nvim_set_hl(0, levels[i], { fg = blend(fg, bg, STRENGTH), nocombine = true })
   end
 end
 
