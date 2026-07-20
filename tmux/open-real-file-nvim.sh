@@ -96,9 +96,12 @@ else
     args+=("$path")
   done <<<"$selected"
 
+  # plain args, not -p: -p opens each file in its own tabpage, which is what put
+  # the stray "1 | 2" tab indicator in the corner. As buffers they show in the
+  # normal bufferline instead, one tabpage.
   if [[ -n "$first_line" ]]; then
-    tmux new-window -c "$pane_cwd" "nvim +${first_line} -p ${args[*]}"
+    tmux new-window -c "$pane_cwd" "nvim +${first_line} ${args[*]}"
   else
-    tmux new-window -c "$pane_cwd" "nvim -p ${args[*]}"
+    tmux new-window -c "$pane_cwd" "nvim ${args[*]}"
   fi
 fi
