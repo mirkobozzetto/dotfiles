@@ -37,9 +37,13 @@ return {
       -- opts.indent is the module; its own `indent` and `scope` tables are the
       -- guides and the current-block bar. Setting hl one level up lands on
       -- Snacks.config.indent.hl, which nothing reads.
+      --
+      -- Only the guides cycle. The scope bar keeps SnacksIndentScope: given the
+      -- same list it takes its level's colour, becomes indistinguishable from
+      -- the guide it sits on, and the animation has nothing to draw attention
+      -- to. One bright line against eight quiet ones is the point.
       indent = {
         indent = { hl = levels },
-        scope = { hl = levels },
       },
     },
     init = paint,
