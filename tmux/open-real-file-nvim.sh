@@ -71,8 +71,34 @@ tmux display-popup -E "fzf -m --prompt='open in nvim > ' < \"$tmpfile\" > \"$out
 selected="$(cat "$outfile")"
 [[ -z "$selected" ]] && exit 0
 
-nvim_command="$(to_tabedit_strings "$selected")"
-read -r nvim_window_id nvim_pane_id <<<"$(get_nvim_pane)"
-tmux send-keys -t "$nvim_pane_id" Escape ":$nvim_command" Enter
-tmux select-window -t "$nvim_window_id"
-tmux select-pane -t "$nvim_pane_id"
+# A nvim already in the session gets the files as new tabs. When there is none,
+# the plugin would split the current pane and race an unstarted nvim with
+# send-keys - that is the double-pane mess. Instead, open one clean window with
+# the files passed to nvim as arguments, so there is nothing to race.
+read -r nvim_window_id nvim_pane_id <<<"$(find_nvim_target)"
+
+if [[ -n "$nvim_pane_id" ]]; then
+  nvim_command="$(to_tabedit_strings "$selected")"
+  tmux send-keys -t "$nvim_pane_id" Escape ":$nvim_command" Enter
+  tmux select-window -t "$nvim_window_id"
+  tmux select-pane -t "$nvim_pane_id"
+else
+  # strip the :line:col suffix for the CLI; the first file's line drives the +cmd
+  args=()
+  first_line=""
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    local_line="${f#*:}"
+    path="${f%%:*}"
+    if [[ "$f" == *:* && "$local_line" =~ ^[0-9] ]]; then
+      [[ -z "$first_line" ]] && first_line="${local_line%%:*}"
+    fi
+    args+=("$path")
+  done <<<"$selected"
+
+  if [[ -n "$first_line" ]]; then
+    tmux new-window -c "$pane_cwd" "nvim +${first_line} -p ${args[*]}"
+  else
+    tmux new-window -c "$pane_cwd" "nvim -p ${args[*]}"
+  fi
+fi
