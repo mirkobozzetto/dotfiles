@@ -1,19 +1,19 @@
--- One colour per indent level instead of a single grey, but muted: the guides
--- are scaffolding, not content. Each hue is mixed most of the way into the
--- background so the eight levels stay distinguishable without competing with
--- the code, and the scope bar - the only line at full strength - keeps the
--- contrast its animation needs.
+-- One colour per indent level, and the block you are in picks its level's
+-- colour at full strength while every other guide is faded into the background.
+-- The eye then reads depth from hue and position from brightness, instead of
+-- eight saturated lines all shouting at once.
 --
 -- Colours come from the active Catppuccin palette, so latte and mocha each get
 -- their own without a second table to maintain.
 local hues = { "red", "peach", "yellow", "green", "teal", "blue", "mauve", "pink" }
 
--- how much of the hue survives against the background; the rest is base
-local STRENGTH = 0.3
+-- how much of the hue survives against the background for the passive guides
+local FADED = 0.28
 
-local levels = {}
+local guides, scopes = {}, {}
 for i = 1, #hues do
-  levels[i] = "SnacksIndent" .. i
+  guides[i] = "SnacksIndent" .. i
+  scopes[i] = "SnacksIndentScope" .. i
 end
 
 local function blend(fg, bg, amount)
@@ -38,7 +38,8 @@ local function paint()
   for i, hue in ipairs(hues) do
     local fg = tonumber(colors[hue]:sub(2), 16)
     -- nocombine: without it the guide blends with whatever it overlays
-    vim.api.nvim_set_hl(0, levels[i], { fg = blend(fg, bg, STRENGTH), nocombine = true })
+    vim.api.nvim_set_hl(0, guides[i], { fg = blend(fg, bg, FADED), nocombine = true })
+    vim.api.nvim_set_hl(0, scopes[i], { fg = colors[hue], nocombine = true })
   end
 end
 
@@ -51,13 +52,9 @@ return {
       -- opts.indent is the module; its own `indent` and `scope` tables are the
       -- guides and the current-block bar. Setting hl one level up lands on
       -- Snacks.config.indent.hl, which nothing reads.
-      --
-      -- Only the guides cycle. The scope bar keeps SnacksIndentScope: given the
-      -- same list it takes its level's colour, becomes indistinguishable from
-      -- the guide it sits on, and the animation has nothing to draw attention
-      -- to. One bright line against eight quiet ones is the point.
       indent = {
-        indent = { hl = levels },
+        indent = { hl = guides },
+        scope = { hl = scopes },
       },
     },
     init = paint,

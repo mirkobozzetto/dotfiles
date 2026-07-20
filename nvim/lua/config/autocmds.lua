@@ -30,6 +30,49 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Languages whose formatters write four columns per level, against LazyVim's
+-- global default of two. The mismatch is invisible until something measures
+-- indentation: guides then draw a line halfway through every real level, and
+-- `>>` moves half a step.
+--
+-- C#/F#/VB follow Microsoft's convention, Rust follows rustfmt, Go and Java
+-- their own. Python and the two-space languages already agree with the default.
+-- C and C++ keep their own rule above; that one is about tabs, not width.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {
+    "cs",
+    "razor",
+    "fsharp",
+    "vb",
+    "rust",
+    "java",
+    "kotlin",
+    "scala",
+    "swift",
+    "php",
+    "dart",
+    "zig",
+  },
+  callback = function()
+    vim.bo.expandtab = true
+    vim.bo.tabstop = 4
+    vim.bo.shiftwidth = 4
+    vim.bo.softtabstop = 4
+  end,
+})
+
+-- gofmt writes tabs and leaves their width to the reader; two makes nested
+-- blocks unreadable, so a tab is four columns wide here.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "go", "gomod", "gowork", "gotmpl" },
+  callback = function()
+    vim.bo.expandtab = false
+    vim.bo.tabstop = 4
+    vim.bo.shiftwidth = 4
+    vim.bo.softtabstop = 0
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
   pattern = "*",
   callback = function()
