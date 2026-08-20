@@ -6,12 +6,13 @@
   <string>com.mirkobozzetto.herdr-update</string>
 
   <!-- Upgrades the binary only. The running server keeps the old code in
-       memory until it is restarted, so this never interrupts live panes. -->
+       memory until it is restarted, so this never interrupts live panes.
+       The wrapper notifies when that stale server needs a manual restart:
+       left alone, a new client against it breaks paste in every pane. -->
   <key>ProgramArguments</key>
   <array>
-    <string>/opt/homebrew/bin/brew</string>
-    <string>upgrade</string>
-    <string>herdr</string>
+    <string>/bin/sh</string>
+    <string>/Users/mirkobozzetto/dotfiles/herdr/bin/herdr-update.sh</string>
   </array>
 
   <key>EnvironmentVariables</key>
