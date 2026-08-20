@@ -24,3 +24,7 @@ trace.md
 
 # Zed recreates this empty prompt database on launch; it only ever churns
 zed/prompts/
+
+# python bytecode, regenerated on every run
+__pycache__/
+*.pyc
