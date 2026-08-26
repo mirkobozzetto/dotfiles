@@ -639,6 +639,9 @@ function ensureServer(): string {
 					return new Response("not found", { status: 404 });
 				},
 			});
+			// the page must never be a reason for omp to stay alive: unref drops the
+			// server's hold on the event loop, so it dies with its session
+			server.unref();
 			pageUrl = `http://127.0.0.1:${port}/`;
 			return pageUrl;
 		} catch (error) {
@@ -671,5 +674,14 @@ export default function models(pi: ExtensionAPI): void {
 		} catch {
 			// every port of the range is busy: /models will report it on demand
 		}
+	});
+
+	// session_shutdown is emitted once, from dispose(), on Ctrl+C or /exit. Not
+	// session_stop, which fires at the end of every turn and would kill the page
+	// while the session is still open.
+	pi.on("session_shutdown", async () => {
+		server?.stop(true);
+		server = undefined;
+		pageUrl = "";
 	});
 }
