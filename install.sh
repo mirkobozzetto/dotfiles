@@ -43,11 +43,26 @@ install_entry() {
   link "$source" "$target"
 }
 
+# hooks/pre-commit refuses a commit carrying a secret. Git ignores a versioned
+# hooks dir until it is pointed at, and the setting is per clone, so every
+# machine needs this once.
+enable_hooks() {
+  local current
+  current="$(git -C "$DOTFILES" config core.hooksPath || true)"
+  if [[ "$current" == "hooks" ]]; then
+    echo "ok       git hooks"
+    return
+  fi
+  git -C "$DOTFILES" config core.hooksPath hooks
+  echo "link     git hooks -> $DOTFILES/hooks"
+}
+
 main() {
   while read -r name target; do
     [[ -z "$name" || "$name" == \#* ]] && continue
     install_entry "$name" "$(eval echo "$target")"
   done < "$MANIFEST"
+  enable_hooks
 }
 
 main "$@"

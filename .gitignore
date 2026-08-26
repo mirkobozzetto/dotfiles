@@ -28,3 +28,27 @@ zed/prompts/
 # python bytecode, regenerated on every run
 __pycache__/
 *.pyc
+
+# Secrets: real values live in ~/.zshalias, outside this repo. Config files here
+# only ever carry ${VAR} placeholders; hooks/pre-commit enforces it.
+*.env
+.env.*
+secrets.*
+credentials.*
+*.pem
+id_rsa
+id_ed25519
+
+# omp: the agent dir mixes config with credentials, databases and conversation
+# history. Only hand-picked config files are linked from links.conf; everything
+# below is either a secret store or live state.
+omp/agent.db*
+omp/history.db*
+omp/models.db*
+omp/sessions/
+omp/terminal-sessions/
+omp/memories/
+omp/blobs/
+omp/cache/
+omp/plugins/
+omp/*.lock

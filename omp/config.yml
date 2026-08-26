@@ -1,0 +1,217 @@
+providers: 
+  webSearchOrder: 
+    - exa
+    - perplexity
+    - gemini
+    - anthropic
+    - codex
+    - xai
+    - zai
+    - tinyfish
+    - jina
+    - kagi
+    - tavily
+    - firecrawl
+    - brave
+    - kimi
+    - parallel
+    - synthetic
+    - searxng
+    - startpage
+    - duckduckgo
+    - ecosia
+    - google
+    - mojeek
+    - public
+  autoThinkingMaxEffort: xhigh
+  openai-codex: 
+    codeMode: "on"
+symbolPreset: nerd
+theme: 
+  dark: dark-catppuccin
+setupVersion: 2
+modelRoles: 
+  sol: openai-codex/gpt-5.6-sol:high
+  opus: anthropic/claude-opus-5:medium
+  deepseek: deepseek/deepseek-v4-flash-vision-exp
+  commit: anthropic/claude-haiku-4-5
+  tiny: deepseek/deepseek-v4-flash-vision-exp
+  advisor: deepseek/deepseek-v4-flash-vision-exp
+  slow: deepseek/deepseek-v4-pro
+  agents: deepseek/deepseek-v4-flash-vision-exp
+  smol: anthropic/claude-sonnet-5:medium
+  ox: openrouter/stealth/ox-alpha:high
+colorBlindMode: false
+statusLine: 
+  preset: nerd
+  separator: powerline-thin
+  contextLine: embedded
+  transparent: true
+  compactThinkingLevel: false
+  showHookStatus: true
+terminal: 
+  showProgress: true
+tui: 
+  textSizing: true
+  resizeScrollback: preserve
+  codexResetFireworks: true
+  hyperlinks: always
+  tight: true
+  imeSafeCursor: true
+defaultThinkingLevel: low
+autolearn: 
+  enabled: true
+  autoContinue: true
+memory: 
+  backend: local
+plan: 
+  enabled: true
+  defaultOnStartup: false
+advisor: 
+  enabled: true
+  syncBacklog: "1"
+  immuneTurns: 1
+task: 
+  agentModelOverrides: 
+    task: "@agents"
+    sonic: "@agents"
+    scout: "@agents"
+    librarian: "@agents"
+    reviewer: "@agents"
+    security-reviewer: "@agents"
+    designer: "@agents"
+    explainer: "@agents"
+    code-simplifier: "@agents"
+    agent-creator: "@agents"
+    plugin-validator: "@agents"
+    skill-reviewer: "@agents"
+    cavecrew-builder: "@agents"
+    cavecrew-investigator: "@agents"
+    cavecrew-reviewer: "@agents"
+    Company Researcher: "@agents"
+  agentAdvisor: 
+    task: "on"
+  showResolvedModelBadge: true
+  eager: default
+  enableLsp: true
+  maxRuntimeMs: 0
+  prewalk: false
+bash: 
+  patterns: 
+    - match: "*tmux-run*"
+      approval: deny
+    - match: tmux *
+      approval: allow
+    - match: uv run *
+      approval: deny
+    - match: uvx *
+      approval: deny
+    - match: pytest*
+      approval: deny
+    - match: npx pyright*
+      approval: deny
+    - match: pnpm *
+      approval: deny
+    - match: npm run*
+      approval: deny
+    - match: make *
+      approval: deny
+    - match: cargo *
+      approval: deny
+    - match: alembic *
+      approval: deny
+    - match: omp config set*
+      approval: deny
+    - match: rm -rf *
+      approval: deny
+    - match: sudo *
+      approval: deny
+    - match: mkfs *
+      approval: deny
+    - match: dd *
+      approval: deny
+    - match: git push --force*
+      approval: deny
+    - match: git reset --hard*
+      approval: deny
+    - match: "*prisma*reset*"
+      approval: deny
+    - match: git commit*
+      approval: allow
+    - match: git push*
+      approval: allow
+    - match: gh pr create*
+      approval: allow
+    - match: gt submit*
+      approval: allow
+    - match: gt create*
+      approval: allow
+    - match: git rebase*
+      approval: prompt
+    - match: docker compose down*
+      approval: prompt
+    - match: docker stop*
+      approval: prompt
+    - match: docker rm *
+      approval: prompt
+    - match: docker volume rm*
+      approval: prompt
+    - match: docker system prune*
+      approval: prompt
+    - match: "*prisma migrate*"
+      approval: prompt
+    - match: "*prisma db push*"
+      approval: prompt
+    - match: "*drizzle-kit push*"
+      approval: prompt
+    - match: "*supabase db reset*"
+      approval: prompt
+cycleOrder: 
+  - sol
+  - opus
+  - deepseek
+hideThinkingBlock: true
+composer: 
+  shape: claude
+display: 
+  shimmer: kitt
+  showTokenUsage: true
+  cacheMissMarker: true
+externalThinking: false
+treeFilterMode: default
+tools: 
+  approvalMode: yolo
+autoResume: true
+startup: 
+  showSplash: true
+update: 
+  channel: stable
+branchSummary: 
+  enabled: true
+edit: 
+  mode: hashline
+readLineNumbers: false
+read: 
+  renderMarkdown: true
+  toolResultPreview: true
+disabledProviders: 
+  - claude-plugins
+disabledExtensions: 
+  - skill:vercel-react-best-practices
+  - skill:apex
+  - skill:datagouv-apis
+  - skill:fix-pr-comments
+  - skill:git-commit
+  - skill:git-create-pr
+  - skill:gitnexus-cli
+  - skill:gitnexus-debugging
+  - skill:gitnexus-exploring
+  - skill:gitnexus-guide
+  - skill:gitnexus-impact-analysis
+  - skill:gitnexus-pr-review
+  - skill:gitnexus-refactoring
+  - skill:panes
+  - skill:prompt-engineering-patterns
+  - skill:prospection-gws
+  - skill:react-doctor
+  - skill:react-effect-refactor

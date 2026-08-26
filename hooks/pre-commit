@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# Refuses a commit that carries a secret. Config files in this repo reference
+# their secrets through `${VAR}` placeholders and keep the real values in
+# ~/.zshalias, which lives outside the repo. This hook is the net under that
+# rule, not a replacement for it.
+#
+# Enabled by `git config core.hooksPath hooks` (install.sh does it).
+# Bypass, deliberately and rarely: `git commit --no-verify`.
+
+set -uo pipefail
+
+staged_names="$(git diff --cached --name-only --diff-filter=ACMR)"
+[[ -z "$staged_names" ]] && exit 0
+
+fail() {
+  echo "pre-commit: $1" >&2
+  echo "            fix it, or commit with --no-verify if you are certain." >&2
+  exit 1
+}
+
+# 1. paths that must never enter the repo, whatever they contain
+while IFS= read -r file; do
+  case "$file" in
+    *agent.db | *agent.db-* | *history.db | *history.db-* | *models.db | *models.db-*)
+      fail "$file is a local database, it holds credentials and history" ;;
+    *.env | *.env.* | *secrets.* | *credentials.*)
+      fail "$file looks like a secret file" ;;
+    */sessions/* | */memories/* | */blobs/* | */terminal-sessions/*)
+      fail "$file is live agent state, it leaks conversations and paths" ;;
+    *id_rsa | *id_ed25519 | *.pem | *.p12 | *.keystore)
+      fail "$file is a private key" ;;
+  esac
+done <<< "$staged_names"
+
+# 2. secret-shaped content in the staged diff, added lines only
+added="$(git diff --cached -U0 --diff-filter=ACMR | grep '^+' | grep -v '^+++')"
+[[ -z "$added" ]] && exit 0
+
+# each entry: <label>|<extended regex>
+patterns=(
+  "OpenAI-style key|sk-[A-Za-z0-9_-]{20,}"
+  "Anthropic key|sk-ant-[A-Za-z0-9_-]{20,}"
+  "Stripe key|(sk|rk|pk)_(live|test)_[A-Za-z0-9]{10,}"
+  "AWS access key|AKIA[0-9A-Z]{16}"
+  "GitHub token|(ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,})"
+  "Slack token|xox[abposr]-[A-Za-z0-9-]{10,}"
+  "Google API key|AIza[0-9A-Za-z_-]{30,}"
+  "private key block|BEGIN [A-Z ]*PRIVATE KEY"
+  "api key in a URL|[?&][A-Za-z_]*([Kk]ey|[Tt]oken)=[A-Za-z0-9-]{16,}"
+  "bearer literal|[Bb]earer [A-Za-z0-9._-]{20,}"
+  "assigned secret|[A-Z_]*(API_?KEY|SECRET|TOKEN|PASSWD|PASSWORD)[A-Z_]*=[\"']?[A-Za-z0-9/+_.-]{12,}"
+)
+
+for entry in "${patterns[@]}"; do
+  label="${entry%%|*}"
+  regex="${entry#*|}"
+  hit="$(printf '%s\n' "$added" | grep -nE "$regex" | grep -v '\${' | head -1)"
+  if [[ -n "$hit" ]]; then
+    masked="$(printf '%s' "$hit" | cut -c1-60)"
+    fail "$label found in a staged line: ${masked}..."
+  fi
+done
+
+exit 0
