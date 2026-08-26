@@ -32,6 +32,7 @@ written down at the bottom.
 | **Neovim** | LazyVim, 34 language servers, debugger, tests, harpoon, format on save |
 | **Agent redirection** | live state of every coding agent, and automatic focus when one finishes or needs you - on both multiplexers |
 | **pane-run** | agent commands run in a pane you can see, not in the agent's hidden shell |
+| **omp** | [omp](https://omp.sh), the harness I am on right now: its config lives here, plus a local page that configures the `Ctrl+P` model cycle - see [omp/README.md](omp/README.md) |
 | | plus yazi, lazygit + delta, gitmux, starship, zed |
 
 ## Install
@@ -165,9 +166,15 @@ links.conf     install.sh     SETUP.md
 To add an app: move its config here, add a line, run `./install.sh`.
 
 `herdr/` is linked file by file, never as a directory: the real one also holds
-sockets, logs and live session state. `claude/` and `omp/` carry only the
-pane-run wiring; the herdr agent-state hooks in those directories belong to
-`herdr integration install` and are left to it.
+sockets, logs and live session state. `omp/` follows the same rule for the same
+reason - its agent directory holds `agent.db` with the credentials, the model
+cache and every transcript - so only `config.yml`, `mcp.json` and two extensions
+are linked. `claude/` carries the pane-run wiring; the herdr agent-state hooks in
+those directories belong to `herdr integration install` and are left to it.
+
+No secret is committed: config files reference their keys as `${VAR}`, the values
+stay in `~/.zshalias`, and `hooks/pre-commit` refuses a commit that stages a
+database, a session directory, a private key or a token-shaped line.
 
 ## License
 
