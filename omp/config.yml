@@ -1,5 +1,5 @@
-providers: 
-  webSearchOrder: 
+providers:
+  webSearchOrder:
     - exa
     - perplexity
     - gemini
@@ -24,34 +24,46 @@ providers:
     - mojeek
     - public
   autoThinkingMaxEffort: xhigh
-  openai-codex: 
+  openai-codex:
     codeMode: "on"
 symbolPreset: nerd
-theme: 
+theme:
   dark: dark-catppuccin
 setupVersion: 2
-modelRoles: 
-  sol: openai-codex/gpt-5.6-sol:high
-  opus: anthropic/claude-opus-5:medium
-  deepseek: deepseek/deepseek-v4-flash-vision-exp
-  commit: anthropic/claude-haiku-4-5
-  tiny: deepseek/deepseek-v4-flash-vision-exp
-  advisor: deepseek/deepseek-v4-flash-vision-exp
-  slow: deepseek/deepseek-v4-pro
-  agents: deepseek/deepseek-v4-flash-vision-exp
-  smol: anthropic/claude-sonnet-5:medium
+modelRoles:
+  sol-med: openai-codex/gpt-5.6-sol:medium
+  sol-high: openai-codex/gpt-5.6-sol:high
+  terra-med: openai-codex/gpt-5.6-terra:medium
+  terra-high: openai-codex/gpt-5.6-terra:high
+  luna-med: openai-codex/gpt-5.6-luna:medium
+  luna-high: openai-codex/gpt-5.6-luna:high
+  DS-V4-flash-high: deepseek/deepseek-v4-flash-vision-exp:high
+  fable-med: anthropic/claude-fable-5-1:medium
+  opus-med: anthropic/claude-opus-5:medium
+  default: openai-codex/gpt-5.6-sol:medium
+  plan: openai-codex/gpt-5.6-sol:high
+  slow: openai-codex/gpt-5.6-sol:high
+  task: openai-codex/gpt-5.6-terra:medium
+  review: openai-codex/gpt-5.6-sol:high
+  designer: openai-codex/gpt-5.6-terra:medium
+  vision: openai-codex/gpt-5.6-sol:medium
+  smol: openai-codex/gpt-5.6-luna:medium
+  agents: openai-codex/gpt-5.6-luna:medium
+  tiny: openai-codex/gpt-5.6-luna:low
+  advisor: openai-codex/gpt-5.6-luna:medium
+  commit: openai-codex/gpt-5.6-luna:low
   ox: openrouter/stealth/ox-alpha:high
 colorBlindMode: false
-statusLine: 
+statusLine:
   preset: nerd
   separator: powerline-thin
   contextLine: embedded
   transparent: true
   compactThinkingLevel: false
   showHookStatus: true
-terminal: 
+terminal:
   showProgress: true
-tui: 
+tui:
   textSizing: true
   resizeScrollback: preserve
   codexResetFireworks: true
@@ -59,45 +71,37 @@ tui:
   tight: true
   imeSafeCursor: true
 defaultThinkingLevel: low
-autolearn: 
+autolearn:
   enabled: true
   autoContinue: true
-memory: 
+memory:
   backend: local
-plan: 
+plan:
   enabled: true
   defaultOnStartup: false
-advisor: 
+advisor:
   enabled: true
   syncBacklog: "1"
   immuneTurns: 1
-task: 
-  agentModelOverrides: 
-    task: "@agents"
-    sonic: "@agents"
+task:
+  agentModelOverrides:
+    task: "@task"
+    designer: "@designer"
+    reviewer: "@review"
+    security-reviewer: "@review"
     scout: "@agents"
-    librarian: "@agents"
-    reviewer: "@agents"
-    security-reviewer: "@agents"
-    designer: "@agents"
-    explainer: "@agents"
-    code-simplifier: "@agents"
-    agent-creator: "@agents"
-    plugin-validator: "@agents"
-    skill-reviewer: "@agents"
-    cavecrew-builder: "@agents"
-    cavecrew-investigator: "@agents"
-    cavecrew-reviewer: "@agents"
-    Company Researcher: "@agents"
-  agentAdvisor: 
+    sonic: "@agents"
+    librarian: "@smol"
+    explainer: "@smol"
+  agentAdvisor:
     task: "on"
   showResolvedModelBadge: true
   eager: default
   enableLsp: true
   maxRuntimeMs: 0
   prewalk: false
-bash: 
-  patterns: 
+bash:
+  patterns:
     - match: "*tmux-run*"
       approval: deny
     - match: tmux *
@@ -166,37 +170,44 @@ bash:
       approval: prompt
     - match: "*supabase db reset*"
       approval: prompt
-cycleOrder: 
-  - sol
-  - opus
-  - deepseek
+cycleOrder:
+  - sol-med
+  - sol-high
+  - terra-med
+  - terra-high
+  - luna-med
+  - luna-high
+  - DS-V4-flash-high
+  - fable-med
+  - opus-med
 hideThinkingBlock: true
-composer: 
-  shape: claude
-display: 
+composer:
+  shape: pi
+display:
   shimmer: kitt
   showTokenUsage: true
   cacheMissMarker: true
+  hideToolActivity: false
 externalThinking: false
 treeFilterMode: default
-tools: 
+tools:
   approvalMode: yolo
 autoResume: true
-startup: 
+startup:
   showSplash: true
-update: 
+update:
   channel: stable
-branchSummary: 
+branchSummary:
   enabled: true
-edit: 
+edit:
   mode: hashline
 readLineNumbers: false
-read: 
+read:
   renderMarkdown: true
   toolResultPreview: true
-disabledProviders: 
+disabledProviders:
   - claude-plugins
-disabledExtensions: 
+disabledExtensions:
   - skill:vercel-react-best-practices
   - skill:apex
   - skill:datagouv-apis
@@ -215,3 +226,5 @@ disabledExtensions:
   - skill:prospection-gws
   - skill:react-doctor
   - skill:react-effect-refactor
+dev:
+  autoqaConsent: granted
