@@ -37,9 +37,7 @@ modelRoles:
   terra-high: openai-codex/gpt-5.6-terra:high
   luna-med: openai-codex/gpt-5.6-luna:medium
   luna-high: openai-codex/gpt-5.6-luna:high
-  DS-V4-flash-high: deepseek/deepseek-v4-flash-vision-exp:high
   fable-med: anthropic/claude-fable-5-1:medium
-  opus-med: anthropic/claude-opus-5:medium
   default: openai-codex/gpt-5.6-sol:medium
   plan: openai-codex/gpt-5.6-sol:high
   slow: openai-codex/gpt-5.6-sol:high
@@ -53,6 +51,8 @@ modelRoles:
   advisor: openai-codex/gpt-5.6-luna:medium
   commit: openai-codex/gpt-5.6-luna:low
   ox: openrouter/stealth/ox-alpha:high
+  DS-V4-flash-high: deepseek/deepseek-v4-flash-vision-exp:high
+  opus-med: anthropic/claude-opus-5:medium
 colorBlindMode: false
 statusLine:
   preset: nerd
@@ -177,9 +177,7 @@ cycleOrder:
   - terra-high
   - luna-med
   - luna-high
-  - DS-V4-flash-high
   - fable-med
-  - opus-med
 hideThinkingBlock: true
 composer:
   shape: pi
