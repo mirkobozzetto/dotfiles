@@ -13,6 +13,7 @@ None of that belongs in a repository.
 | `mcp.json` | `~/.omp/agent/mcp.json` |
 | `extensions/models.ts` | `~/.omp/agent/extensions/models.ts` |
 | `extensions/pane-run.ts` | `~/.omp/agent/extensions/pane-run.ts` |
+| `extensions/nvim-follow.ts` | `~/.omp/agent/extensions/nvim-follow.ts` |
 
 ## Install
 
@@ -67,6 +68,39 @@ omp reads its settings once, at startup, and exposes no reload hook, so a change
 applies to the next session, not the running one.
 
 `extensions/pane-run.ts` routes the agent's shell commands to a visible pane.
+
+### Live Neovim viewer
+
+In a **new OMP session inside Herdr**, run `/nvim-follow on`. It opens a
+Neovim pane to the right of the chat, rooted in the session directory, without
+requesting focus. `/nvim-follow off` stops following without closing Neovim;
+`/nvim-follow on` reuses the live viewer. `/nvim-follow status` reports its
+pane, socket, and last result. Nothing starts automatically at OMP startup.
+
+The viewer uses the existing Neovim configuration and buffer bar, but disables
+file writes, swap files, and persistence for that instance. Modified buffers
+are never forcibly reloaded. `:OmpFollowPause` toggles display updates. Changes
+skipped while paused or while a buffer is modified are not replayed. The usual
+five-buffer limit from this Neovim configuration still applies.
+Automatic follow updates suppress documentation popups until real keyboard or
+mouse input reaches Neovim. Returning to OMP closes the popup and prevents
+idle-cursor hovers from reopening it.
+
+Successful write/edit tool results provide paths, including calls through Eval.
+A recursive filesystem watcher also catches shell writes and atomic saves
+while the agent is working. It cannot attribute concurrent writes from other
+processes in the same directory: those can also appear. Read-only commands and
+program output remain in the terminal. Binary files, files over 1 MiB, common
+build/dependency directories, temporary files, and paths outside the project
+are skipped. Closing Neovim disables following on the next failed delivery
+without aborting the agent. This viewer is not an accept/reject diff interface.
+
+Verified on macOS with OMP 18.1.14, Herdr 0.8.2, and Neovim 0.12.5 using
+GPT through `openai-codex`: sequential writes, anchored edits via Eval, shell
+creation and atomic replacement, buffer protection, pause, and path quoting.
+The integration does not call a model API and does not depend on the provider.
+For a controlled demonstration only, `OMP_NVIM_PARENT_PANE` can target another
+Herdr pane instead of the launching OMP pane.
 
 ## Notes
 

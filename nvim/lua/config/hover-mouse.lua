@@ -13,6 +13,7 @@ local float_win = nil
 local derniere_pos = nil
 
 local actif = true
+local passive = true
 
 -- Escape closes it, but moves neither cursor nor mouse: CursorHold re-arms
 -- and reopens the same popup a second later. We remember the rejected spot
@@ -72,15 +73,24 @@ local function fermer_tout()
   return ferme
 end
 
+-- Remote navigation is not user intent to open documentation.
+function M.suspend_until_input()
+  passive = true
+  fermer_tout()
+end
+
 -- ancrage = "mouse" (mouse hover) or "cursor" (cursor at rest)
 local function afficher(buf, ligne, colonne, ancrage)
+  if passive then
+    return
+  end
   local params = {
     textDocument = { uri = vim.uri_from_bufnr(buf) },
     position = { line = ligne, character = colonne },
   }
 
   vim.lsp.buf_request(buf, "textDocument/hover", params, function(err, result)
-    if err or not result or not result.contents then
+    if passive or err or not result or not result.contents then
       return
     end
     local lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
@@ -265,6 +275,15 @@ end
 
 function M.setup()
   vim.o.mousemoveevent = true
+  vim.on_key(function(_, typed)
+    if typed and typed ~= "" then
+      passive = false
+    end
+  end, vim.api.nvim_create_namespace("hover-mouse-input"))
+  vim.api.nvim_create_autocmd("FocusLost", {
+    group = vim.api.nvim_create_augroup("hover-mouse-focus", { clear = true }),
+    callback = M.suspend_until_input,
+  })
   vim.keymap.set({ "n", "i" }, "<MouseMove>", function()
     M.au_survol()
     return "<Ignore>"
