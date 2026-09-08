@@ -90,7 +90,10 @@ Successful write/edit tool results provide paths, including calls through Eval.
 A recursive filesystem watcher also catches shell writes and atomic saves
 while the agent is working. It cannot attribute concurrent writes from other
 processes in the same directory: those can also appear. Read-only commands and
-program output remain in the terminal. Binary files, files over 1 MiB, common
+program output remain in the terminal. Structured edit results jump to the first
+changed line, highlight added lines, and render removed lines virtually for five
+seconds. Plain writes still follow the changed file without fabricating a diff.
+Binary files, files over 1 MiB, common
 build/dependency directories, temporary files, and paths outside the project
 are skipped. Closing Neovim disables following on the next failed delivery
 without aborting the agent. This viewer is not an accept/reject diff interface.

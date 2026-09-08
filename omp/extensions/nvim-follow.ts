@@ -6,6 +6,7 @@ import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
 
 const MAX_FILE_BYTES = 1024 * 1024;
 const IGNORED: Record<string, true> = { ".git": true, node_modules: true, ".venv": true, venv: true, target: true, dist: true, build: true, ".next": true, __pycache__: true };
+const HIGHLIGHT_MS = 5000;
 const LUA = String.raw`
 local root = vim.uv.fs_realpath(vim.fn.getcwd())
 vim.g.omp_follow_events = {}
@@ -19,6 +20,44 @@ vim.opt.write = false
 vim.opt.swapfile = false
 pcall(function() require('persistence').stop() end)
 pcall(function() require("config.hover-mouse").suspend_until_input() end)
+local diff_ns = vim.api.nvim_create_namespace("omp-follow-diff")
+local clear_timer = nil
+local decorated_buf = nil
+vim.api.nvim_set_hl(0, "OmpFollowAdd", { link = "DiffAdd" })
+vim.api.nvim_set_hl(0, "OmpFollowDelete", { link = "DiffDelete" })
+local function decorate(buf, diff)
+  if clear_timer then clear_timer:stop() end
+  if decorated_buf and vim.api.nvim_buf_is_valid(decorated_buf) then
+    vim.api.nvim_buf_clear_namespace(decorated_buf, diff_ns, 0, -1)
+  end
+  decorated_buf = buf
+  vim.api.nvim_buf_clear_namespace(buf, diff_ns, 0, -1)
+  if not diff or diff == "" then return end
+  local deleted = {}
+  local last_line = math.max(0, vim.api.nvim_buf_line_count(buf) - 1)
+  local anchor = nil
+  for row in diff:gmatch("[^\n]+") do
+    local kind, number, text = row:match("^([+-])(%d+)|(.*)$")
+    if kind == "+" then
+      local line = math.max(0, tonumber(number) - 1)
+      vim.api.nvim_buf_set_extmark(buf, diff_ns, line, 0, {
+        line_hl_group = "OmpFollowAdd", sign_text = "+", sign_hl_group = "DiffAdd",
+      })
+      anchor = anchor or line
+    elseif kind == "-" then
+      anchor = anchor or math.min(last_line, math.max(0, tonumber(number) - 1))
+      table.insert(deleted, {{"- " .. text, "DiffDelete"}})
+    end
+  end
+  if #deleted > 0 then
+    vim.api.nvim_buf_set_extmark(buf, diff_ns, anchor or 0, 0, {
+      virt_lines = deleted, virt_lines_above = true, sign_text = "-", sign_hl_group = "DiffDelete",
+    })
+  end
+  clear_timer = vim.defer_fn(function()
+    if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_clear_namespace(buf, diff_ns, 0, -1) end
+  end, ${HIGHLIGHT_MS})
+end
 vim.api.nvim_create_user_command('OmpFollowPause', function()
   vim.g.omp_follow_paused = not vim.g.omp_follow_paused
   print('OMP follow paused: ' .. tostring(vim.g.omp_follow_paused))
@@ -40,8 +79,9 @@ function OmpFollow(encoded)
   local line = math.max(1, math.min(data.line or 1, vim.api.nvim_buf_line_count(buf)))
   vim.api.nvim_win_set_cursor(0, {line, 0})
   vim.cmd('normal! zz')
+  decorate(buf, data.diff)
   local events = vim.g.omp_follow_events
-  table.insert(events, {path = file, line = line, preview = vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]:sub(1, 120)})
+  table.insert(events, {path = file, line = line, diff = data.diff, extmarks = #vim.api.nvim_buf_get_extmarks(buf, diff_ns, 0, -1, {}), preview = vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]:sub(1, 120)})
   if #events > 100 then table.remove(events, 1) end
   vim.g.omp_follow_events = events
   return 'shown'
@@ -57,6 +97,25 @@ async function run(args: string[], cwd?: string): Promise<string> {
     return stdout.trim();
   } finally { clearTimeout(timer); }
 }
+type ChangeDetails = { resolvedPath?: string; path?: string; firstChangedLine?: number; diff?: string };
+function changeDetails(event: { toolName: string; details?: unknown; content?: Array<{ type: string; text?: string }> }): ChangeDetails | undefined {
+  if (["write", "edit", "ast_edit"].includes(event.toolName)) return event.details as ChangeDetails | undefined;
+  if (event.toolName !== "eval") return;
+  const find = (value: unknown): ChangeDetails | undefined => {
+    if (!value || typeof value !== "object") return;
+    const object = value as Record<string, unknown>;
+    if (typeof object.diff === "string" && (typeof object.path === "string" || typeof object.resolvedPath === "string")) return object as ChangeDetails;
+    for (const child of Object.values(object)) { const found = find(child); if (found) return found; }
+  };
+  const nested = find(event.details);
+  if (nested) return nested;
+  for (const item of event.content ?? []) {
+    if (item.type !== "text" || !item.text) continue;
+    for (const part of item.text.replace(/^display\[\d+\]:\n/, "").split(/\ndisplay\[\d+\]:\n/)) {
+      try { const found = find(JSON.parse(part)); if (found) return found; } catch { /* Non-JSON Eval output cannot carry structured edit details. */ }
+    }
+  }
+}
 
 export default function nvimFollow(pi: ExtensionAPI) {
   let root = "";
@@ -66,7 +125,7 @@ export default function nvimFollow(pi: ExtensionAPI) {
   let working = false;
   let timer: NodeJS.Timeout | undefined;
   let draining: Promise<void> | undefined;
-  const pending = new Map<string, number>();
+  const pending = new Map<string, { line: number; diff?: string }>();
   const shown = new Map<string, string>();
   let lastError = "";
   let lastResult = "";
@@ -76,13 +135,12 @@ export default function nvimFollow(pi: ExtensionAPI) {
     clearTimeout(timer);
     pending.clear();
   }
-  function queue(file: string, line = 1) {
+  function queue(file: string, line = 1, diff?: string) {
     if (!watcher) return;
     const absolute = resolve(root, file);
-    const rel = relative(root, absolute);
-    if (!rel || rel.startsWith("..") || isAbsolute(rel) || rel.split(/[\\/]/).some(part => Object.hasOwn(IGNORED, part))) return;
-    if (/\.(swp|swo|tmp|log)$/.test(rel) || rel.endsWith("~")) return;
-    pending.set(absolute, line);
+    if (/\.(swp|swo|tmp|log)$/.test(absolute) || absolute.endsWith("~")) return;
+    const previous = pending.get(absolute);
+    pending.set(absolute, diff ? { line, diff } : previous ?? { line });
     clearTimeout(timer);
     timer = setTimeout(() => { void flush(); }, 180);
   }
@@ -90,18 +148,20 @@ export default function nvimFollow(pi: ExtensionAPI) {
     if (draining) { await draining; if (pending.size) return flush(); return; }
     draining = (async () => {
       while (watcher && pending.size) {
-        const [file, line] = pending.entries().next().value!;
+        const [file, change] = pending.entries().next().value!;
         pending.delete(file);
         try {
           const canonical = await realpath(file);
+          const rel = relative(root, canonical);
+          if (!rel || rel.startsWith("..") || isAbsolute(rel) || rel.split(/[\\/]/).some(part => Object.hasOwn(IGNORED, part))) continue;
           if (!canonical.startsWith(root + "/")) continue;
           const info = await stat(canonical);
           if (!info.isFile() || info.size > MAX_FILE_BYTES) continue;
           const bytes = await readFile(canonical);
           if (bytes.includes(0)) continue;
           const hash = new Bun.CryptoHasher("sha256").update(bytes).digest("hex");
-          if (shown.get(canonical) === hash) continue;
-          const payload = JSON.stringify({ path: canonical, line });
+          if (!change.diff && shown.get(canonical) === hash) continue;
+          const payload = JSON.stringify({ path: canonical, line: change.line, diff: change.diff });
           const expr = `luaeval('OmpFollow(_A)', '${payload.replaceAll("'", "''")}')`;
           lastResult = await run(["nvim", "--headless", "--clean", "-i", "NONE", "--server", socket, "--remote-expr", expr]);
           if (lastResult === "shown") shown.set(canonical, hash);
@@ -163,10 +223,11 @@ export default function nvimFollow(pi: ExtensionAPI) {
   pi.on("agent_start", () => { working = true; });
   pi.on("agent_end", async () => { working = false; clearTimeout(timer); await flush(); });
   pi.on("tool_result", event => {
-    if (!watcher || event.isError || !["write", "edit", "ast_edit"].includes(event.toolName)) return;
-    const details = event.details as { resolvedPath?: string; path?: string; firstChangedLine?: number } | undefined;
-    if (details?.resolvedPath) queue(details.resolvedPath);
-    if (details?.path) queue(details.path, details.firstChangedLine);
+    if (!watcher || event.isError) return;
+    const details = changeDetails(event);
+    if (!details) return;
+    if (details.resolvedPath) queue(details.resolvedPath);
+    if (details?.path) queue(details.path, details.firstChangedLine, details.diff);
   });
   pi.on("session_shutdown", stop);
 }
