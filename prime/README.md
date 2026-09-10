@@ -138,9 +138,9 @@ OMP's full runtime or automatic delegation mode. No external workers, RTK,
 Ponytail, or nested orchestration are installed. While Arsenal is ON, its solo
 rule takes precedence over the general delegation preference.
 
-Included routes: `arsenal`, `brief`, `propose`, `issue`, `next`, and `trace`.
-The existing personal `websearch` is reused when present. Ship and Arsenal's
-specialized agents are intentionally not ported. Missing capabilities are
+Included routes: `arsenal`, `brief`, `propose`, `issue`, `next`, `trace`, and `ship`.
+The existing personal `websearch` is reused when present. Ship is available for implementation and verification. Arsenal's
+specialized agents are not yet enabled. Missing capabilities are
 reported; public actions and proposal acceptance retain their approval gates.
 
 The skills are adapted from my Arsenal plugin sources (`plugins/arsenal`, `brief`, `propose`,

@@ -33,7 +33,7 @@ These routes express intent, not a required sequence or proof of installation:
 |---|---|
 | Product outcome, audience or scope needs a durable specification | brief |
 | Consequential technical choice remains unresolved | propose |
-| Clear implementation request or approved implementation artifact | ship (unavailable in this phase; state the gap and offer native implementation only after approval) |
+| Clear implementation request or approved implementation artifact | ship |
 | External facts are needed to answer the current question | websearch |
 | Save, update, read or resume a specific GitHub issue | issue |
 | Discover unfinished work | next |

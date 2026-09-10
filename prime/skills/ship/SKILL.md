@@ -1,0 +1,83 @@
+---
+name: ship
+description: Implement a clear request or an approved brief/proposal. Work solo, make the smallest sufficient change, verify the changed behavior, and stop. Ask before any delegation.
+argument-hint: "<request or spec> [-r] [--tasks ids] [--commit] [--yolo]"
+---
+
+# Ship
+
+Own the result, not a ceremony. A clear request is sufficient authorization
+for its reversible, in-scope implementation. Do not ask whether to start.
+Do not turn a small fix into a brief, proposal, interview, or document bundle.
+
+## Execution policy
+
+- Work solo. Ask before every proposed delegation, including reviews. State
+  the independent scope and expected benefit. Auto mode never grants consent.
+- Use the active model and configured routing. Do not inspect or tune models
+  during an unrelated task. No hidden advisor or nested delegation.
+- Read the relevant existing code, fix the cause, run the smallest meaningful
+  behavioral check, and deliver. Reuse current evidence until code or inputs
+  relevant to that evidence change. No routine full-file read-back.
+- Keep backups and explicit approval for live data, destructive operations,
+  publication, and deployment. A build target may install or deploy; inspect
+  its actual effects instead of trusting its name.
+- Stop on user interruption. A completed task is not reopened by a reminder.
+
+Efficiency plugins such as Espresso are optional. Their automatic mode does
+not waive Ship's per-delegation consent, solo mode, specialist/model choices,
+artifact gates, verification or commit rules. Do not add a parallel team or
+reviewer. Without the plugin, Ship behaves unchanged.
+
+## Choose the shortest sufficient path
+
+**Clear request:** identify the target and success condition from the request
+and existing code. Ask only for a missing decision that materially changes the
+result. Implement directly; no mandatory artifact files or step-by-step gates.
+
+**Approved spec:** read the exact artifact once. Brief requires `ready`;
+proposal requires explicit `Accepted`. Honor scope, dependencies, acceptance
+criteria and non-goals. A shipped marker means done, not another run.
+
+**Long or resumed work:** load `steps/step-00-init.md` and maintain one
+per-run `trace.md`. Existing contract/bundle files remain readable but are
+not mandatory new outputs. Record completed units immediately. Native todo
+is a projection of progress, not another authority to arbitrate against it.
+
+## Commands and verification
+
+One owner runs commands on a shared workspace/toolchain. Do not start a
+second compiler while the first exists. A timeout is not process termination.
+Use the existing BashHandle or native child registry before any retry.
+
+- Prose/prompts/simple configuration: successful edits suffice unless a check
+  was requested. Do not start model sessions, validators, or builds for them.
+- Code: reproduce the relevant behavior and verify the fix. Use an existing
+  targeted check or disposable smoke scenario. Ask before permanent new tests.
+- Data migration: keep the backup and real-copy verification; do not replace
+  them with a read-only reviewer saying PASS.
+- Prime uses its native Python REPL and BashHandle for commands. Inspect the
+  completed handle, logs, and actual output; no `verification:true`,
+  `arsenal_status`, or `arsenal_finish` controller is installed.
+- Respect the active Prime Normal/Plan mode and runtime permissions. Plan
+  allows analysis only, not implementation or external mutation. It is a
+  behavioral guard, not a sandbox; never claim commands were sandboxed.
+
+## Optional branches
+
+Load only when needed:
+- `steps/step-01-ingest.md`: artifact formats and task filtering.
+- `steps/step-02-plan.md`: complex dependencies and optional green commits.
+- `steps/step-03-engine.md`: user-approved delegation.
+- `references/guardrails.md`: hazardous operations.
+- `steps/step-06-finish.md`: durable status and requested Git delivery.
+
+Flags: `-a/--auto` suppresses redundant questions, not safety/agent consent;
+`-e/--economy` and `-m solo` retain solo; another `-m` requests a mode,
+not a permission bypass. `--tasks` scopes to named spec tasks and completed
+dependencies. `-r` resumes. `--commit` requests progressive green commits;
+`--no-commit` keeps them off. `--yolo` requests relevant safe checks, never
+live-data edits, deployment or a full suite unrelated to the change.
+
+Final response: result, exact proof, material limitation. No automatic PR
+offer after the user deferred it, no required HTML, no next-work expansion.
