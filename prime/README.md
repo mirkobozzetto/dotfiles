@@ -198,15 +198,36 @@ has been live-tested.
 
 ## GitNexus
 
-The MCP entry exposes `list_repos`, `query`, `context`, `impact`,
-`detect_changes`, and `cypher`; coordinated `rename` is not exposed. The
-context skill recommends existing indexes for substantial code exploration,
-debugging, and impact analysis, and skips unnecessary work on small tasks.
+Prime uses GitNexus proactively for substantive code exploration, debugging,
+call-flow and impact analysis. No user reminder is needed. Existing relevant
+indexes are refreshed on demand with `gitnexus analyze --index-only`, without
+routine approval or generated instruction changes. There is no watcher,
+recurring service, automatic wiki generation, or upload. First-time indexing
+still needs approval; Plan remains read-only.
 
-No automatic indexing, cleanup, wiki generation, or publication is configured.
-Indexes remain local to their projects and are not included. Check freshness
-and corroborate results in source; a graph is not proof of current behavior.
-MCP tool filtering is not a security sandbox.
+The agent verifies freshness, checks refresh results, retrieves graph context,
+and corroborates it against current source and tests. Partial results are
+reported, not treated as proof of safety. This is an instruction-driven workflow,
+not an enforced tool hook or a guarantee that every task invokes GitNexus.
+
+Verification: `dotfiles` was rebuilt in index-only mode. Native MCP search
+returned the Prime delegation symbols and context resolved `select_model` at
+the correct source location. The previous partial FTS error disappeared. The
+analyzer still reports unsupported cross-language field links; source checks
+remain necessary for those cases.
+
+## Exa
+
+The native HTTP MCP connection references `EXA_API_KEY`; no secret is included.
+Export that variable before starting Prime. Six tools are exposed: web search,
+advanced search, page fetching, legacy crawling, code context, and deep search.
+Search and page fetching were verified through Prime's native MCP connection;
+advanced search, crawling, and code context passed SDK MCP calls. Deep search
+was discovered but not executed. Reload Prime after adding the connection.
+
+The shared personal websearch skill discovers tools and prefers `web_fetch_exa`,
+with `crawling_exa` as a compatibility fallback. That personal skill is not
+vendored in this snapshot.
 
 ## Layout
 

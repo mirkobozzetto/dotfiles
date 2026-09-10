@@ -31,6 +31,13 @@
         "detect_changes",
         "cypher"
       ]
+    },
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa%2Cweb_fetch_exa%2Ccrawling_exa%2Cweb_search_advanced_exa%2Cget_code_context_exa%2Cdeep_search_exa",
+      "bearerTokenEnvVar": "EXA_API_KEY",
+      "startupTimeoutMs": 20000,
+      "callTimeoutMs": 60000
     }
   }
 }

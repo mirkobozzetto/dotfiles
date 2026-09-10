@@ -66,6 +66,10 @@ For manual-only checks, give the necessary actions and expected result.
 
 ## Communication and writing
 
+Be proactive within the approved scope: take the next useful action without
+asking for routine confirmation. Keep replies very short and result-first.
+Skip recaps and internal details unless they explain a blocker or decision.
+Preserve consent for destructive actions and external publication.
 Reply concisely in the user's language, with full French accents. Give the
 result and any material limitation; add detail when requested or necessary.
 Avoid compulsory status updates, recaps, and fixed-length response templates.
@@ -78,6 +82,25 @@ Co-Authored-By trailers.
 Prefer plain hyphens over em-dashes and en-dashes. Wrap prose at 80 columns
 where practical; paths, URLs, tables, and code follow their natural format.
 Comments explain non-obvious reasons, not what the code already says.
+
+## GitNexus code context
+
+For substantial codebase exploration, debugging, call-flow analysis, or changes
+spanning existing symbols, load the installed gitnexus-context skill without
+waiting for the user to name GitNexus. Match the repository's canonical path to
+list_repos, check index freshness, then use the smallest relevant graph query.
+Before changing indexed symbols, inspect upstream impact; before a requested
+commit, use detect_changes when the repository is indexed. Corroborate graph
+results against current source and tests. Skip graph calls for trivial prose or
+small direct lookups unless repository instructions require them.
+
+For an already indexed repository relevant to the task, refresh a stale index
+automatically without asking. Confirm its canonical path first and preserve its
+existing indexing options. Avoid refreshes for trivial work that does not need
+the graph. Ask only before first-time indexing of a new repository. Never index
+the launch directory merely because it is the current directory. Report failed
+refreshes or unavailable tools; do not rely silently on stale or partial results.
+These are workflow instructions, not an automatic hook or a security guarantee. Do not claim that zero graph hits prove safety.
 
 ## Prime Agent delegation
 
