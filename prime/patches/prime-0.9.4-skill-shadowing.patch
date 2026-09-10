@@ -1,0 +1,38 @@
+--- a/dist/core/resource-loader.js
++++ b/dist/core/resource-loader.js
+@@ -376,7 +376,15 @@
+                 skill.sourceInfo ??
+                 this.getDefaultSourceInfoForPath(skill.filePath),
+         }));
+-        this.skillDiagnostics = resolvedSkills.diagnostics;
++        this.skillDiagnostics = resolvedSkills.diagnostics.filter((diagnostic) => {
++            const collision = diagnostic.collision;
++            if (diagnostic.type !== "collision" || collision?.resourceType !== "skill") return true;
++            const winner = this.findSourceInfoForPath(collision.winnerPath, this.extensionSkillSourceInfos, metadataByPath);
++            const loser = this.findSourceInfoForPath(collision.loserPath, this.extensionSkillSourceInfos, metadataByPath);
++            // Automatic project overrides are precedence, not same-scope conflicts.
++            return !(winner?.source === "auto" && winner.scope === "project" &&
++                loser?.source === "auto" && loser.scope === "user");
++        });
+     }
+     updatePromptsFromPaths(promptPaths, metadataByPath) {
+         let promptsResult;
+--- a/dist/bundle/chunk-AQLIARII.js
++++ b/dist/bundle/chunk-AQLIARII.js
+@@ -22779,7 +22779,15 @@
+       ...skill,
+       sourceInfo: this.findSourceInfoForPath(skill.filePath, this.extensionSkillSourceInfos, metadataByPath) ?? skill.sourceInfo ?? this.getDefaultSourceInfoForPath(skill.filePath)
+     }));
+-    this.skillDiagnostics = resolvedSkills.diagnostics;
++    this.skillDiagnostics = resolvedSkills.diagnostics.filter((diagnostic) => {
++        const collision = diagnostic.collision;
++        if (diagnostic.type !== "collision" || collision?.resourceType !== "skill") return true;
++        const winner = this.findSourceInfoForPath(collision.winnerPath, this.extensionSkillSourceInfos, metadataByPath);
++        const loser = this.findSourceInfoForPath(collision.loserPath, this.extensionSkillSourceInfos, metadataByPath);
++        // Automatic project overrides are precedence, not same-scope conflicts.
++        return !(winner?.source === "auto" && winner.scope === "project" &&
++            loser?.source === "auto" && loser.scope === "user");
++    });
+   }
+   updatePromptsFromPaths(promptPaths, metadataByPath) {
+     let promptsResult;

@@ -77,6 +77,10 @@ For manual-only checks, give the necessary actions and expected result.
 
 Be proactive within the approved scope: take the next useful action without
 asking for routine confirmation. Keep replies very short and result-first.
+Never announce an action without starting it in the same turn. Do not end a turn
+with only a promise of future work. If execution is blocked, state the blocker
+instead. Distinguish planned, started, and completed actions; never imply that
+an announced action has already been performed.
 Skip recaps and internal details unless they explain a blocker or decision.
 Preserve consent for destructive actions and external publication.
 Reply concisely in the user's language, with full French accents. Give the

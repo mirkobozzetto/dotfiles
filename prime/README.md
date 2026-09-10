@@ -146,6 +146,23 @@ control diagnostics may use direct shell calls; Python reads and edits remain
 in Prime's transcript. Stopping the relay does not prove the pane command has
 stopped: inspect the reported pane before retrying or interrupting owned work.
 
+## Project skill precedence
+
+Optional `patches/prime-0.9.4-skill-shadowing.patch` treats an automatically
+loaded project skill overriding an automatically loaded user skill as normal
+precedence, not a conflict warning. Selection order is unchanged. Same-scope
+collisions, explicitly configured collisions, and validation errors still show.
+No project or shared skill is deleted. This applies globally, not just FlowFlow.
+
+Back up the target files and apply from the installed Prime 0.9.4 package root
+with `patch -p1 < /path/to/prime-0.9.4-skill-shadowing.patch`. Package updates
+can overwrite it. A fresh Prime worker loads the patched loader; `/reload`
+alone cannot replace already imported JavaScript in an existing worker.
+
+Prime uses its three mode/profile extensions and the visible-command routing
+skill. It does not import OMP or Claude hook configurations automatically.
+Herdr shell routing remains instruction-driven, not native bash interception.
+
 ## Work modes
 
 - `/plan`: analyze, read, research, and propose without modifying user files
