@@ -149,12 +149,16 @@ and role JSON shapes. It does not spawn: use native `rlm(...)` directly. Consent
 and concurrency are caller inputs, not runtime enforcement. Read-only contracts
 are not tool isolation. Follow `skills/arsenal/references/adapters/delegation.md`.
 
-Verification: local checks exercised all four model mappings, unavailable/solo/
-consent/count guards and JSON result contracts; native Prime loaded the skills
-and extensions without diagnostics. Historical live evidence proves Astra Low
--> Sol Low only. The newly integrated role workflows have NOT been live-tested:
-the configuring session still carried its old higher-priority Phase 1 solo rule.
-Reload before approved live checks. Do not treat local checks as live proof.
+Verification: local checks exercised the four model mappings and JSON contracts;
+native Prime loaded the skills and extensions without diagnostics. Five bounded
+read-only live tests then exercised the three Arsenal roles and two Espresso
+researchers. Child session records confirmed openai-codex Sol Low from an Astra
+Low parent, with no explicit thinking override. All five JSON responses passed
+the installed validator. Observed tool calls were limited to reads and parent
+messages; the parent stayed Astra Low and OMP was not accessed. This proves
+these scenarios, not every model/effort pair or hard permission enforcement.
+New sessions load the installed instructions; resumed sessions can retain older
+context and may need a reload before using updated behavior.
 
 The skills are adapted from my Arsenal plugin sources (`plugins/arsenal`, `brief`, `propose`,
 `issue`, `next`, and `trace`).
