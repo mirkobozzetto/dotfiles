@@ -127,6 +127,25 @@ Verification: the installed fullscreen renderer passed top/middle/follow and
 narrow-width checks; the CLI bundle passed syntax checking. Visual confirmation
 in a reattached terminal remains a separate manual check.
 
+## Visible Herdr commands
+
+Inside Herdr, Prime's routing instructions send ordinary shell commands through
+`bin/herdr-run` using native nonblocking `bash()` handles. The helper reuses a
+reserved idle `Prime commands` tab or creates one without changing focus. It
+preserves the requested cwd and returns combined output plus the real exit code.
+Outside Herdr, commands run locally. OMP and Claude helpers are unchanged.
+
+Private command scripts, output, exit codes and pane IDs remain under
+`~/.prime/agent/commands/`; the tab also keeps its visible transcript. No automatic
+history deletion is configured. Do not publish these logs: command output may
+contain sensitive data. The destination pane supplies the environment; REPL-only
+environment overrides do not propagate automatically.
+
+This is instruction-based routing, not a native interception hook. Herdr
+control diagnostics may use direct shell calls; Python reads and edits remain
+in Prime's transcript. Stopping the relay does not prove the pane command has
+stopped: inspect the reported pane before retrying or interrupting owned work.
+
 ## Work modes
 
 - `/plan`: analyze, read, research, and propose without modifying user files

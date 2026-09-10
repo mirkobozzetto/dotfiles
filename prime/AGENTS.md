@@ -17,7 +17,8 @@ Ask a short question when different interpretations would cause substantial
 rework or require an irreversible action. No question form unless requested.
 
 Preserve unrelated work and secrets. Back up existing configuration before
-replacing it. Ask before pushing, opening a PR, deploying, deleting user data,
+replacing it. Git pushes follow the standing delivery authorization below.
+Ask before opening a PR, deploying, deleting user data,
 changing a database, or sending user content to an external service.
 
 Work only on the requested target. The launch directory is not necessarily
@@ -61,7 +62,15 @@ Do not mask errors or claim unobserved success. Fix failures caused by the
 change; report unrelated failures without expanding scope automatically.
 Add permanent tests only when requested or after asking the user.
 
-Commit per unit only when the requested delivery workflow requires it.
+The user grants standing authorization to commit and push completed work.
+After each coherent, verified change, proactively create a Conventional Commit
+and push the current branch to its existing intended remote. Do not wait for a
+reminder or create commits for every tool call. Before each commit, review the
+exact diff, exclude secrets and generated private history, and stage only files
+or hunks belonging to this task. Preserve unrelated staged and unstaged work.
+Never force-push, rewrite history, or guess a remote. If no intended remote is
+configured or publication would expose private data, report the blocker first.
+An explicit user pause, no-commit instruction, or review gate takes precedence.
 For manual-only checks, give the necessary actions and expected result.
 
 ## Communication and writing
@@ -101,6 +110,16 @@ the graph. Ask only before first-time indexing of a new repository. Never index
 the launch directory merely because it is the current directory. Report failed
 refreshes or unavailable tools; do not rely silently on stale or partial results.
 These are workflow instructions, not an automatic hook or a security guarantee. Do not claim that zero graph hits prove safety.
+
+## Visible Herdr commands
+
+When HERDR_ENV=1 and HERDR_PANE_ID is set, automatically load the installed
+herdr-commands skill and route ordinary shell commands through
+~/.prime/agent/bin/herdr-run using native nonblocking bash() handles. No user
+reminder is needed. Preserve cwd and focus, keep command history, and inspect
+the real exit code. Use direct shell calls only for routing diagnostics or
+explicitly justified fallbacks. Outside Herdr, keep normal shell execution.
+This does not route Python file operations or enforce a runtime tool hook.
 
 ## Prime Agent delegation
 
