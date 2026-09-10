@@ -1,0 +1,19 @@
+# Never publish runtime state or authentication.
+auth.json
+credentials*
+*.db
+*.db-*
+sessions/
+session-artifacts/
+memories/
+cache/
+backups/
+kernel-venv/
+*.jsonl
+*.log
+*.bak
+*.backup-*
+.env*
+__pycache__/
+# Root ignores AGENTS.md globally; this reviewed instruction file is intentional.
+!AGENTS.md

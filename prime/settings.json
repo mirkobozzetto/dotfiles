@@ -1,0 +1,36 @@
+{
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-sol",
+  "defaultThinkingLevel": "high",
+  "bundledSkills": {
+    "websearch": false
+  },
+  "skills": [
+    "-skill-creator/SKILL.md"
+  ],
+  "hideThinkingBlock": true,
+  "extensions": [
+    "extensions/model-presets.ts",
+    "extensions/work-modes.ts",
+    "extensions/orchestration-modes.ts"
+  ],
+  "mcpServers": {
+    "gitnexus": {
+      "type": "stdio",
+      "command": "gitnexus",
+      "args": [
+        "mcp"
+      ],
+      "startupTimeoutMs": 20000,
+      "callTimeoutMs": 60000,
+      "enabledTools": [
+        "list_repos",
+        "query",
+        "context",
+        "impact",
+        "detect_changes",
+        "cypher"
+      ]
+    }
+  }
+}

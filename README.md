@@ -33,6 +33,7 @@ written down at the bottom.
 | **Agent redirection** | live state of every coding agent, and automatic focus when one finishes or needs you - on both multiplexers |
 | **pane-run** | agent commands run in a pane you can see, not in the agent's hidden shell |
 | **omp** | [omp](https://omp.sh), the harness I am on right now: its config lives here, plus a local page that configures the `Ctrl+P` model cycle - see [omp/README.md](omp/README.md) |
+| **Prime Agent** | portable profiles, Normal/Plan modes, Arsenal/Espresso and GitNexus - see [prime/README.md](prime/README.md) |
 | | plus yazi, lazygit + delta, gitmux, starship, zed |
 
 ## Install

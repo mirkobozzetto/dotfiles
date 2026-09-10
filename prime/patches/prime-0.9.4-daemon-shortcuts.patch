@@ -1,0 +1,126 @@
+--- a/dist/modes/interactive/interactive-mode.js
++++ b/dist/modes/interactive/interactive-mode.js
+@@ -1914,6 +1914,60 @@
+         this.applyConnectionModelCatalog(modelCatalog);
+         this.connectionModelsFetchedAt = Date.now();
+         this.connectionResourceSnapshot = resources;
++        // Local workaround: daemon clients do not receive extension shortcut registrations.
++        // Only bind this profile extension when its commands exist on the attached session.
++        if (!this.bindLocalSessionExtensions) {
++            const hasProfiles = ["profile-next", "profile-previous"].every((name) =>
++                commands.some((command) => command.source === "extension" && command.name === name));
++            const workModeCommands = ["plan", "normal", "mode"];
++            const hasWorkModes = workModeCommands.every((name) =>
++                commands.some((command) => command.source === "extension" && command.name === name));
++            this.defaultEditor.onExtensionShortcut = hasProfiles || hasWorkModes ? (data) => {
++                const profileCommand = hasProfiles
++                    ? matchesKey(data, "alt+shift+p") ? "profile-previous"
++                        : matchesKey(data, "alt+p") ? "profile-next" : undefined
++                    : undefined;
++                const workModeCommand = hasWorkModes && matchesKey(data, "ctrl+alt+p")
++                    ? "mode toggle"
++                    : undefined;
++                const extensionCommand = profileCommand ?? workModeCommand;
++                if (extensionCommand) {
++                    const connection = this.agentConnection;
++                    const sessionId = this.connectionState?.sessionId;
++                    void connection.prompt(`/${extensionCommand}`).then(async () => {
++                        const state = await connection.getState();
++                        if (this.agentConnection !== connection ||
++                            this.connectionState?.sessionId !== sessionId ||
++                            (sessionId !== undefined && state.sessionId !== sessionId)) {
++                            return;
++                        }
++                        this.patchConnectionState({
++                            model: state.model,
++                            thinkingLevel: state.thinkingLevel,
++                            serviceTier: state.serviceTier,
++                            availableThinkingLevels: state.availableThinkingLevels,
++                        });
++                        this.footer.invalidate();
++                        this.subagentSummaryLine.invalidate();
++                        this.updateEditorBorderColor();
++                        this.setupAutocompleteProvider();
++                        this.ui.requestRender();
++                    }).catch((error) => {
++                        this.showError(`Shortcut handler error: ${error instanceof Error ? error.message : String(error)}`);
++                    });
++                    return true;
++                }
++                if (hasProfiles) {
++                    for (const [key, level] of [["alt+1", "low"], ["alt+2", "medium"], ["alt+3", "high"]]) {
++                        if (matchesKey(data, key)) {
++                            this.applyThinkingLevel(level);
++                            return true;
++                        }
++                    }
++                }
++                return false;
++            } : undefined;
++        }
+     }
+     refreshHeartbeatCatalog() {
+         if (this.heartbeatRefreshPromise) {
+--- a/dist/bundle/chunk-AQLIARII.js
++++ b/dist/bundle/chunk-AQLIARII.js
+@@ -50844,6 +50844,60 @@
+     this.applyConnectionModelCatalog(modelCatalog);
+     this.connectionModelsFetchedAt = Date.now();
+     this.connectionResourceSnapshot = resources;
++    // Local workaround: daemon clients do not receive extension shortcut registrations.
++    // Only bind this profile extension when its commands exist on the attached session.
++    if (!this.bindLocalSessionExtensions) {
++        const hasProfiles = ["profile-next", "profile-previous"].every((name) =>
++            commands.some((command) => command.source === "extension" && command.name === name));
++        const workModeCommands = ["plan", "normal", "mode"];
++        const hasWorkModes = workModeCommands.every((name) =>
++            commands.some((command) => command.source === "extension" && command.name === name));
++        this.defaultEditor.onExtensionShortcut = hasProfiles || hasWorkModes ? (data) => {
++            const profileCommand = hasProfiles
++                ? matchesKey(data, "alt+shift+p") ? "profile-previous"
++                    : matchesKey(data, "alt+p") ? "profile-next" : undefined
++                : undefined;
++            const workModeCommand = hasWorkModes && matchesKey(data, "ctrl+alt+p")
++                ? "mode toggle"
++                : undefined;
++            const extensionCommand = profileCommand ?? workModeCommand;
++            if (extensionCommand) {
++                const connection = this.agentConnection;
++                const sessionId = this.connectionState?.sessionId;
++                void connection.prompt(`/${extensionCommand}`).then(async () => {
++                    const state = await connection.getState();
++                    if (this.agentConnection !== connection ||
++                        this.connectionState?.sessionId !== sessionId ||
++                        (sessionId !== undefined && state.sessionId !== sessionId)) {
++                        return;
++                    }
++                    this.patchConnectionState({
++                        model: state.model,
++                        thinkingLevel: state.thinkingLevel,
++                        serviceTier: state.serviceTier,
++                        availableThinkingLevels: state.availableThinkingLevels,
++                    });
++                    this.footer.invalidate();
++                    this.subagentSummaryLine.invalidate();
++                    this.updateEditorBorderColor();
++                    this.setupAutocompleteProvider();
++                    this.ui.requestRender();
++                }).catch((error) => {
++                    this.showError(`Shortcut handler error: ${error instanceof Error ? error.message : String(error)}`);
++                });
++                return true;
++            }
++            if (hasProfiles) {
++                for (const [key, level] of [["alt+1", "low"], ["alt+2", "medium"], ["alt+3", "high"]]) {
++                    if (matchesKey(data, key)) {
++                        this.applyThinkingLevel(level);
++                        return true;
++                    }
++                }
++            }
++            return false;
++        } : undefined;
++    }
+   }
+   refreshHeartbeatCatalog() {
+     if (this.heartbeatRefreshPromise) {
