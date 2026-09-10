@@ -1,0 +1,32 @@
+--- a/node_modules/@earendil-works/pi-tui/dist/tui.js
++++ b/node_modules/@earendil-works/pi-tui/dist/tui.js
+@@ -1211,7 +1211,12 @@
+             // Follow hint composited over the bottom of the transcript window,
+             // just above the dock. Overlays still paint on top of it.
+             const followKey = getKeybindings().getKeys("tui.viewport.follow")[0] ?? "ctrl+shift+down";
+-            const label = ` ${followKey} to follow `;
++            const totalScroll = scrollInfo.linesAbove + scrollInfo.linesBelow;
++            const progress = totalScroll > 0 ? scrollInfo.linesAbove / totalScroll : 1;
++            const icon = ["○", "◔", "◑", "◕", "●"][Math.min(4, Math.floor(progress * 4))];
++            const position = `${icon} ${Math.floor(progress * 100)}%`;
++            const fullLabel = ` ${position} · ${followKey} to follow `;
++            const label = visibleWidth(fullLabel) <= width ? fullLabel : ` ${position} `;
+             const labelWidth = visibleWidth(label);
+             const row = fullscreen.viewport.windowHeight() - 1;
+             if (row >= 0 && row < frame.length && labelWidth <= width) {
+--- a/dist/bundle/chunk-TOACIHN2.js
++++ b/dist/bundle/chunk-TOACIHN2.js
+@@ -19932,7 +19932,12 @@
+     const scrollInfo = fullscreen.viewport.scrollInfo();
+     if (fullscreen.viewportControls && !scrollInfo.following) {
+       const followKey = getKeybindings().getKeys("tui.viewport.follow")[0] ?? "ctrl+shift+down";
+-      const label = ` ${followKey} to follow `;
++      const totalScroll = scrollInfo.linesAbove + scrollInfo.linesBelow;
++      const progress = totalScroll > 0 ? scrollInfo.linesAbove / totalScroll : 1;
++      const icon = ["○", "◔", "◑", "◕", "●"][Math.min(4, Math.floor(progress * 4))];
++      const position = `${icon} ${Math.floor(progress * 100)}%`;
++      const fullLabel = ` ${position} · ${followKey} to follow `;
++      const label = visibleWidth(fullLabel) <= width ? fullLabel : ` ${position} `;
+       const labelWidth = visibleWidth(label);
+       const row = fullscreen.viewport.windowHeight() - 1;
+       if (row >= 0 && row < frame.length && labelWidth <= width) {

@@ -111,6 +111,22 @@ does not reload JavaScript already loaded by the terminal interface: detach
 and reattach with `prime-agent attach <session-id>` after patching. Do not stop
 the daemon or delete a session. Without the patch, use the slash commands.
 
+## History position indicator
+
+Optional `patches/prime-0.9.4-history-indicator.patch` adds a circular position
+icon and percentage to the fullscreen transcript follow hint. It updates on
+scroll, shrinks on narrow terminals, and disappears when following live output.
+The percentage measures rendered scroll distance, not messages or token usage.
+
+Back up the two target files, then apply from the Prime Agent 0.9.4 package root
+with `patch -p1 < /path/to/prime-0.9.4-history-indicator.patch`. Detach and reattach
+the terminal interface; `/reload` does not reload this JavaScript. Updates can
+overwrite the patch. Restore the backed-up files to roll back.
+
+Verification: the installed fullscreen renderer passed top/middle/follow and
+narrow-width checks; the CLI bundle passed syntax checking. Visual confirmation
+in a reattached terminal remains a separate manual check.
+
 ## Work modes
 
 - `/plan`: analyze, read, research, and propose without modifying user files
