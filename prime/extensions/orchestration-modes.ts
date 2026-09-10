@@ -14,9 +14,9 @@ const ARSENAL_GUIDANCE = `
 Arsenal mode is enabled. For each request, use the installed router at
 ~/.prime/agent/skills/arsenal/SKILL.md and let it select the shortest sufficient
 installed skill workflow. Prime Normal/Plan mode and higher-priority instructions
-remain authoritative. Preserve every approval and permission boundary. This
-Prime Phase 1 integration stays solo: do not delegate, launch external workers,
-or create nested agents. Do not switch models, thinking effort, or tools.`;
+remain authoritative. Preserve every approval and permission boundary. Work solo by default. Native delegation requires explicit approval for the
+bounded role and scope, following the Arsenal Prime delegation adapter.
+Higher-priority solo restrictions win. No external workers or nested agents. Do not switch models, thinking effort, or tools.`;
 
 const ESPRESSO_GUIDANCE = `
 
@@ -26,7 +26,8 @@ filler and repetition, but preserve needed explanations, evidence, uncertainty,
 security, useful comments, and full French accents. Prefer the smallest correct
 change and targeted verification. Active skills own their workflow; Arsenal owns
 routing and consent. Espresso never grants delegation permission and does not
-auto-delegate. If a separate instruction and user consent later permit native
+auto-delegate. For approved independent research, read the installed espresso
+skill and Arsenal native delegation adapter. If a separate instruction and user consent later permit native
 delegation, prefer one model tier below the current parent (Astra -> Sol -> Terra
 -> Luna; Luna stays Luna) and inherit effort where supported. Never substitute a
 provider, bypass a solo rule, use an external worker, or create nested agents.

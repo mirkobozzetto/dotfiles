@@ -11,3 +11,6 @@ After approval, use the active harness native agent API, at most three bounded
 workers, no nested delegation. Do not request bypassPermissions or retune
 models. Read references/role-templates.md only when actually delegating.
 Do useful non-overlapping work while workers run; collect each result once.
+
+On Prime, read the installed Arsenal references/adapters/delegation.md before
+any approved spawn. Preserve parent model/effort; use native RLM only.

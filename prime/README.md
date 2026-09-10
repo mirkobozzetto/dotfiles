@@ -133,15 +133,28 @@ persists for that session. Arsenal selects the shortest relevant installed
 workflow; Espresso encourages clear, concise, efficient work. Neither changes
 models, effort, or tools. Normal/Plan and permission boundaries take precedence.
 
-Arsenal's Prime Phase 1 remains **solo**. Espresso is a policy overlay, not
-OMP's full runtime or automatic delegation mode. No external workers, RTK,
-Ponytail, or nested orchestration are installed. While Arsenal is ON, its solo
-rule takes precedence over the general delegation preference.
+Arsenal stays solo by default. Approved delegation uses the native RLM adapter
+and the product-scout, harness-analyst, adversarial-reviewer contracts. Espresso
+may propose up to two independent research workers, but ON never grants consent.
+No external workers, RTK, Ponytail, automatic reviewers or nested delegation.
+Higher-priority solo instructions still forbid spawning.
 
-Included routes: `arsenal`, `brief`, `propose`, `issue`, `next`, `trace`, and `ship`.
-The existing personal `websearch` is reused when present. Ship is available for implementation and verification. Arsenal's
-specialized agents are not yet enabled. Missing capabilities are
-reported; public actions and proposal acceptance retain their approval gates.
+Included routes: `arsenal`, `brief`, `propose`, `issue`, `next`, `trace`, `ship`,
+and `espresso`. The personal `websearch` is reused when present. Ship handles
+implementation, bounded verification, resume and explicitly requested commits.
+No OMP controller or persistent OMP agent definitions are installed.
+
+`skills/arsenal/scripts/delegation.py` validates model selection, request fields,
+and role JSON shapes. It does not spawn: use native `rlm(...)` directly. Consent
+and concurrency are caller inputs, not runtime enforcement. Read-only contracts
+are not tool isolation. Follow `skills/arsenal/references/adapters/delegation.md`.
+
+Verification: local checks exercised all four model mappings, unavailable/solo/
+consent/count guards and JSON result contracts; native Prime loaded the skills
+and extensions without diagnostics. Historical live evidence proves Astra Low
+-> Sol Low only. The newly integrated role workflows have NOT been live-tested:
+the configuring session still carried its old higher-priority Phase 1 solo rule.
+Reload before approved live checks. Do not treat local checks as live proof.
 
 The skills are adapted from my Arsenal plugin sources (`plugins/arsenal`, `brief`, `propose`,
 `issue`, `next`, and `trace`).

@@ -6,7 +6,8 @@ description: Use when the user invokes Arsenal, needs help choosing an approach,
 # Arsenal
 
 One entry point, the shortest sufficient workflow. Read and apply selected
-skills; do not reproduce their procedures here. Work solo. In this Prime phase, delegation is disabled.
+skills; do not reproduce their procedures here. Work solo by default. Delegation requires explicit approval and the native
+contract in references/adapters/delegation.md; higher-priority solo rules win.
 
 ## Start
 
@@ -80,8 +81,8 @@ Read references/adapters/prime.md before routing. Prime Normal/Plan mode and
 higher-priority instructions remain authoritative. This skill does not switch modes, models, or enable agents. When the native Prime
 Arsenal mode extension is enabled, it routes each request here through persistent
 system guidance; this does not relax Normal/Plan mode or any permission boundary.
-`skill://`, Task agents, Agent Hub, delegation, and the ship runtime extension are
-unsupported in this phase. Use filesystem-backed live skill discovery. The existing personal `websearch` skill is the research route.
+`skill://`, Task agents, Agent Hub, and the OMP ship runtime extension are
+unsupported. Approved delegation uses native RLM, not OMP agent files. Use filesystem-backed live skill discovery. The existing personal `websearch` skill is the research route.
 
 ## Optional roadmap and configuration
 
@@ -91,5 +92,5 @@ only unresolved external questions through websearch when available.
 Render scripts/render.py only for `--html` or an explicit request. Mark ready
 when approved; a roadmap request alone does not authorize implementation.
 
-`-a` permits explicit assumptions, not new permissions. Delegation and agent installation flags are unavailable in this phase. Do not
+`-a` permits explicit assumptions, not new permissions. Delegation flags never grant consent; persistent agent installation is not required. Do not
 install agents or additional workflow runtimes. Commits and publication remain opt-in and require explicit authorization.
