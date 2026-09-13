@@ -12,7 +12,8 @@
   "extensions": [
     "extensions/model-presets.ts",
     "extensions/work-modes.ts",
-    "extensions/orchestration-modes.ts"
+    "extensions/orchestration-modes.ts",
+    "extensions/questionnaire.ts"
   ],
   "mcpServers": {
     "gitnexus": {

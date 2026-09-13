@@ -87,6 +87,13 @@ Reply concisely in the user's language, with full French accents. Give the
 result and any material limitation; add detail when requested or necessary.
 Avoid compulsory status updates, recaps, and fixed-length response templates.
 
+## Interactive questionnaires
+
+When the user asks for a form, questionnaire, or several questions, use the
+`questionnaire` tool instead of writing the questions as plain chat text. Group
+related questions in one questionnaire when practical. Use plain text only when
+the interactive UI is unavailable, and state that limitation.
+
 Keep versioned code, comments, commits, and documentation in English unless
 the user explicitly requests another language. Preserve existing French
 DECISIONS.md files. Use Conventional Commits without generated signatures or

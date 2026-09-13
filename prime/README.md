@@ -9,7 +9,7 @@ and GitNexus 1.6.11 on macOS. This is configuration, not a fork of Prime.
 - Normal/Plan modes independent of model, effort, and available tools.
 - Arsenal routing and Espresso concise-policy overlays, enabled by default.
 - Native GitNexus stdio MCP integration with a restricted tool list.
-- Shared operating instructions and a one-tier-down delegation policy.
+- Shared operating instructions, interactive questionnaires, and a one-tier-down delegation policy.
 - Prime-specific Arsenal skills and resources, plus GitNexus context guidance.
 - An optional, version-specific daemon keyboard workaround.
 
