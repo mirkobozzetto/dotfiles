@@ -153,22 +153,16 @@ function answerResult(questions: AskQuestion[], result: QuestionnaireResult) {
 }
 
 async function askThroughRpc(ctx: ExtensionContext, questions: AskQuestion[], signal: AbortSignal | undefined): Promise<QuestionnaireResult> {
-  const groupId = createGroupId();
-  const values = await Promise.all(questions.map((question, index) => ctx.ui.select(
-    question.question,
-    [`${ASK_USER_RPC_MARKER}${groupId}:${index}:${questions.length}`, ...question.options],
-    { signal },
-  )));
+  const answers: Answer[] = [];
+  for (const question of questions) {
+    const value = await ctx.ui.select(question.question, question.options, { signal });
+    if (value === undefined) return { answers: [], cancelled: true };
 
-  if (values.some((value) => value === undefined)) {
-    return { answers: [], cancelled: true };
+    const decoded = decodeRpcAnswer(value, question);
+    if (!decoded.answer) return { answers: [], cancelled: true };
+    answers.push({ question: question.question, ...decoded });
   }
-
-  const answers = values.map((value, index) => {
-    const decoded = decodeRpcAnswer(value as string, questions[index]);
-    return { question: questions[index].question, ...decoded };
-  });
-  return { answers, cancelled: answers.some((answer) => !answer.answer) };
+  return { answers, cancelled: false };
 }
 
 async function askWithCustomUi(
