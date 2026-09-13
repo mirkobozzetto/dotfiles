@@ -94,6 +94,11 @@ without the workaround. `patches/prime-0.9.4-daemon-shortcuts.patch` preserves t
 small local fix used here, including authoritative model/effort UI refresh.
 It touches both the source-style output and the actual bundled CLI artifact.
 
+`patches/prime-0.9.4-edit-diffs-expanded.patch` makes edit diffs expanded by
+default while keeping `Ctrl+J` available to collapse them. It is also
+version-specific and touches the source-style output plus the bundled CLI
+artifact.
+
 This is **not a general installer or an upstream fix**. The bundle filename is
 version-specific. Inspect the patch, verify your version, and back up the two
 files named in it before applying anything. From the installed Prime package

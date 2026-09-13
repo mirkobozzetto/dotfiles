@@ -1,0 +1,22 @@
+--- a/dist/modes/interactive/interactive-mode.js
++++ b/dist/modes/interactive/interactive-mode.js
+@@ -646,7 +646,7 @@
+     rosterBar;
+     toolOutputExpanded = false;
+     agentMessagesExpanded = false;
+-    editDiffsExpanded = false;
++    editDiffsExpanded = true;
+     hideThinkingBlock = false;
+     mermaidMarkdownTransform = createMermaidMarkdownTransform({
+         getMode: () => this.settingsManager.getMermaidRenderingMode(),
+--- a/dist/bundle/chunk-AQLIARII.js
++++ b/dist/bundle/chunk-AQLIARII.js
+@@ -49670,7 +49670,7 @@
+   rosterBar;
+   toolOutputExpanded = false;
+   agentMessagesExpanded = false;
+-  editDiffsExpanded = false;
++  editDiffsExpanded = true;
+   hideThinkingBlock = false;
+   mermaidMarkdownTransform = createMermaidMarkdownTransform({
+     getMode: () => this.settingsManager.getMermaidRenderingMode(),
