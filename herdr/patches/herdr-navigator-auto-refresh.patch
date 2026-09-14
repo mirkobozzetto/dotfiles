@@ -1,0 +1,63 @@
+--- a/src/app.rs
++++ b/src/app.rs
+@@ -75,6 +75,7 @@
+     }
+ 
+     pub(crate) fn refresh(&mut self) {
++        let selected = self.selected_entry().map(pin_key);
+         let mut entries = Vec::new();
+         let mut seen = HashSet::new();
+         let (workspace_entries, path_to_workspaces, migrated_legacy, has_live_workspace_list) =
+@@ -144,6 +145,13 @@
+                 None
+             };
+         self.apply_filter();
++        if let Some(selected) = selected {
++            self.selected = self
++                .filtered
++                .iter()
++                .position(|&index| pin_key(&self.entries[index]) == selected)
++                .unwrap_or_default();
++        }
+     }
+ 
+     pub(crate) fn apply_filter(&mut self) {
+--- a/src/tui.rs
++++ b/src/tui.rs
+@@ -1,7 +1,7 @@
+ use std::{
+     io,
+     sync::mpsc::{Receiver, TryRecvError},
+-    time::Duration,
++    time::{Duration, Instant},
+ };
+ 
+ use crossterm::{
+@@ -40,7 +40,13 @@
+     execute!(out, EnterAlternateScreen, EnableMouseCapture)?;
+     let mut terminal = Terminal::new(CrosstermBackend::new(out))?;
+     let mut list_hits = ListHits::default();
++    let refresh_interval = Duration::from_secs(2);
++    let mut last_refresh = Instant::now();
+     let result = loop {
++        if last_refresh.elapsed() >= refresh_interval {
++            app.refresh();
++            last_refresh = Instant::now();
++        }
+         if let Some(result) = update_check.as_ref().map(Receiver::try_recv) {
+             match result {
+                 Ok(version) => {
+@@ -53,7 +59,12 @@
+         }
+         terminal.draw(|f| list_hits = draw(f, app))?;
+         let animate = has_working_entry(app);
+-        if (animate || update_check.is_some()) && !event::poll(Duration::from_millis(125))? {
++        let poll_interval = if animate || update_check.is_some() {
++            Duration::from_millis(125)
++        } else {
++            refresh_interval
++        };
++        if !event::poll(poll_interval)? {
+             if animate {
+                 app.spinner_tick = app.spinner_tick.wrapping_add(1);
+             }
