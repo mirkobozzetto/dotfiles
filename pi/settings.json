@@ -43,5 +43,8 @@
     "showTerminalProgress": true
   },
   "theme": "dark",
+  "warnings": {
+    "anthropicExtraUsage": false
+  },
   "tuiMode": "regular"
 }
