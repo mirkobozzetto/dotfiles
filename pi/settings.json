@@ -33,7 +33,9 @@
     "npm:@narumitw/pi-statusline",
     "../../code/skills/arsenal",
     "/Users/mirkobozzetto/.vibe-island/pi-extension",
-    "npm:@ff-labs/pi-fff"
+    "npm:@ff-labs/pi-fff",
+    "npm:@tunglam/pi-inline-skills",
+    "../../stuffs/espresso"
   ],
   "quietStartup": true,
   "showHardwareCursor": true,
