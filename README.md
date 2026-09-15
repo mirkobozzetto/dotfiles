@@ -33,6 +33,7 @@ written down at the bottom.
 | **Agent redirection** | live state of every coding agent, and automatic focus when one finishes or needs you - on both multiplexers |
 | **pane-run** | agent commands run in a pane you can see, not in the agent's hidden shell |
 | **omp** | [omp](https://omp.sh), the harness I am on right now: its config lives here, plus a local page that configures the `Ctrl+P` model cycle - see [omp/README.md](omp/README.md) |
+| **pi** | [pi](https://pi.dev), the minimal harness omp forked from: config, global rules and the pane-run extension - see [pi/README.md](pi/README.md) |
 | **Prime Agent** | portable profiles, Normal/Plan modes, Arsenal/Espresso and GitNexus - see [prime/README.md](prime/README.md) |
 | | plus yazi, lazygit + delta, gitmux, starship, zed |
 
@@ -112,10 +113,11 @@ sends them to a real pane instead, waits for the exit code, and relays the
 output back. It handles tmux and herdr, and says so when it falls back to
 local execution.
 
-It is wired from `claude/hooks/pane-route.cjs` for Claude Code and from
-`omp/extensions/pane-run.ts` for OMP. Known limit, shared by both
-multiplexers: a command that calls `exit` itself kills the piped subshell
-before the return code is written, so the wait is capped and falls back.
+It is wired from `claude/hooks/pane-route.cjs` for Claude Code, from
+`omp/extensions/pane-run.ts` for OMP, and from `pi/extensions/pane-run.ts`
+for pi. Known limit, shared by both multiplexers: a command that calls `exit`
+itself kills the piped subshell before the return code is written, so the wait
+is capped and falls back.
 
 ## A few things that took a while to get right
 
