@@ -1,0 +1,18 @@
+{
+  "settings": {
+    "mcpFooterStatus": "compact",
+    "toolResultRendering": "compact",
+    "collapsedResultLines": 1,
+    "notifyOnStartupConnect": false
+  },
+  "mcpServers": {
+    "exa": {
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa%2Cweb_fetch_exa%2Cweb_search_advanced_exa",
+      "auth": "bearer",
+      "bearerToken": "!security find-generic-password -a $USER -s pi-exa-api-key -w",
+      "lifecycle": "lazy",
+      "directTools": true,
+      "toolPrefix": "mcp"
+    }
+  }
+}

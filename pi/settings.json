@@ -1,0 +1,45 @@
+{
+  "collapseChangelog": true,
+  "defaultModel": "gpt-5.6-sol",
+  "defaultProjectTrust": "always",
+  "defaultProvider": "openai-codex",
+  "defaultThinkingLevel": "high",
+  "doubleEscapeAction": "tree",
+  "editorPaddingX": 0,
+  "enabledModels": [
+    "openai-codex/*",
+    "anthropic/claude-haiku-4-5",
+    "anthropic/claude-sonnet-5",
+    "anthropic/claude-opus-5",
+    "anthropic/claude-fable-5-1"
+  ],
+  "hideThinkingBlock": true,
+  "lastChangelogVersion": "0.85.1",
+  "outputPad": 0,
+  "packages": [
+    "npm:diffing",
+    "npm:@narumitw/pi-goal",
+    "npm:pi-subagents",
+    "npm:pi-mcp-adapter",
+    "npm:pi-background-tasks",
+    "npm:pi-simplify",
+    "npm:@quintinshaw/pi-dynamic-workflows",
+    "npm:@narumitw/pi-plan-mode",
+    "npm:@mjasnikovs/pi-task",
+    "npm:@narumitw/pi-lsp",
+    "npm:@narumitw/pi-usage",
+    "npm:pi-markdown-preview",
+    "npm:pi-rtk-optimizer",
+    "npm:@narumitw/pi-statusline",
+    "../../code/skills/arsenal",
+    "/Users/mirkobozzetto/.vibe-island/pi-extension",
+    "npm:@ff-labs/pi-fff"
+  ],
+  "quietStartup": true,
+  "showHardwareCursor": true,
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "theme": "dark",
+  "tuiMode": "regular"
+}

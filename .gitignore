@@ -19,6 +19,8 @@ yazi/plugins/
 .claude/
 AGENTS.md
 CLAUDE.md
+# ...but pi's global agent rules are config, not a gitnexus artifact
+!pi/AGENTS.md
 .trace-state
 trace.md
 
