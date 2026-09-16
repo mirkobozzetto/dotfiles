@@ -12,9 +12,17 @@
 STATE="$HOME/.config/mux.state"
 TMUX_BIN=/opt/homebrew/bin/tmux
 HERDR_BIN=/opt/homebrew/bin/herdr
-
+RESTORE_AGENTS="$HOME/.config/herdr/bin/restore-agent-sessions.py"
 current() {
   [ -r "$STATE" ] && cat "$STATE" || echo tmux
+}
+
+start_herdr() {
+  if ! "$HERDR_BIN" status server >/dev/null 2>&1 &&
+    [ -x "$RESTORE_AGENTS" ]; then
+    "$RESTORE_AGENTS" >> "$HOME/.config/herdr/agent-restore.log" 2>&1
+  fi
+  "$HERDR_BIN"
 }
 
 case "${1:-start}" in
@@ -24,7 +32,7 @@ case "${1:-start}" in
     while :; do
       want="$(current)"
       case "$want" in
-        herdr) "$HERDR_BIN" ;;
+        herdr) start_herdr ;;
         *) "$TMUX_BIN" new-session -A -s main ;;
       esac
       [ "$(current)" != "$want" ] || break

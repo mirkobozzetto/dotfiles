@@ -1,0 +1,34 @@
+--- a/dist/main.js
++++ b/dist/main.js
+@@ -424,7 +424,13 @@
+         parsed.autonomousMaxTokens !== undefined ||
+         parsed.autonomousTimeoutMs !== undefined;
+     if (!hasAutonomousOptions) {
+-        return undefined;
++        return {
++            enabled: true,
++            maxContinuations: 1,
++            maxTurns: 4,
++            maxTokens: 40000,
++            timeoutMs: 900000,
++        };
+     }
+     const hasGateOptions = parsed.autonomousGates !== undefined ||
+         parsed.autonomousGateRetries !== undefined ||
+--- a/dist/bundle/chunk-AQLIARII.js
++++ b/dist/bundle/chunk-AQLIARII.js
+@@ -74429,7 +74429,13 @@
+ function runtimeAutonomousConfigFromArgs(parsed) {
+   const hasAutonomousOptions = parsed.autonomous === true || parsed.autonomousGates !== void 0 || parsed.autonomousGateRetries !== void 0 || parsed.autonomousGateTimeoutMs !== void 0 || parsed.autonomousMaxContinuations !== void 0 || parsed.autonomousMaxTurns !== void 0 || parsed.autonomousMaxTokens !== void 0 || parsed.autonomousTimeoutMs !== void 0;
+   if (!hasAutonomousOptions) {
+-    return void 0;
++    return {
++      enabled: true,
++      maxContinuations: 1,
++      maxTurns: 4,
++      maxTokens: 40000,
++      timeoutMs: 900000
++    };
+   }
+   const hasGateOptions = parsed.autonomousGates !== void 0 || parsed.autonomousGateRetries !== void 0 || parsed.autonomousGateTimeoutMs !== void 0;
+   return {

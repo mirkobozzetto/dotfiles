@@ -86,7 +86,7 @@ spacing = "compact"
 [appearance.window]
 override_blur = 25
 open_windows_at_custom_size = false
-zoom_level = 110
+zoom_level = 80
 override_opacity = 78
 
 [appearance.text]

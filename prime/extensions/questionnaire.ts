@@ -152,6 +152,19 @@ function answerResult(questions: AskQuestion[], result: QuestionnaireResult) {
   };
 }
 
+async function askForFreeform(
+  ctx: ExtensionContext,
+  question: AskQuestion,
+  signal: AbortSignal | undefined,
+): Promise<string | undefined> {
+  const value = await ctx.ui.input(
+    `Your answer\n${question.question}`,
+    "Type your answer",
+    { signal },
+  );
+  return trimValue(value, MAX_ANSWER_LENGTH);
+}
+
 async function askThroughRpc(ctx: ExtensionContext, questions: AskQuestion[], signal: AbortSignal | undefined): Promise<QuestionnaireResult> {
   const answers: Answer[] = [];
   for (const question of questions) {
@@ -159,6 +172,12 @@ async function askThroughRpc(ctx: ExtensionContext, questions: AskQuestion[], si
     if (value === undefined) return { answers: [], cancelled: true };
 
     const decoded = decodeRpcAnswer(value, question);
+    if (isOtherOption(decoded.answer)) {
+      const freeform = await askForFreeform(ctx, question, signal);
+      if (!freeform) return { answers: [], cancelled: true };
+      answers.push({ question: question.question, answer: freeform, answerSource: "freeform" });
+      continue;
+    }
     if (!decoded.answer) return { answers: [], cancelled: true };
     answers.push({ question: question.question, ...decoded });
   }

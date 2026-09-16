@@ -7,6 +7,14 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "context_servers": {
+    "fff": {
+      "command": "/opt/homebrew/bin/fff-mcp",
+      "args": ["--no-update-check"],
+      "env": {},
+    },
+  },
+
   "theme": {
     "mode": "dark",
     "light": "GitHub Light",
