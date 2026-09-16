@@ -68,6 +68,7 @@ tmux_send() {
 }
 
 # --------------------------------------------------------------- herdr backend
+HERDR_COMMAND_TAB_LABEL="Agent commands"
 
 # A herdr pane is usable when its foreground process is a shell. Plugin overlays
 # answer `pane_not_found` here, which excludes them without a special case.
@@ -78,29 +79,66 @@ herdr_is_shell() {
 }
 
 herdr_target() {
-  local memo remembered target="" candidates id
-  memo="$JOBS/herdr-${HERDR_TAB_ID:-$HERDR_PANE_ID}"
+  local workspace memo remembered panes target="" candidates
+  local id tab tab_ids created label memo_tab
+  workspace="${HERDR_WORKSPACE_ID:-${HERDR_TAB_ID%%:*}}"
+  [ -n "$workspace" ] || return 1
+  memo="$JOBS/herdr-command-$workspace"
 
+  tab_ids=$(herdr tab list --workspace "$workspace" 2>/dev/null |
+    jq -r --arg label "$HERDR_COMMAND_TAB_LABEL" '
+      .result.tabs[]
+      | select(
+          .label == $label
+          or (.label | startswith($label + " "))
+        )
+      | .tab_id' 2>/dev/null)
+
+  panes=$(herdr pane list --workspace "$workspace" 2>/dev/null)
   if [ -f "$memo" ]; then
     remembered=$(cat "$memo")
-    if [ "$remembered" != "$HERDR_PANE_ID" ] && herdr_is_shell "$remembered"; then
-      target="$remembered"
-    fi
-  fi
-
-  if [ -z "$target" ]; then
-    candidates=$(herdr pane list 2>/dev/null |
-      jq -r --arg tab "${HERDR_TAB_ID:-}" --arg me "$HERDR_PANE_ID" \
-        '.result.panes[] | select(.tab_id == $tab and .pane_id != $me) | .pane_id' 2>/dev/null)
-    for id in $candidates; do
-      if herdr_is_shell "$id"; then target="$id"; break; fi
+    memo_tab=$(printf '%s' "$panes" | jq -r --arg pane "$remembered" '
+      [.result.panes[] | select(.pane_id == $pane) | .tab_id][0]
+      // empty' 2>/dev/null)
+    for tab in $tab_ids; do
+      if [ "$tab" = "$memo_tab" ] && herdr_is_shell "$remembered"; then
+        target="$remembered"
+        break
+      fi
     done
   fi
 
-  # Same rule as tmux: the pane goes to the RIGHT of the agent, never below.
   if [ -z "$target" ]; then
-    target=$(herdr pane split "$HERDR_PANE_ID" --direction right --cwd "$CWD" 2>/dev/null |
-      jq -r '.result.pane.pane_id // empty' 2>/dev/null)
+    for tab in $tab_ids; do
+      candidates=$(printf '%s' "$panes" | jq -r --arg tab "$tab" '
+        .result.panes[]
+        | select(.tab_id == $tab)
+        | .pane_id' 2>/dev/null)
+      for id in $candidates; do
+        if herdr_is_shell "$id"; then
+          target="$id"
+          break 2
+        fi
+      done
+    done
+  fi
+
+  # Never split a pane for agent commands. Busy commands get another tab.
+  if [ -z "$target" ]; then
+    label="$HERDR_COMMAND_TAB_LABEL"
+    if [ -n "$tab_ids" ]; then
+      label="$HERDR_COMMAND_TAB_LABEL $$"
+    fi
+    created=$(herdr tab create --workspace "$workspace" --cwd "$CWD" \
+      --label "$label" --no-focus 2>/dev/null)
+    tab=$(printf '%s' "$created" |
+      jq -r '.result.tab.tab_id // empty' 2>/dev/null)
+    [ -n "$tab" ] || return 1
+
+    panes=$(herdr pane list --workspace "$workspace" 2>/dev/null)
+    target=$(printf '%s' "$panes" | jq -r --arg tab "$tab" '
+      [.result.panes[] | select(.tab_id == $tab) | .pane_id][0]
+      // empty' 2>/dev/null)
   fi
 
   [ -n "$target" ] || return 1
@@ -116,13 +154,16 @@ herdr_send() {
 
 # ------------------------------------------------------------------- dispatch
 
+# A stale $TMUX from a dead server must not capture the dispatch: has-session
+# probes the socket, and herdr wins whenever it is the live environment.
 backend=""
-if [ -n "${TMUX:-}" ] && [ -n "${TMUX_PANE:-}" ] && command -v tmux >/dev/null 2>&1; then
-  backend="tmux"
-elif [ "${HERDR_ENV:-}" = "1" ] && [ -n "${HERDR_PANE_ID:-}" ] && command -v herdr >/dev/null 2>&1; then
+if [ "${HERDR_ENV:-}" = "1" ] && [ -n "${HERDR_PANE_ID:-}" ] && command -v herdr >/dev/null 2>&1; then
   backend="herdr"
+elif [ -n "${TMUX:-}" ] && [ -n "${TMUX_PANE:-}" ] && command -v tmux >/dev/null 2>&1 \
+  && tmux has-session 2>/dev/null; then
+  backend="tmux"
 else
-  run_local "no tmux and no herdr"
+  run_local "no live tmux and no herdr"
 fi
 
 command -v jq >/dev/null 2>&1 || [ "$backend" = "tmux" ] || run_local "jq missing, cannot read herdr panes"
