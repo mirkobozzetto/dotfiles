@@ -17,7 +17,8 @@
  * OMP loads settings once at startup and exposes no reload hook, so the page
  * says a new session is needed.
  *
- * `/models` opens the page; it also opens once on interactive session start.
+ * `/models` and `Ctrl+Shift+M` open the page. Nothing binds a port or reads the
+ * model catalog until one of them is used.
  */
 
 import { Database } from "bun:sqlite";
@@ -49,6 +50,11 @@ const AGENT_DB = path.join(AGENT_DIR, "agent.db");
 /** Single rolling backup, rewritten once per session: never a pile of stamped files. */
 const BACKUP_PATH = `${CONFIG_PATH}.bak`;
 const PORT = 8931;
+
+function isPaidGpt(model: ExtensionContext["model"]): boolean {
+	if (!model || model.provider === "openai-codex") return false;
+	return model.provider === "openai" || /(^|\/)gpt-/i.test(model.id);
+}
 
 /** Opens a URL with the platform's own launcher; macOS, Windows and Linux differ. */
 function openPage(url: string): void {
@@ -325,8 +331,10 @@ button.step { width:31px; padding:0; }
 button.solid { background:#20222f; color:var(--fg); border-color:var(--line); }
 .actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:nowrap; }
 .hint { margin:12px 14px 8px; color:var(--dim); font-size:11.5px; line-height:1.65; }
-.addbar { display:flex; gap:10px; align-items:center; margin-top:14px; }
-.addbar input { width:340px; }
+.addbar { display:grid; grid-template-columns:minmax(150px,220px) minmax(280px,1fr) 130px auto;
+          gap:10px; align-items:center; margin-top:14px; }
+.addbar input { min-width:0; }
+.addhint { margin:7px 0 0; color:var(--dim); font-size:11.5px; }
 .tag { font-size:11px; color:var(--dim); }
 .tag.no { color:var(--err); }
 .filterbar { display:flex; gap:14px; align-items:center; padding:10px 14px 6px; }
@@ -336,6 +344,10 @@ button.solid { background:#20222f; color:var(--fg); border-color:var(--line); }
 #status { font-size:12px; color:var(--dim); white-space:nowrap; }
 #status.ok { color:var(--ok); } #status.err { color:var(--err); }
 code { color:var(--acc); }
+@media (max-width:800px) {
+  body { padding:20px 16px 56px; }
+  .addbar { grid-template-columns:1fr; }
+}
 </style></head>
 <body>
 <div class="head">
@@ -355,10 +367,16 @@ these. The first change of a session copies the file to <code id="bak">config.ym
     <p class="hint">The role name is the label Ctrl+P shows. On a built-in role, an empty model keeps
     the OMP default; type a model to pin it.</p>
   </div>
-  <div class="addbar">
-    <input type="text" id="custom" placeholder="custom model: provider/model-id">
-    <button class="solid" id="addcustom">Add to cycle</button>
-  </div>
+  <form class="addbar" id="addform">
+    <input type="text" id="newrole" placeholder="role, e.g. sol-high"
+      aria-label="Role name">
+    <input type="text" id="custom" list="model-options"
+      placeholder="model: provider/model-id" aria-label="Model">
+    <datalist id="model-options"></datalist>
+    <select id="neweffort" aria-label="Effort"></select>
+    <button class="solid" type="submit">Add to cycle</button>
+  </form>
+  <p class="addhint">A model can appear several times with distinct roles and efforts.</p>
 </section>
 
 <section>
@@ -389,12 +407,15 @@ these. The first change of a session copies the file to <code id="bak">config.ym
 let state = { config: '', cycle: [], others: [], catalog: [], backup: null };
 let timer = null;
 let inFlight = false;
+let roleTouched = false;
 
 async function load() {
   state = await (await fetch('/api/state')).json();
   document.getElementById('cfgpath').textContent = state.config;
   if (state.backup) document.getElementById('bak').textContent = state.backup;
   render();
+  renderModelOptions();
+  syncNewEntry(true);
   setStatus('up to date');
 }
 
@@ -405,6 +426,41 @@ function entryFor(selector) {
 function effortsFor(selector) {
   const hit = entryFor(selector);
   return hit && Array.isArray(hit.efforts) ? hit.efforts : [];
+}
+
+function fillEfforts(select, selector, selected) {
+  const values = ['', ...effortsFor(selector)];
+  if (selected && !values.includes(selected)) values.push(selected);
+  select.replaceChildren();
+  for (const value of values) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value || 'adaptive';
+    option.selected = value === selected;
+    select.appendChild(option);
+  }
+}
+
+function renderModelOptions() {
+  const list = document.getElementById('model-options');
+  list.replaceChildren();
+  for (const entry of state.catalog) {
+    const option = document.createElement('option');
+    option.value = entry.selector;
+    option.label = entry.name || entry.selector;
+    list.appendChild(option);
+  }
+}
+
+function syncNewEntry(resetEffort) {
+  const selector = document.getElementById('custom').value.trim();
+  const effort = document.getElementById('neweffort');
+  fillEfforts(effort, selector, resetEffort ? '' : effort.value);
+  const role = document.getElementById('newrole');
+  if (!roleTouched || !role.value.trim()) {
+    role.value = selector.includes('/') ? roleNameFor(selector, effort.value) : '';
+    roleTouched = false;
+  }
 }
 
 function setStatus(message, kind) {
@@ -463,6 +519,7 @@ function textCell(value, placeholder, oninput) {
 function modelCell(row) {
   const placeholder = row.builtin ? 'empty = OMP default model' : 'provider/model-id';
   const td = textCell(row.selector, placeholder, value => { row.selector = value; });
+  td.querySelector('input').setAttribute('list', 'model-options');
   const entry = entryFor(row.selector);
   if (row.selector && entry && !entry.authed) {
     const warning = document.createElement('div');
@@ -476,15 +533,7 @@ function modelCell(row) {
 function effortCell(row) {
   const td = document.createElement('td');
   const select = document.createElement('select');
-  const options = ['', ...effortsFor(row.selector)];
-  if (row.effort && !options.includes(row.effort)) options.push(row.effort);
-  for (const value of options) {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = value || 'adaptive';
-    option.selected = value === row.effort;
-    select.appendChild(option);
-  }
+  fillEfforts(select, row.selector, row.effort);
   select.onchange = () => { row.effort = select.value; scheduleSave(); };
   td.appendChild(select);
   return td;
@@ -550,22 +599,32 @@ function move(index, delta) {
   scheduleSave();
 }
 
-function roleNameFor(selector) {
-  let base = selector.split('/').pop().replace(/-(exp|preview|latest|\d{8})$/, '');
+function roleNameFor(selector, effort) {
+  const rows = [...state.cycle, ...state.others];
+  const existing = rows.find(row => row.selector === selector && !row.builtin)
+    || rows.find(row => row.selector === selector);
+  let base = existing
+    ? existing.role.replace(/-(low|med|medium|high|xhigh|max|\d+)$/, '')
+    : selector.split('/').pop().replace(/-(exp|preview|latest|\d{8})$/, '');
   base = base.replace(/[^\w-]/g, '-');
-  const taken = new Set([...state.cycle, ...state.others].map(row => row.role));
+  if (effort) base += '-' + effort;
+  const taken = new Set(rows.map(row => row.role));
   let name = base;
   let n = 2;
   while (taken.has(name)) name = base + '-' + n++;
   return name;
 }
 
-function add(selector) {
+function add(selector, role, effort) {
+  selector = selector.trim();
+  role = (role || roleNameFor(selector, effort)).trim();
+  effort = (effort || '').trim();
   if (!selector.includes('/')) return setStatus('expected provider/model-id', 'err');
-  if ([...state.cycle, ...state.others].some(row => row.selector === selector)) {
-    return setStatus('already configured: ' + selector, 'err');
+  if (!/^[\w-]+$/.test(role)) return setStatus('invalid role name: ' + role, 'err');
+  if ([...state.cycle, ...state.others].some(row => row.role === role)) {
+    return setStatus('role already configured: ' + role, 'err');
   }
-  state.cycle.push({ role: roleNameFor(selector), selector, effort: '', builtin: false });
+  state.cycle.push({ role, selector, effort, builtin: false });
   render();
   scheduleSave();
 }
@@ -590,7 +649,9 @@ function renderCatalog() {
     const cell = document.createElement('td');
     const actions = document.createElement('div');
     actions.className = 'actions';
-    actions.appendChild(button('add', () => add(entry.selector)));
+    const configured = [...state.cycle, ...state.others]
+      .some(row => row.selector === entry.selector);
+    actions.appendChild(button(configured ? 'add variant' : 'add', () => add(entry.selector)));
     cell.appendChild(actions);
     tr.appendChild(cell);
     body.appendChild(tr);
@@ -598,10 +659,24 @@ function renderCatalog() {
 }
 
 document.getElementById('filter').oninput = renderCatalog;
-document.getElementById('addcustom').onclick = () => {
-  const field = document.getElementById('custom');
-  add(field.value.trim());
-  field.value = '';
+document.getElementById('custom').oninput = () => {
+  roleTouched = false;
+  syncNewEntry(true);
+};
+document.getElementById('neweffort').onchange = () => syncNewEntry(false);
+document.getElementById('newrole').oninput = () => { roleTouched = true; };
+document.getElementById('addform').onsubmit = event => {
+  event.preventDefault();
+  const model = document.getElementById('custom');
+  const role = document.getElementById('newrole');
+  const effort = document.getElementById('neweffort');
+  const before = state.cycle.length;
+  add(model.value, role.value, effort.value);
+  if (state.cycle.length === before) return;
+  model.value = '';
+  role.value = '';
+  roleTouched = false;
+  syncNewEntry(true);
 };
 load();
 </script>
@@ -652,28 +727,41 @@ function ensureServer(): string {
 }
 
 export default function models(pi: ExtensionAPI): void {
-	pi.registerCommand("models", {
-		description: "configure the models Ctrl+P cycles through, in the browser",
-		handler: async (args, ctx) => {
-			if (catalogCache.length === 0) catalogCache = buildCatalog(ctx);
-			try {
-				const url = ensureServer();
-				if (!args.includes("--no-open")) openPage(url);
-				ctx.ui.notify(`Ctrl+P models: ${url}`, "info");
-			} catch (error) {
-				ctx.ui.notify(String(error), "error");
-			}
-		},
-	});
+	const rejectPaidGpt = (ctx: ExtensionContext): void => {
+		const model = ctx.model;
+		if (!isPaidGpt(model)) return;
+		ctx.abort();
+		const route = model ? model.provider + "/" + model.id : "unknown";
+		throw new Error(
+			"Blocked paid GPT route " + route + "; use openai-codex instead",
+		);
+	};
 
-	pi.on("session_start", async (_event, ctx) => {
-		if (!process.stdout.isTTY) return;
+	pi.on("before_agent_start", (_event, ctx) => rejectPaidGpt(ctx));
+	pi.on("before_provider_request", (_event, ctx) => rejectPaidGpt(ctx));
+	/**
+	 * Shared by `/models` and the shortcut. The catalog is built here, on first
+	 * use, so a session that never opens the page pays nothing.
+	 */
+	const reveal = async (ctx: ExtensionContext, browser: boolean): Promise<void> => {
 		if (catalogCache.length === 0) catalogCache = buildCatalog(ctx);
 		try {
-			openPage(ensureServer());
-		} catch {
-			// every port of the range is busy: /models will report it on demand
+			const url = ensureServer();
+			if (browser) openPage(url);
+			ctx.ui.notify(`Ctrl+P models: ${url}`, "info");
+		} catch (error) {
+			ctx.ui.notify(String(error), "error");
 		}
+	};
+
+	pi.registerCommand("models", {
+		description: "configure the models Ctrl+P cycles through, in the browser",
+		handler: async (args, ctx) => reveal(ctx, !args.includes("--no-open")),
+	});
+
+	pi.registerShortcut("ctrl+shift+m", {
+		description: "open the Ctrl+P model configurator",
+		handler: async (ctx: ExtensionContext) => reveal(ctx, true),
 	});
 
 	// session_shutdown is emitted once, from dispose(), on Ctrl+C or /exit. Not

@@ -31,28 +31,22 @@ theme:
   dark: dark-catppuccin
 setupVersion: 2
 modelRoles:
+  astra-low: openai-codex/gpt-6-astra:low
+  astra-med: openai-codex/gpt-6-astra:medium
+  astra-high: openai-codex/gpt-6-astra:high
+  sol-low: openai-codex/gpt-5.6-sol:low
   sol-med: openai-codex/gpt-5.6-sol:medium
   sol-high: openai-codex/gpt-5.6-sol:high
-  terra-med: openai-codex/gpt-5.6-terra:medium
-  terra-high: openai-codex/gpt-5.6-terra:high
-  luna-med: openai-codex/gpt-5.6-luna:medium
-  luna-high: openai-codex/gpt-5.6-luna:high
-  fable-med: anthropic/claude-fable-5-1:medium
-  default: openai-codex/gpt-5.6-sol:medium
-  plan: openai-codex/gpt-5.6-sol:high
-  slow: openai-codex/gpt-5.6-sol:high
+  opus-high: anthropic/claude-opus-5:high
+  opus-med: anthropic/claude-opus-5:medium
   task: openai-codex/gpt-5.6-terra:medium
   review: openai-codex/gpt-5.6-sol:high
-  designer: openai-codex/gpt-5.6-terra:medium
-  vision: openai-codex/gpt-5.6-sol:medium
-  smol: openai-codex/gpt-5.6-luna:medium
-  agents: openai-codex/gpt-5.6-luna:medium
-  tiny: openai-codex/gpt-5.6-luna:low
-  advisor: openai-codex/gpt-5.6-luna:medium
   commit: openai-codex/gpt-5.6-luna:low
-  ox: openrouter/stealth/ox-alpha:high
-  DS-V4-flash-high: deepseek/deepseek-v4-flash-vision-exp:high
-  opus-med: anthropic/claude-opus-5:medium
+  fable-med: anthropic/claude-fable-5-1:medium
+  luna-high: openai-codex/gpt-5.6-luna:high
+  terra-med: openai-codex/gpt-5.6-terra:medium
+  luna-med: openai-codex/gpt-5.6-luna:medium
+  terra-high: openai-codex/gpt-5.6-terra:high
 colorBlindMode: false
 statusLine:
   preset: nerd
@@ -66,10 +60,11 @@ terminal:
 tui:
   textSizing: true
   resizeScrollback: preserve
-  codexResetFireworks: true
+  codexResetFireworks: false
   hyperlinks: always
   tight: true
   imeSafeCursor: true
+  titleState: true
 defaultThinkingLevel: low
 autolearn:
   enabled: true
@@ -80,7 +75,7 @@ plan:
   enabled: true
   defaultOnStartup: false
 advisor:
-  enabled: true
+  enabled: false
   syncBacklog: "1"
   immuneTurns: 1
 task:
@@ -91,10 +86,13 @@ task:
     security-reviewer: "@review"
     scout: "@agents"
     sonic: "@agents"
-    librarian: "@smol"
+    librarian: "@agents"
     explainer: "@smol"
+    espresso-sol: openai-codex/gpt-5.6-sol:low
+    espresso-terra: openai-codex/gpt-5.6-terra:low
+    espresso-luna: openai-codex/gpt-5.6-luna:low
   agentAdvisor:
-    task: "on"
+    task: "off"
   showResolvedModelBadge: true
   eager: default
   enableLsp: true
@@ -106,22 +104,6 @@ bash:
       approval: deny
     - match: tmux *
       approval: allow
-    - match: uv run *
-      approval: deny
-    - match: uvx *
-      approval: deny
-    - match: pytest*
-      approval: deny
-    - match: npx pyright*
-      approval: deny
-    - match: pnpm *
-      approval: deny
-    - match: npm run*
-      approval: deny
-    - match: make *
-      approval: deny
-    - match: cargo *
-      approval: deny
     - match: alembic *
       approval: deny
     - match: omp config set*
@@ -171,13 +153,14 @@ bash:
     - match: "*supabase db reset*"
       approval: prompt
 cycleOrder:
+  - astra-low
+  - astra-med
+  - astra-high
+  - sol-low
   - sol-med
   - sol-high
-  - terra-med
-  - terra-high
-  - luna-med
-  - luna-high
-  - fable-med
+  - opus-high
+  - opus-med
 hideThinkingBlock: true
 composer:
   shape: pi
@@ -186,11 +169,12 @@ display:
   showTokenUsage: true
   cacheMissMarker: true
   hideToolActivity: false
+  smoothStreaming: false
 externalThinking: false
 treeFilterMode: default
 tools:
   approvalMode: yolo
-autoResume: true
+autoResume: false
 startup:
   showSplash: true
 update:
@@ -203,7 +187,17 @@ readLineNumbers: false
 read:
   renderMarkdown: true
   toolResultPreview: true
+enabledModels:
+  - openai-codex/gpt-5.6-sol
+  - openai-codex/gpt-5.6-terra
+  - openai-codex/gpt-5.6-luna
+  - openai-codex/gpt-6-astra
+  - anthropic/claude-fable-5-1
+  - anthropic/claude-opus-5
+  - deepseek/deepseek-v4-flash-vision-exp
 disabledProviders:
+  - openai
+  - openrouter
   - claude-plugins
 disabledExtensions:
   - skill:vercel-react-best-practices
@@ -226,3 +220,17 @@ disabledExtensions:
   - skill:react-effect-refactor
 dev:
   autoqaConsent: granted
+error:
+  notify: "on"
+omitThinking: true
+steeringMode: one-at-a-time
+followUpMode: all
+interruptMode: immediate
+modelRoleStorage: global
+inlineToolDescriptors: "off"
+includeModelInPrompt: true
+personality: pragmatic
+retry:
+  fallbackRevertPolicy: cooldown-expiry
+extensions:
+  - /Users/mirkobozzetto/code/skills/arsenal/plugins/ship/runtime/extension.ts
