@@ -22,7 +22,9 @@ TICK = 1.0
 COOLDOWN = 3.0  # seconds after a jump before another one is allowed
 DWELL = 3.0  # seconds a request waits before the jump is even considered
 QUIET = 2.0  # seconds without a screen change on the focused pane
+RESTORE_FOCUS_WINDOW = 20.0
 LOG = os.path.expanduser("~/.config/herdr/agent-auto-jump.log")
+CACHE = os.path.expanduser("~/.config/herdr/agent-sessions.json")
 
 # herdr reports "idle" for agents it detects on screen, "done" for a lifecycle
 # state pushed by an integration. Both mean the turn is over.
@@ -42,6 +44,33 @@ EXPIRY = 300.0
 def log(msg: str) -> None:
     with open(LOG, "a") as fh:
         fh.write(f"{time.strftime('%H:%M:%S')} {msg}\n")
+
+def cache_agent_sessions(current: list) -> None:
+    cached = [
+        {
+            "pane_id": agent.get("pane_id"),
+            "tab_id": agent.get("tab_id"),
+            "cwd": agent.get("cwd"),
+            "agent_session": agent.get("agent_session"),
+        }
+        for agent in current
+        if agent.get("agent_session")
+    ]
+    if not cached:
+        return
+    cached.sort(key=lambda agent: agent.get("pane_id") or "")
+    payload = {"version": 1, "agents": cached}
+    try:
+        with open(CACHE) as fh:
+            if json.load(fh) == payload:
+                return
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    temporary = f"{CACHE}.tmp"
+    with open(temporary, "w") as fh:
+        json.dump(payload, fh, separators=(",", ":"))
+        fh.write("\n")
+    os.replace(temporary, CACHE)
 
 
 def herdr(*args: str) -> dict:
@@ -69,6 +98,30 @@ def focused_pane() -> tuple:
     return None, None
 
 
+def restored_agent(current: list, focused_pane_id):
+    if not focused_pane_id:
+        return None
+
+    workspace = focused_pane_id.split(":", 1)[0]
+    candidates = [
+        agent
+        for agent in current
+        if agent.get("agent_session")
+        and agent.get("pane_id", "").split(":", 1)[0] == workspace
+    ]
+    if not candidates:
+        return None
+
+    priority = {"blocked": 0, "working": 1, "idle": 2, "done": 2}
+    return min(
+        candidates,
+        key=lambda agent: (
+            priority.get(agent.get("agent_status"), 3),
+            agent.get("pane_id", ""),
+        ),
+    )
+
+
 def main() -> int:
     prev: dict[str, str] = {}
     handled: set[str] = set()
@@ -77,6 +130,8 @@ def main() -> int:
     last_jump = 0.0
     last_seen_rev = (None, None)
     last_screen_change = 0.0
+    server_unavailable = False
+    restore_until = None
 
     while True:
         now = time.time()
@@ -84,10 +139,29 @@ def main() -> int:
         try:
             pane_id, revision = focused_pane()
             current = agents()
+            cache_agent_sessions(current)
         except Exception as exc:  # herdr server restarting
+            server_unavailable = True
             log(f"poll failed: {exc}")
             time.sleep(TICK)
             continue
+
+        if server_unavailable:
+            restore_until = now + RESTORE_FOCUS_WINDOW
+            server_unavailable = False
+
+        if restore_until is not None:
+            restored = restored_agent(current, pane_id)
+            if restored:
+                target = restored["pane_id"]
+                if target != pane_id:
+                    herdr("agent", "focus", target)
+                    log(f"RESTORED focus to {target} in the active workspace")
+                    pane_id, revision = target, restored.get("revision")
+                restore_until = None
+            elif now >= restore_until:
+                log("restore focus expired: no resumed agent in workspace")
+                restore_until = None
 
         if (pane_id, revision) != last_seen_rev:
             last_seen_rev = (pane_id, revision)

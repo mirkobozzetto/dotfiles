@@ -1,0 +1,26 @@
+# herdr-lazy lock — resolved plugin set at last sync.
+# Each `owner/repo@commit` reproduces exactly via `plugin install --ref`.
+# Commits come from herdr's own `source.resolved_commit`.
+
+0x5c0f/herdr-insight@888ea08e27325fb736b2032ece30e193869c952c
+aimdevlee/herdr-nvim-nav@ec047fd6d8d0269d54a34e9405af28d8aad4c8f0
+alexarthurs/herdr-sidebar/plugins/herdr-sidebar@dd5cc28aeae5860cffc11080c7613bf829286c72
+bayoudhi/herdr-shell-progress@523998f4676aca057996aafcd77254ad8057f353
+cloudmanic/herdr-plus@a9aca9da3ca6d7406f3d878a1df1c1b9775e2723
+cobanov/herdr-ntfysh@f07462439b7dde0ac08ffe90d30661520037d561
+Crokily/herdr-lazygit@a13e12c99e5e469edd73165cabba413c2a2fd698
+ImArtisann/zed-herdr@8835ffd92e7c8f4fd0c74c039ac947b27fb912e3
+iurysza/herdr-tab-smart-rename@a580a9ef248357ea9d85cf0f2131acb2e3fae240
+iurysza/termscope@328a777796e3e1a214da1bb6da79e4bfdf6dfabe
+jhochenbaum/herdr-hunk-diff@81b85cea5484099acea93f2e9a08c2677eef461b
+natori-hrj/herdr-lazy@02e752f86701922b18bdb1ed0504b53c9b9d31ea
+persiyanov/herdr-reviewr@4693ba8f97f44d07dd12cc877168c8b7dc357471
+rmarganti/herdr-pluck@d1eacb80956c3a23ab6f7428a9e83961fb86ba28
+senna-lang/herdr-agent-usage@0eb3abc607ff7486891a4d1e028a0709b0d278f8
+smarzban/herdr-file-viewer@8a3efa14eb10f44d4b2c0b8b838b9d74e2aa1d86
+speardragon/herdr-yazi@54aa4e6dff480189630fa3593146cdcc2768ade9
+tdi/herdr-worktree-setup@4527a11bd5444dbce34c3d4f459b49d704cc12a7
+thanhdat77/herdr-navigator@e12a97c5d9ddcd76ba18c985909ffeb4827afa6a
+Tyru5/herdr-floax@d6b283110c2e455fb3782595549895a840585e2b
+willfish/herdr-navigator@6fe572538a86287a8076e0580bbe217c369f8c24
+wyattjoh/herdr-plugin-gh-pr@6fe22de9a90c569f2186595cfddc3707f55ba1bd

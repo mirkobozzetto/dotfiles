@@ -4,7 +4,7 @@
 onboarding = false
 
 [ui.sound]
-enabled = false
+enabled = true
 
 # what theme-apply.sh and the client-dark-theme hooks do under tmux: the
 # palette follows the macOS appearance Ghostty reports, with no poller
@@ -13,7 +13,7 @@ enabled = false
 # tmux bar stays Catppuccin; the two only meet when you switch multiplexer.
 [theme]
 name = "tokyo-night"
-auto_switch = true
+auto_switch = false
 dark_name = "tokyo-night"
 light_name = "tokyo-night-day"
 
@@ -29,6 +29,8 @@ light_name = "tokyo-night-day"
 [experimental]
 kitty_graphics = true
 pane_history = true
+[session]
+resume_agents_on_restore = true
 
 [keys]
 prefix = "ctrl+space"
@@ -128,6 +130,37 @@ description = "grow pane right"
 
 # --- plugins ---
 
+ # Annotate terminal selections and review Markdown without replacing existing
+ # prefix shortcuts.
+ [[keys.command]]
+ key = "prefix+alt+a"
+ type = "plugin_action"
+ command = "annotate.capture"
+ description = "annotate selected text"
+
+ [[keys.command]]
+ key = "prefix+ctrl+a"
+ type = "plugin_action"
+ command = "annotate.copy-context"
+ description = "copy annotations as context"
+
+ [[keys.command]]
+ key = "prefix+alt+m"
+ type = "plugin_action"
+ command = "annotate.manage"
+ description = "manage annotations"
+
+ [[keys.command]]
+ key = "prefix+alt+o"
+ type = "plugin_action"
+ command = "annotate.open"
+ description = "review documents"
+
+ [[keys.command]]
+ key = "prefix+alt+l"
+ type = "plugin_action"
+ command = "annotate.last"
+ description = "review last agent reply"
 # herdr-plus: one TOML file brings up a whole workspace, tabs and startup
 # commands included. sessionizer.sh, declarative.
 [[keys.command]]
@@ -199,13 +232,6 @@ description = "pane right"
 [ui.toast]
 delivery = "herdr"
 
-# VS Code style file tree and source control, in a docked pane
-[[keys.command]]
-key = "prefix+shift+b"
-type = "plugin_action"
-command = "herdr-sidebar.open-sidebar"
-description = "file tree and git panel"
-
 # seven days of agent state: who worked, when, how long blocked
 [[keys.command]]
 key = "prefix+shift+i"
@@ -219,22 +245,6 @@ key = "prefix+shift+u"
 type = "plugin_action"
 command = "gh-pr.open-pr"
 description = "open this branch's PR"
-
-# source control on its own, without the file tree
-[[keys.command]]
-key = "prefix+v"
-type = "plugin_action"
-command = "herdr-sidebar.open-git"
-description = "source control panel"
-
-# Same two panels, in a tab of their own instead of a split. Use these when the
-# current tab already holds an agent and you would rather not shrink it.
-# `plugin pane open` overrides the manifest placement, so no plugin is patched.
-[[keys.command]]
-key = "prefix+ctrl+b"
-type = "shell"
-command = "~/.config/herdr/bin/sidebar-tab.sh"
-description = "file tree and git panel, in a named tab"
 
 [[keys.command]]
 key = "prefix+ctrl+o"
@@ -284,3 +294,67 @@ key = "prefix+i"
 type = "shell"
 command = "~/.config/herdr/bin/clip-image-paste.sh"
 description = "paste clipboard image into this pane"
+
+# the plugin set is declared in herdr/plugins-config/herdr-lazy/plugins.list and
+# pinned by its lockfile; this pane is what edits them. prefix+shift+l, the key
+# the README suggests, is already grow-pane-right here.
+[[keys.command]]
+key = "prefix+shift+p"
+type = "plugin_action"
+command = "herdr-lazy.manage"
+description = "manage plugins"
+
+# The six plugins that had no way in. Keys picked against both this file and
+# herdr's own defaults: shift+r is reload_config, shift+t is rename_tab, and
+# prefix+b only came free because toggle_sidebar moved to prefix+e.
+
+# a persistent floating shell, where prefix+a is a fresh popup every time
+[[keys.command]]
+key = "prefix+shift+a"
+type = "plugin_action"
+command = "herdr-floax.toggle"
+description = "floating scratch shell"
+
+# yazi: the only one of the three file views that moves and renames
+[[keys.command]]
+key = "prefix+b"
+type = "plugin_action"
+command = "ray.file-explorer.open"
+description = "browse files with yazi"
+
+# prefix+v is the sidebar git panel; this is the full client
+[[keys.command]]
+key = "prefix+shift+v"
+type = "plugin_action"
+command = "herdr-lazygit.open"
+description = "lazygit"
+
+# an agent's diff beside its chat, line comments go back into its prompt
+[[keys.command]]
+key = "prefix+ctrl+r"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+description = "review this agent's diff"
+
+# the prefix+f family is files; this one opens what is already on screen
+[[keys.command]]
+key = "prefix+ctrl+f"
+type = "plugin_action"
+command = "termscope.open"
+description = "open a file or link on screen"
+
+[[keys.command]]
+key = "prefix+shift+c"
+type = "plugin_action"
+command = "rmarganti.herdr-pluck.pluck"
+description = "copy a visible token"
+
+# pull the focused pane out into a tab of its own, tmux break-pane. herdr has
+# the move in its CLI but no keybind for it (discussion #1674), and pane move
+# wants an explicit id, which the script resolves. prefix+d is the last plain
+# letter left: detach is on prefix+q here, so herdr never claimed it.
+[[keys.command]]
+key = "prefix+d"
+type = "shell"
+command = "~/.config/herdr/bin/break-pane.sh"
+description = "break this pane into its own tab"
