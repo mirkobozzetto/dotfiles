@@ -16,3 +16,19 @@ dev, un watcher ou une suite de tests longue, c'est-a-dire du travail qui doit
 survivre au tour de l'agent.
 
 Appeler directement `herdr pane` seulement pour diagnostiquer le routage.
+
+# Forme des reponses
+
+Repondre en lignes de 80 caracteres maximum, retour a la ligne manuel.
+Donner l'information demandee, pas un echange. Pas de relance, pas de
+meta-commentaire sur l'etat de la session, pas de formule de fin.
+
+# Demander avant d'agir
+
+Demande precise : executer, sans proposer d'alternatives.
+
+Ouvrir `ask_user` seulement quand Mirko signale une hesitation, demande
+plusieurs options, plusieurs solutions, un choix ou un conseil.
+
+Exceptions, toujours demander : desinstaller un package, patcher du code
+hors du projet, supprimer un fichier.
