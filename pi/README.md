@@ -59,16 +59,54 @@ Installed with `pi install`; the list lives in `settings.json` under
 Both are shared with omp, which loads the same checkouts through its own
 adapter. Editing either repo changes both harnesses at once.
 
-## Known local patch
+## pi-background-tasks and the Anthropic subscription
 
-`pi-background-tasks` 2.5.0 hard-fails an Anthropic session after a reload or
-resume with `Anthropic cache lineage diverged before transport`. The upstream
-fix ([PR #17](https://github.com/ismailsaleekh/pi-background-tasks/pull/17))
-is applied by hand inside `node_modules`, with the original saved next to it:
+`pi-background-tasks` ships two extensions. `background-tasks.ts` is the
+visible one (`bg_run`, `bg_delegate`, fusion). `anthropic-attribution.ts`
+is the one to know about: it re-registers the `anthropic` provider and
+builds every request to Anthropic itself, disguised as a Claude Code
+request (billing system text, `sk-ant-oat` OAuth token, Claude Code
+headers) so the subscription pays instead of an API key. From the moment
+the package is installed, every turn on an `anthropic/*` model in pi goes
+through that file, not through pi's own Anthropic code. `openai-codex/*`
+is untouched.
+
+Consequence: any pi release that changes the provider contract breaks
+Claude in pi until this package follows. Its `peerDependencies` say which
+pi versions it was written for; anything newer is unverified.
+
+Symptoms seen so far, all on Claude models only:
+
+| pi | Symptom | Cause | Fix |
+|---|---|---|---|
+| 0.85 | session bricked with `Anthropic cache lineage diverged` after reload/resume | lineage guard | [PR #17](https://github.com/ismailsaleekh/pi-background-tasks/pull/17) |
+| 0.86 | 100% CPU freeze right after a prompt, then empty answers to every prompt | `TranscriptContext`: prompt and tools moved into `system` messages | [issue #27](https://github.com/ismailsaleekh/pi-background-tasks/issues/27), [PR #28](https://github.com/ismailsaleekh/pi-background-tasks/pull/28) |
+
+If a Claude session in pi freezes or answers nothing while GPT works,
+suspect this file first: `kill -USR1 <pid>` and attach the inspector; a
+frame in `convertMessages` or `buildAnthropicRequest` confirms it.
+
+### Local patches
+
+Both fixes are applied by hand inside `node_modules`, in this order, on
+top of the published 2.5.0 file:
 
 ```
 ~/.pi/agent/npm/node_modules/pi-background-tasks/src/core/anthropic-attribution.ts
-~/.pi/agent/backups/pi-background-tasks-2.5.0-lineage/
 ```
 
-`pi update --extensions` overwrites it. Reapply from the PR until it is merged.
+1. PR #17 (lineage): original saved in
+   `~/.pi/agent/backups/pi-background-tasks-2.5.0-lineage/`.
+2. PR #28 (pi 0.86): `patches/pi-background-tasks-pr28-pi086-transcript-context.patch`,
+   `patch -p1` from the package root. Pre-patch file saved as
+   `~/.pi/agent/backups/anthropic-attribution.ts.before-system-role-fix`.
+
+`pi update` or a reinstall of the package overwrites both. Until the PRs
+are merged and released, reapply them, then prove the result with
+`pi --model anthropic/claude-haiku-4-5 -p "name two tools you have"`:
+a working install names tools, a broken one freezes or answers nothing.
+Running pi sessions keep the old code in memory: restart them.
+
+The durable exit is to drop `npm:pi-background-tasks` from `packages`
+if `bg_run`/`bg_delegate`/fusion are not needed; pi then uses its own
+Anthropic transport and nothing here applies.
