@@ -3,7 +3,6 @@ providers:
     - exa
     - perplexity
     - gemini
-    - anthropic
     - codex
     - xai
     - zai
@@ -31,22 +30,11 @@ theme:
   dark: dark-catppuccin
 setupVersion: 2
 modelRoles:
-  astra-low: openai-codex/gpt-6-astra:low
-  astra-med: openai-codex/gpt-6-astra:medium
-  astra-high: openai-codex/gpt-6-astra:high
-  sol-low: openai-codex/gpt-5.6-sol:low
-  sol-med: openai-codex/gpt-5.6-sol:medium
-  sol-high: openai-codex/gpt-5.6-sol:high
-  opus-high: anthropic/claude-opus-5:high
-  opus-med: anthropic/claude-opus-5:medium
+  opus: claude-bridge/claude-opus-5-5
+  default: claude-bridge/claude-opus-5-5:high
   task: openai-codex/gpt-5.6-terra:medium
   review: openai-codex/gpt-5.6-sol:high
   commit: openai-codex/gpt-5.6-luna:low
-  fable-med: anthropic/claude-fable-5-1:medium
-  luna-high: openai-codex/gpt-5.6-luna:high
-  terra-med: openai-codex/gpt-5.6-terra:medium
-  luna-med: openai-codex/gpt-5.6-luna:medium
-  terra-high: openai-codex/gpt-5.6-terra:high
 colorBlindMode: false
 statusLine:
   preset: nerd
@@ -153,14 +141,7 @@ bash:
     - match: "*supabase db reset*"
       approval: prompt
 cycleOrder:
-  - astra-low
-  - astra-med
-  - astra-high
-  - sol-low
-  - sol-med
-  - sol-high
-  - opus-high
-  - opus-med
+  - opus
 hideThinkingBlock: true
 composer:
   shape: pi
@@ -176,7 +157,7 @@ tools:
   approvalMode: yolo
 autoResume: false
 startup:
-  showSplash: true
+  showSplash: false
 update:
   channel: stable
 branchSummary:
@@ -192,13 +173,15 @@ enabledModels:
   - openai-codex/gpt-5.6-terra
   - openai-codex/gpt-5.6-luna
   - openai-codex/gpt-6-astra
-  - anthropic/claude-fable-5-1
-  - anthropic/claude-opus-5
+  - claude-bridge/claude-fable-5-1
+  - claude-bridge/claude-opus-5
+  - claude-bridge/claude-opus-5-5
   - deepseek/deepseek-v4-flash-vision-exp
 disabledProviders:
   - openai
   - openrouter
   - claude-plugins
+  - anthropic
 disabledExtensions:
   - skill:vercel-react-best-practices
   - skill:apex
@@ -233,4 +216,5 @@ personality: pragmatic
 retry:
   fallbackRevertPolicy: cooldown-expiry
 extensions:
+  - /Users/mirkobozzetto/dotfiles/claude-bridge-compat/src/index.ts
   - /Users/mirkobozzetto/code/skills/arsenal/plugins/ship/runtime/extension.ts
