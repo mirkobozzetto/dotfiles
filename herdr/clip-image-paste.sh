@@ -15,5 +15,9 @@ OSA
 if [ -s "$f" ]; then
   herdr pane send-text "$pane" "$f " >/dev/null
 else
-  herdr pane send-text "$pane" "$(pbpaste)" >/dev/null
+  # send-text types raw keys: without the bracketed-paste markers each newline
+  # is an Enter, and Claude Code submits the block line by line. ESC is
+  # stripped so the clipboard cannot close the paste early.
+  esc="$(printf '\033')"
+  herdr pane send-text "$pane" "${esc}[200~$(pbpaste | tr -d '\033')${esc}[201~" >/dev/null
 fi
