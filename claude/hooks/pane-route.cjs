@@ -135,7 +135,15 @@ function main() {
     isSilent(original);
 
   const finalCommand = skip ? command : `${RUNNER} ${quote(input.cwd || process.cwd())} ${quote(command)}`;
-  if (finalCommand === original && decision !== 'ask') return; // nothing to say
+  // Staying silent would leave an unrewritten command (a background job, a
+  // plain binary) to dontAsk, which refuses what the same command in a pane gets.
+  if (finalCommand === original) {
+    emit({
+      permissionDecision: decision === 'ask' ? 'ask' : 'allow',
+      permissionDecisionReason: decision === 'ask' ? 'In the Bash ask list' : 'Not in the Bash deny list',
+    });
+    return;
+  }
 
   emit({
     permissionDecision: decision === 'ask' ? 'ask' : 'allow',
