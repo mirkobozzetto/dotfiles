@@ -1,0 +1,61 @@
+--- a/src/app.rs
++++ b/src/app.rs
+@@ -20,6 +20,7 @@
+ struct Candidate {
+     previous_pinned: bool,
+     user_pinned: bool,
++    name_rank: (u8, usize),
+     score: i64,
+     source_rank: usize,
+     idx: usize,
+@@ -194,6 +195,7 @@
+                     && e.source == Source::Workspace
+                     && e.workspace_id.as_deref() == self.previous_workspace_id.as_deref(),
+                 user_pinned: self.is_pinned(e),
++                name_rank: name_rank(&e.title, &query.plain),
+                 score,
+                 source_rank: self.config.picker.source_rank(&e.source),
+                 idx,
+@@ -202,6 +204,7 @@
+         scored.sort_by(|a, b| {
+             b.previous_pinned
+                 .cmp(&a.previous_pinned)
++                .then_with(|| a.name_rank.cmp(&b.name_rank))
+                 .then_with(|| b.user_pinned.cmp(&a.user_pinned))
+                 .then_with(|| b.score.cmp(&a.score))
+                 .then_with(|| a.source_rank.cmp(&b.source_rank))
+@@ -630,6 +633,25 @@
+ fn push_token(tokens: &mut Vec<String>, value: &str) {
+     if !value.is_empty() {
+         tokens.push(value.into());
++    }
++}
++
++/// The fuzzy score ignores length, so "hop" ties with every long path that
++/// holds those letters. The entry name itself wins: exact, then prefix, then
++/// substring, the shorter name first inside each tier.
++fn name_rank(title: &str, query: &str) -> (u8, usize) {
++    if query.is_empty() {
++        return (3, 0);
++    }
++    let title = title.to_lowercase();
++    if title == query {
++        (0, 0)
++    } else if title.starts_with(query) {
++        (1, title.len())
++    } else if title.contains(query) {
++        (2, title.len())
++    } else {
++        (3, 0)
+     }
+ }
+ 
+@@ -889,6 +911,8 @@
+                 format!("session:{}:{name}", remote.as_deref().unwrap_or("local"))
+             }
+             EntryAction::RunCommand { command, .. } => format!("{}:{command}", e.source_name()),
++            // zoxide and roots overlap; the first source to list a folder keeps it
++            EntryAction::FocusOrCreateDir => format!("dir:{}", e.key()),
+             _ => format!("{}:{}", e.source_name(), e.key()),
+         };
+         if seen.insert(key) {
