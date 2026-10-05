@@ -94,7 +94,7 @@ There is no `plugin update` in herdr: refreshing a plugin means reinstalling it.
 | | |
 |---|---|
 | `config.toml` | keymap, theme, sidebar rows, and every plugin binding above |
-| `agent-auto-jump.py` | LaunchAgent daemon that focuses an agent when it finishes or blocks |
+| `agent-auto-jump.py` | LaunchAgent daemon that caches agent sessions and restores focus after a server restart; never steals focus |
 | `plugins-local/tab-autoname/` | the local plugin, source included |
 | `bin/break-pane.sh` | moves the focused pane into a tab of its own, herdr has no keybind for it |
 | `bin/herdr-update.sh` | `brew upgrade herdr` on a schedule, with a notice if a server lags behind |

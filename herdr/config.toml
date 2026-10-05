@@ -71,6 +71,8 @@ previous_workspace = ["prefix+(", "ctrl+alt+k"]
 next_agent = "prefix+g"
 # straight to the right agent instead of cycling
 focus_agent = "prefix+alt+1..9"
+# the toast's target, what clicking it does; the stock prefix+o is the navigator
+open_notification_target = "prefix+enter"
 switch_workspace = "prefix+shift+1..9"
 
 # copy mode: scrollback search lives inside it (/ then n), what prefix+C-f
@@ -229,8 +231,10 @@ type = "plugin_action"
 command = "willfish.herdr-navigator.right"
 description = "pane right"
 
+# agents never steal focus: a toast says who wants you, a click goes there
 [ui.toast]
 delivery = "herdr"
+delay_seconds = 0
 
 # seven days of agent state: who worked, when, how long blocked
 [[keys.command]]
