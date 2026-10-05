@@ -68,7 +68,13 @@ tmux_send() {
 }
 
 # --------------------------------------------------------------- herdr backend
-HERDR_COMMAND_TAB_LABEL="Agent commands"
+# One command tab per workspace, labelled "cmd", holding at most two panes side
+# by side. A pane is claimed with a lock directory for the length of one job,
+# so two agents never type into the same pane. When both panes are busy, the
+# command waits for one to free up: never a third pane, never another tab.
+HERDR_COMMAND_TAB_LABEL="cmd"
+HERDR_MAX_PANES=2
+HERDR_WAIT_TICKS=1200 # 600s at 0.5s per tick
 
 # A herdr pane is usable when its foreground process is a shell. Plugin overlays
 # answer `pane_not_found` here, which excludes them without a special case.
@@ -78,72 +84,71 @@ herdr_is_shell() {
     grep -qE '^(zsh|bash|fish|sh|-zsh|-bash)$'
 }
 
+# mkdir is atomic: the first caller wins. A lock whose owner died is taken over.
+take_lock() {
+  local dir=$1 owner
+  if mkdir "$dir" 2>/dev/null; then echo $$ > "$dir/pid"; return 0; fi
+  owner=$(cat "$dir/pid" 2>/dev/null)
+  if [ -n "$owner" ] && ! kill -0 "$owner" 2>/dev/null; then
+    drop_lock "$dir"
+    mkdir "$dir" 2>/dev/null && echo $$ > "$dir/pid" && return 0
+  fi
+  return 1
+}
+
+drop_lock() {
+  rm -f "$1/pid" 2>/dev/null
+  rmdir "$1" 2>/dev/null
+}
+
+lock_of() { printf '%s/lock-%s' "$JOBS" "${1//:/_}"; }
+
+# 0: a pane is claimed and printed. 2: none free yet, retry. 1: give up.
+herdr_pick() {
+  local workspace=$1 tab created ids id count first
+  tab=$(herdr tab list --workspace "$workspace" 2>/dev/null |
+    jq -r --arg l "$HERDR_COMMAND_TAB_LABEL" \
+      '[.result.tabs[] | select(.label == $l) | .tab_id][0] // empty' 2>/dev/null)
+  if [ -z "$tab" ]; then
+    created=$(herdr tab create --workspace "$workspace" --cwd "$CWD" \
+      --label "$HERDR_COMMAND_TAB_LABEL" --no-focus 2>/dev/null)
+    tab=$(printf '%s' "$created" | jq -r '.result.tab.tab_id // empty' 2>/dev/null)
+    [ -n "$tab" ] || return 1
+  fi
+
+  ids=$(herdr pane list --workspace "$workspace" 2>/dev/null |
+    jq -r --arg t "$tab" '.result.panes[] | select(.tab_id == $t) | .pane_id' 2>/dev/null)
+  for id in $ids; do
+    if herdr_is_shell "$id" && take_lock "$(lock_of "$id")"; then
+      printf '%s' "$id"
+      return 0
+    fi
+  done
+
+  count=$(printf '%s\n' "$ids" | grep -c .)
+  [ "$count" -lt "$HERDR_MAX_PANES" ] || return 2
+  first=$(printf '%s\n' "$ids" | head -1)
+  herdr pane split "$first" --direction right --cwd "$CWD" --no-focus >/dev/null 2>&1 || return 1
+  return 2
+}
+
 herdr_target() {
-  local workspace memo remembered panes target="" candidates
-  local id tab tab_ids created label memo_tab
+  local workspace ticks=0 target rc
   workspace="${HERDR_WORKSPACE_ID:-${HERDR_TAB_ID%%:*}}"
   [ -n "$workspace" ] || return 1
-  memo="$JOBS/herdr-command-$workspace"
-
-  tab_ids=$(herdr tab list --workspace "$workspace" 2>/dev/null |
-    jq -r --arg label "$HERDR_COMMAND_TAB_LABEL" '
-      .result.tabs[]
-      | select(
-          .label == $label
-          or (.label | startswith($label + " "))
-        )
-      | .tab_id' 2>/dev/null)
-
-  panes=$(herdr pane list --workspace "$workspace" 2>/dev/null)
-  if [ -f "$memo" ]; then
-    remembered=$(cat "$memo")
-    memo_tab=$(printf '%s' "$panes" | jq -r --arg pane "$remembered" '
-      [.result.panes[] | select(.pane_id == $pane) | .tab_id][0]
-      // empty' 2>/dev/null)
-    for tab in $tab_ids; do
-      if [ "$tab" = "$memo_tab" ] && herdr_is_shell "$remembered"; then
-        target="$remembered"
-        break
-      fi
-    done
-  fi
-
-  if [ -z "$target" ]; then
-    for tab in $tab_ids; do
-      candidates=$(printf '%s' "$panes" | jq -r --arg tab "$tab" '
-        .result.panes[]
-        | select(.tab_id == $tab)
-        | .pane_id' 2>/dev/null)
-      for id in $candidates; do
-        if herdr_is_shell "$id"; then
-          target="$id"
-          break 2
-        fi
-      done
-    done
-  fi
-
-  # Never split a pane for agent commands. Busy commands get another tab.
-  if [ -z "$target" ]; then
-    label="$HERDR_COMMAND_TAB_LABEL"
-    if [ -n "$tab_ids" ]; then
-      label="$HERDR_COMMAND_TAB_LABEL $$"
+  while [ "$ticks" -lt "$HERDR_WAIT_TICKS" ]; do
+    # One picker at a time per workspace: two callers never create two tabs
+    # nor split the same pane twice.
+    if take_lock "$JOBS/pick-$workspace"; then
+      target=$(herdr_pick "$workspace"); rc=$?
+      drop_lock "$JOBS/pick-$workspace"
+      [ "$rc" -eq 0 ] && { printf '%s' "$target"; return 0; }
+      [ "$rc" -eq 1 ] && return 1
     fi
-    created=$(herdr tab create --workspace "$workspace" --cwd "$CWD" \
-      --label "$label" --no-focus 2>/dev/null)
-    tab=$(printf '%s' "$created" |
-      jq -r '.result.tab.tab_id // empty' 2>/dev/null)
-    [ -n "$tab" ] || return 1
-
-    panes=$(herdr pane list --workspace "$workspace" 2>/dev/null)
-    target=$(printf '%s' "$panes" | jq -r --arg tab "$tab" '
-      [.result.panes[] | select(.tab_id == $tab) | .pane_id][0]
-      // empty' 2>/dev/null)
-  fi
-
-  [ -n "$target" ] || return 1
-  echo "$target" > "$memo"
-  printf '%s' "$target"
+    ticks=$((ticks + 1))
+    sleep 0.5
+  done
+  return 1
 }
 
 herdr_send() {
@@ -169,6 +174,9 @@ fi
 command -v jq >/dev/null 2>&1 || [ "$backend" = "tmux" ] || run_local "jq missing, cannot read herdr panes"
 
 target=$("${backend}_target") || run_local "no $backend pane available"
+# The pane lock was taken by the picker subshell under this process id; it is
+# released when this process exits, whatever the outcome.
+[ "$backend" = "herdr" ] && trap 'drop_lock "$(lock_of "$target")"' EXIT
 
 id="$$-${RANDOM}"
 job="$JOBS/$id.sh"
