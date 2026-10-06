@@ -8,6 +8,15 @@ label=$1 cwd=$2 prompt=$3
 [ -f "$prompt" ] || { echo "herdr-agent-tab: no prompt file $prompt" >&2; exit 2; }
 workspace="${HERDR_WORKSPACE_ID:-${HERDR_TAB_ID%%:*}}"
 
+# The session must start on a branch already visible on GitHub (rules/git.md).
+branch=$(git -C "$cwd" symbolic-ref --short -q HEAD 2>/dev/null)
+case "$branch" in
+  ""|main|master|dev|develop) ;;
+  *) [ "$(git -C "$cwd" rev-parse --abbrev-ref '@{u}' 2>/dev/null)" = "origin/$branch" ] ||
+       git -C "$cwd" push -q -u origin "$branch" ||
+       { echo "herdr-agent-tab: could not publish $branch" >&2; exit 1; } ;;
+esac
+
 created=$(herdr tab create ${workspace:+--workspace "$workspace"} --label "$label" --cwd "$cwd" --no-focus) || exit 1
 tab=$(jq -r '.result.tab.tab_id' <<<"$created")
 pane=$(jq -r '.result.root_pane.pane_id' <<<"$created")
