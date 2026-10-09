@@ -1,12 +1,14 @@
 # Accounts follow the folder. The nearest .hop above it names the account
 # (~/code/GRATIAGO/.hop says gratiago); elsewhere the active hop account
-# applies. On every cd, the Claude login, gh and the hop secrets switch.
+# applies. On every cd, the Claude login, git, gh and the hop secrets switch.
 # An account without a hop profile (a client that only lends Claude) keeps
 # the active hop account for GitHub. Sourced after hop.sh.
 
 HOP_PROFILES=${HOP_PROFILES:-$HOME/.config/hop}
 # This account keeps the plain ~/.claude login; every other one gets its own.
 HOP_CLAUDE_DEFAULT=mirko
+# This shell's own include: git reads it, hop switches it, nothing global.
+_hop_file=${${TMPDIR:-/tmp}%/}/hop-shell-$$.gitconfig
 
 _hop_active() {
   basename "$(git config -f "$HOME/.gitconfig-active" include.path)" .gitconfig
@@ -42,6 +44,17 @@ _hop_claude_dir() {
   print -r -- "$dir"
 }
 
+# Points this shell's git, SSH key, gh and secrets at one hop profile.
+_hop_github() {
+  local profile=$HOP_PROFILES/$1.gitconfig
+  git config -f "$_hop_file" include.path "$profile"
+  export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=include.path GIT_CONFIG_VALUE_0=$_hop_file
+  eval "$(HOP_ACTIVE=$_hop_file command hop env)"
+  export HOP_GH_ACCOUNT=$1
+  export HOP_GH_USER=$(git config -f "$profile" github.user)
+  export GH_TOKEN=$(gh auth token -h github.com -u "$HOP_GH_USER" 2>/dev/null)
+}
+
 _hop_follow_dir() {
   # A Claude session keeps the account it was started with, even after a cd.
   [[ -n $CLAUDECODE ]] && return
@@ -50,17 +63,9 @@ _hop_follow_dir() {
 
   local gh_account=$account
   [[ -f $HOP_PROFILES/$account.gitconfig ]] || gh_account=$(_hop_active)
-  local profile=$HOP_PROFILES/$gh_account.gitconfig
+  _hop_github "$gh_account"
 
-  # hop env only prints the active account: point it at this one instead.
-  local include=$(mktemp)
-  git config -f "$include" include.path "$profile"
-  eval "$(HOP_ACTIVE=$include command hop env)"
-  rm -f "$include"
-
-  export HOP_ACCOUNT=$account HOP_GH_ACCOUNT=$gh_account
-  export HOP_GH_USER=$(git config -f "$profile" github.user)
-  export GH_TOKEN=$(gh auth token -h github.com -u "$HOP_GH_USER" 2>/dev/null)
+  export HOP_ACCOUNT=$account
   if [[ $account == "$HOP_CLAUDE_DEFAULT" ]]; then
     unset CLAUDE_CONFIG_DIR
   else
@@ -68,16 +73,30 @@ _hop_follow_dir() {
   fi
 }
 
+_hop_forget() { rm -f "$_hop_file" }
+
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd _hop_follow_dir
+add-zsh-hook zshexit _hop_forget
 # hop.sh has just loaded the active account's secrets, whatever was inherited.
 [[ -z $CLAUDECODE ]] && HOP_ACCOUNT=
 _hop_follow_dir
 
+# hop switches GitHub for this shell only, until a cd into another account's
+# folder. hop -g changes the Mac default, as hop always did.
 hop() {
-  command hop "$@" || return
-  HOP_ACCOUNT=
-  _hop_follow_dir
+  if [[ $1 == -g || $1 == --global ]]; then
+    shift
+    # The shell's own account must not leak into the global switch.
+    env -u GH_TOKEN GIT_CONFIG_COUNT=0 hop "$@" || return
+    HOP_ACCOUNT=
+    _hop_follow_dir
+    return
+  fi
+  [[ -f $_hop_file ]] || _hop_github "${HOP_GH_ACCOUNT:-$(_hop_active)}"
+  HOP_ACTIVE=$_hop_file command hop "$@" || return
+  local account=$(basename "$(git config -f "$_hop_file" include.path)" .gitconfig)
+  [[ $account == "$HOP_GH_ACCOUNT" ]] || _hop_github "$account"
 }
 
 # Git is pinned for the whole session: a Gratiago session that cds into a
