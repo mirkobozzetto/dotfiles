@@ -5,8 +5,6 @@
 # the active hop account for GitHub. Sourced after hop.sh.
 
 HOP_PROFILES=${HOP_PROFILES:-$HOME/.config/hop}
-# This account keeps the plain ~/.claude login; every other one gets its own.
-HOP_CLAUDE_DEFAULT=mirko
 # This shell's own include: git reads it, hop switches it, nothing global.
 _hop_file=${${TMPDIR:-/tmp}%/}/hop-shell-$$.gitconfig
 
@@ -66,11 +64,9 @@ _hop_follow_dir() {
   _hop_github "$gh_account"
 
   export HOP_ACCOUNT=$account
-  if [[ $account == "$HOP_CLAUDE_DEFAULT" ]]; then
-    unset CLAUDE_CONFIG_DIR
-  else
-    export CLAUDE_CONFIG_DIR=$(_hop_claude_dir "$account")
-  fi
+  # Every account, mirko included, has its own login: none sits on the shared
+  # default one, which any session started outside this shell would use.
+  export CLAUDE_CONFIG_DIR=$(_hop_claude_dir "$account")
 }
 
 _hop_forget() { rm -f "$_hop_file" }
