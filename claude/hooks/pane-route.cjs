@@ -115,7 +115,11 @@ function main() {
     if (rtk.updatedInput && typeof rtk.updatedInput.command === 'string') command = rtk.updatedInput.command;
   }
 
-  const decision = permissionFor(command);
+  // A read that only names a guarded command (`rg "prisma migrate"`) runs nothing:
+  // the ask list is for running it. `find -exec` and `-delete` do run things.
+  const listed = permissionFor(command);
+  const readOnly = isSilent(original) && !/\s-(exec|execdir|ok|delete)\b/.test(original);
+  const decision = listed === 'ask' && readOnly ? null : listed;
   if (decision === 'deny') {
     emit({
       permissionDecision: 'deny',
