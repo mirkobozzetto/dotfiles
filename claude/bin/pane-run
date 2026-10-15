@@ -198,7 +198,9 @@ rc="$JOBS/$id.rc"
   fi
   printf 'cd %q || exit 1\n' "$CWD"
   printf 'printf "\\033[1;36m$ %%s\\033[0m\\n" %q\n' "$CMD"
-  printf '{ %s; } 2>&1 | tee %q\n' "$CMD" "$out"
+  # The brace closes on its own line: a command ending in a heredoc keeps its
+  # terminator alone on the line, which "EOF; }" would break.
+  printf '{ %s\n} 2>&1 | tee %q\n' "$CMD" "$out"
   printf 'echo "${PIPESTATUS[0]}" > %q.tmp\n' "$rc"
   printf 'mv %q.tmp %q\n' "$rc" "$rc"
 } > "$job"
