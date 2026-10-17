@@ -180,8 +180,14 @@ target=$("${backend}_target") || run_local "no $backend pane available"
 
 id="$$-${RANDOM}"
 job="$JOBS/$id.sh"
+cmd="$JOBS/$id.cmd"
 out="$JOBS/$id.out"
 rc="$JOBS/$id.rc"
+
+# The command runs from its own file under zsh, the agent's shell: inlined in
+# the job, macOS bash 3.2 misparses a heredoc inside "$(...)" whose body holds
+# an apostrophe, and the job dies before writing its exit code.
+printf '%s\n' "$CMD" > "$cmd"
 
 # The echoed command line stays outside the tee, so it shows in the pane
 # without polluting the output handed back to the agent.
@@ -198,9 +204,7 @@ rc="$JOBS/$id.rc"
   fi
   printf 'cd %q || exit 1\n' "$CWD"
   printf 'printf "\\033[1;36m$ %%s\\033[0m\\n" %q\n' "$CMD"
-  # The brace closes on its own line: a command ending in a heredoc keeps its
-  # terminator alone on the line, which "EOF; }" would break.
-  printf '{ %s\n} 2>&1 | tee %q\n' "$CMD" "$out"
+  printf 'zsh %q 2>&1 | tee %q\n' "$cmd" "$out"
   printf 'echo "${PIPESTATUS[0]}" > %q.tmp\n' "$rc"
   printf 'mv %q.tmp %q\n' "$rc" "$rc"
 } > "$job"
@@ -221,5 +225,5 @@ done
 
 cat "$out"
 code=$(cat "$rc")
-rm -f "$job" "$out" "$rc"
+rm -f "$job" "$cmd" "$out" "$rc"
 exit "${code:-0}"
