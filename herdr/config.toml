@@ -60,6 +60,8 @@ edit_scrollback = "prefix+shift+e"
 
 next_tab = "prefix+n"
 previous_tab = "prefix+p"
+move_tab_previous = "prefix+<"
+move_tab_next = "prefix+>"
 detach = "prefix+q"
 
 # tmux sessions become herdr workspaces. The ctrl+alt chords are direct, no
@@ -285,7 +287,8 @@ show_agent_labels_on_pane_borders = true
 # a new tab opens straight away; the Smart Rename worker names it from the
 # work happening inside, which beats naming it before anything has run
 prompt_new_tab_name = false
-agent_panel_sort = "spaces"
+# agents waiting on you rise to the top, like a queue
+agent_panel_sort = "priority"
 # ZOOM pill while a pane is zoomed, then the clock, right of the tabs
 tab_bar_right = [{ type = "zoom" }, { type = "datetime", format = "%H:%M" }]
 # frame a lone pane too, so its agent label shows like in a split
