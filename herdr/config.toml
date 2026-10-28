@@ -286,13 +286,21 @@ show_agent_labels_on_pane_borders = true
 # work happening inside, which beats naming it before anything has run
 prompt_new_tab_name = false
 agent_panel_sort = "spaces"
+# ZOOM pill while a pane is zoomed, then the clock, right of the tabs
+tab_bar_right = [{ type = "zoom" }, { type = "datetime", format = "%H:%M" }]
+# frame a lone pane too, so its agent label shows like in a split
+pane_borders = "always"
+pane_outer_borders = true
 
-# the stock layout, plus the two tokens the new plugins write into. No fg
-# anywhere: a colour override would replace the semantic colours, and the one
-# marking the focused entry with them.
+# the stock layout, plus the two tokens the new plugins write into. A colour
+# override replaces the semantic colours, so only a blocked agent gets one: a
+# rule styles the rows it matches and leaves every other row untouched.
 status_indicators = "symbols"
 [ui.sidebar.agents]
-rows = [["state_icon", "workspace", "tab", "$pr"], ["agent", "state_text"]]
+rows = [
+  ["state_icon", "workspace", "tab", "$pr"],
+  ["agent", { token = "state_text", rules = [{ contains = "blocked", ignore_case = true, fg = "#e64553", bold = true }] }],
+]
 
 # herdr 0.7.x unbound the local ctrl+v clipboard-image bridge (herdr#986), so
 # nothing stages a screenshot for the agent in a local session any more. This
@@ -311,6 +319,13 @@ key = "prefix+shift+p"
 type = "plugin_action"
 command = "herdr-lazy.manage"
 description = "manage plugins"
+
+# herdr-projects: one board for every agent, each on its own branch
+[[keys.command]]
+key = "prefix+shift+w"
+type = "plugin_action"
+command = "herdr-projects.open"
+description = "open the work board"
 
 # The six plugins that had no way in. Keys picked against both this file and
 # herdr's own defaults: shift+r is reload_config, shift+t is rename_tab, and
