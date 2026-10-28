@@ -57,6 +57,23 @@ function globToRegExp(pattern) {
   return new RegExp(`^${escaped}$`);
 }
 
+const DB_ASK = /prisma|drizzle|supabase/;
+
+// Quoted text is data (a commit message, a trace note) unless a shell runs it.
+function askSubject(command) {
+  if (/\b(bash|sh|zsh)\s+-c\b|\beval\b|\bxargs\b/.test(command)) return command;
+  return command.replace(/'[^']*'|"(?:\\.|[^"\\])*"/g, '""');
+}
+
+// Every database the command names is a disposable local one: nothing to guard.
+function onlyLocalTestDatabases(command) {
+  const urls = command.match(/postgres(?:ql)?:\/\/[^\s"']+/g) || [];
+  return (
+    urls.length > 0 &&
+    urls.every((url) => /^postgres(?:ql)?:\/\/(?:[^@/]*@)?(localhost|127\.0\.0\.1)[:/][^?]*_test(?:\?|$)/.test(url))
+  );
+}
+
 function permissionFor(command) {
   let permissions;
   try {
@@ -64,11 +81,14 @@ function permissionFor(command) {
   } catch {
     return null; // unreadable settings must not block the command
   }
+  const subjects = { deny: command, ask: askSubject(command) };
+  const localTest = onlyLocalTestDatabases(command);
   for (const decision of ['deny', 'ask']) {
     for (const pattern of permissions[decision] || []) {
       if (!pattern.startsWith('Bash(')) continue;
+      if (decision === 'ask' && localTest && DB_ASK.test(pattern)) continue;
       try {
-        if (globToRegExp(pattern).test(command)) return decision;
+        if (globToRegExp(pattern).test(subjects[decision])) return decision;
       } catch {
         /* skip unparseable pattern */
       }
@@ -156,4 +176,5 @@ function main() {
   });
 }
 
-main();
+if (require.main === module) main();
+module.exports = { permissionFor };
