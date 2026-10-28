@@ -4,7 +4,7 @@
 onboarding = false
 
 [ui.sound]
-enabled = true
+enabled = false
 
 # what theme-apply.sh and the client-dark-theme hooks do under tmux: the
 # palette follows the macOS appearance Ghostty reports, with no poller
@@ -12,8 +12,9 @@ enabled = true
 # ground, brighter blues on the entries, so the sidebar reads at a glance. The
 # tmux bar stays Catppuccin; the two only meet when you switch multiplexer.
 [theme]
-name = "tokyo-night"
-auto_switch = false
+name = "one-dark"
+# dark_name and light_name follow the macOS appearance, like Ghostty's theme
+auto_switch = true
 dark_name = "tokyo-night"
 light_name = "tokyo-night-day"
 
@@ -78,6 +79,8 @@ switch_workspace = "prefix+shift+1..9"
 # copy mode: scrollback search lives inside it (/ then n), what prefix+C-f
 # does under tmux
 copy_mode = "prefix+["
+# Ghostty sends it on cmd+k: screen and scrollback go, the prompt line stays
+clear_pane = "prefix+v"
 
 # a worktree becomes a workspace grouped under its parent repo
 new_worktree = "prefix+shift+g"
@@ -287,6 +290,7 @@ agent_panel_sort = "spaces"
 # the stock layout, plus the two tokens the new plugins write into. No fg
 # anywhere: a colour override would replace the semantic colours, and the one
 # marking the focused entry with them.
+status_indicators = "symbols"
 [ui.sidebar.agents]
 rows = [["state_icon", "workspace", "tab", "$pr"], ["agent", "state_text"]]
 
