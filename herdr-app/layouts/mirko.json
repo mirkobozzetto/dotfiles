@@ -189,7 +189,7 @@
               "id": "usage",
               "type": "block",
               "size": {
-                "px": 330
+                "px": 440
               },
               "content": {
                 "mod": "claude-usage",

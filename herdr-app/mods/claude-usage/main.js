@@ -1,41 +1,51 @@
 import { View, div, image } from "gpui-kit";
 import { h_flex, v_flex } from "gpui-base";
-import { home, readTextFile, shared, setShared, props, openOverlay, settings, theme } from "herdr";
+import { home, readTextFile, watchFolder, focused, panes, props, openOverlay, settings, theme } from "herdr";
+import * as fs from "fs/promises";
 
-const KEY = "claude-usage";
-const EVERY = 60e3;
-// One missed cycle plus slack, so a slow fetch doesn't flash the bar grey.
-const STALE = 12 * 60e3;
-const SPAN = { session: 5 * 3600e3, weekly_all: 7 * 86400e3, weekly_scoped: 7 * 86400e3 };
+const SPAN = { session: 5 * 3600e3, weekly_all: 7 * 86400e3 };
 const BAR = ["session", "weekly_all"];
-const CLAY = { session: "#b98253", weekly_all: "#856144", weekly_scoped: "#856144" };
+const CLAY = { session: "#b98253", weekly_all: "#856144" };
 const AMBER = "#ffb347", RED = "#ff5d6c";
-const POPUP_W = 300, GAP = 6;
-
-// Claude Code's status line already writes the plan's limits here on every render
-// (vibe-island bridge): no OAuth token to read, no request to api.anthropic.com.
-const CACHE = ".vibe-island/cache/rl.json";
+const POPUP_W = 320, GAP = 6;
 const WINDOWS = [["five_hour", "session"], ["seven_day", "weekly_all"]];
 
+// Each Claude's status line writes its account's limits and its own account here
+// (~/.claude/scripts/statusline/src/lib/herdr.ts): one file per hop account, one
+// per terminal. No OAuth token to read, no request to api.anthropic.com.
+const STATUS = () => `${home()}/.local/state/herdr-core/default/claude-status`;
+// hop gives each account its own config dir, with its login in .claude.json.
+const LOGIN = (account) => `${home()}/.claude-${account}/.claude.json`;
+const PERSONAL = "mirko";
+
+async function readJson(path) {
+  try { return JSON.parse(await readTextFile(path)); } catch { return null; }
+}
+
+async function folder(dir) {
+  const out = {};
+  for (const f of await fs.readdir(dir).catch(() => [])) {
+    if (f.endsWith(".json")) out[f.slice(0, -5)] = await readJson(`${dir}/${f}`);
+  }
+  return out;
+}
+
 function windowsOf(data) {
-  return WINDOWS.filter(([k]) => typeof data[k]?.used_percentage === "number")
+  return WINDOWS.filter(([k]) => typeof data?.[k]?.used_percentage === "number")
     .map(([k, kind]) => ({ kind, used: data[k].used_percentage, resets_at: new Date(data[k].resets_at * 1000).toISOString() }));
 }
 
-async function refresh() {
-  const prev = shared(KEY) ?? {};
-  const now = new Date().toISOString();
-  try {
-    const windows = windowsOf(JSON.parse(await readTextFile(`${home()}/${CACHE}`)));
-    if (!windows.length) throw new Error("no limits in the status line cache yet");
-    setShared(KEY, { checked: now, fetched: now, error: null, windows });
-  } catch (e) {
-    setShared(KEY, { ...prev, checked: now, error: String(e?.message ?? e) });
+// hop's rule: the nearest .hop above the folder names the account, else the personal one.
+async function hopAccount(dir) {
+  for (let d = dir; d && d !== "/"; d = d.slice(0, d.lastIndexOf("/")) || "/") {
+    const pinned = (await readTextFile(`${d}/.hop`).catch(() => null))?.trim();
+    if (pinned) return pinned;
   }
+  return PERSONAL;
 }
 
-const short = w => ({ session: "5h", weekly_all: "7d" })[w.kind] ?? `7d ${w.model ?? ""}`.trim();
-const long = w => ({ session: "5-hour limit", weekly_all: "Weekly limit" })[w.kind] ?? `Weekly ${w.model ?? "model"} limit`;
+const short = w => ({ session: "5h", weekly_all: "7d" })[w.kind];
+const long = w => ({ session: "5-hour limit", weekly_all: "Weekly limit" })[w.kind];
 
 function pace(w) {
   const end = Date.parse(w.resets_at), span = SPAN[w.kind];
@@ -43,11 +53,14 @@ function pace(w) {
   return Math.min(1, Math.max(0, 1 - (end - Date.now()) / span));
 }
 
-function color(w, stale, t) {
-  if (stale) return t.dim;
+// Past its reset, a window says nothing about now.
+const stale = w => Date.parse(w.resets_at) < Date.now();
+
+function color(w, t) {
+  if (stale(w)) return t.dim;
   if (w.used >= 95) return RED;
   if (w.used >= 80) return AMBER;
-  return CLAY[w.kind] ?? CLAY.weekly_all;
+  return CLAY[w.kind];
 }
 
 function clock(ms) {
@@ -61,7 +74,8 @@ function resets(w) {
   // The API reports resets a fraction of a second before the hour.
   const end = Math.round(Date.parse(w.resets_at) / 60e3) * 60e3;
   if (!end) return "";
-  const left = Math.max(0, end - Date.now());
+  const left = end - Date.now();
+  if (left <= 0) return "reset, waiting for this account's next Claude reply";
   if (left < 24 * 3600e3) {
     const h = Math.floor(left / 3600e3), m = Math.round((left % 3600e3) / 60e3);
     return `resets in ${h ? `${h}h ` : ""}${m}m, at ${clock(end)}`;
@@ -70,28 +84,58 @@ function resets(w) {
 }
 
 // The elapsed share of the window is drawn as a ghost fill: lit past it means running ahead of pace.
-function meter(w, stale, t, height) {
+function meter(w, t, height) {
   const used = Math.min(100, Math.max(0, w.used ?? 0));
-  const ghost = stale ? null : pace(w);
+  const ghost = stale(w) ? null : pace(w);
   return div().relative().w_full().h(height).rounded(height / 2).bg(t.border)
     .when(ghost !== null, el => el.child(div().absolute().left(0).top(0).h_full().w(`${ghost * 100}%`).rounded(height / 2).bg(t.dim).opacity(0.35)))
-    .child(div().absolute().left(0).top(0).h_full().w(`${used}%`).rounded(height / 2).bg(color(w, stale, t)));
+    .child(div().absolute().left(0).top(0).h_full().w(`${used}%`).rounded(height / 2).bg(color(w, t)));
 }
 
 export default class ClaudeUsage extends View {
   init(_props, cx) {
-    if (props()?.overlay) return;
-    const tick = cx => {
-      const last = Date.parse(shared(KEY)?.checked ?? "") || 0;
-      if (Date.now() - last >= EVERY) cx.spawn(async () => refresh());
-      cx.notify();
+    this.accounts = {};
+    this.terminals = {};
+    this.emails = {};
+    this.hop = new Map();
+    const load = async () => {
+      this.accounts = await folder(`${STATUS()}/accounts`);
+      this.terminals = await folder(`${STATUS()}/terminals`);
+      for (const a of new Set([PERSONAL, ...Object.keys(this.accounts)])) {
+        this.emails[a] ??= (await readJson(LOGIN(a)))?.oauthAccount?.emailAddress ?? a;
+      }
     };
-    cx.timer.every(60e3, tick);
-    tick(cx);
+    this.watching = false;
+    cx.spawn(async (cx) => {
+      for (;;) {
+        await load();
+        cx.notify();
+        try { this.watching = true; await watchFolder(STATUS()); } catch { this.watching = false; return; }
+      }
+    });
+    // Resets pass with time; without a watcher, this also rereads the files.
+    cx.timer.every(60e3, (cx) => {
+      if (!this.watching) cx.spawn(async (cx) => { await load(); cx.notify(); });
+      cx.notify();
+    });
   }
 
-  render() {
-    return props()?.overlay ? this.details() : this.bar();
+  // The account of the Claude in focus: what its status line said, else hop's rule for its folder.
+  focusedAccount(cx) {
+    const f = focused();
+    const said = f?.terminal && this.terminals[f.terminal]?.account;
+    if (said) return said;
+    const dir = f?.cwd ?? panes().find(p => p.pane === f?.pane)?.cwd;
+    if (!dir) return PERSONAL;
+    if (!this.hop.has(dir)) {
+      this.hop.set(dir, null);
+      cx.spawn(async (cx) => { this.hop.set(dir, await hopAccount(dir)); cx.notify(); });
+    }
+    return this.hop.get(dir) ?? PERSONAL;
+  }
+
+  render(cx) {
+    return props()?.overlay ? this.details() : this.bar(cx);
   }
 
   // At the pointer, a popup on a bottom bar gets pushed back into the window over the bar. Its height
@@ -100,55 +144,51 @@ export default class ClaudeUsage extends View {
   open() {
     const b = this.anchor;
     const z = Number(settings()?.zoom) || 1;
-    const rows = Math.max(3, shared(KEY)?.windows?.length ?? 0);
-    const height = b ? Math.min(120 + rows * 90, b.y / z - GAP) : 120 + rows * 90;
+    const rows = Math.max(2, Object.keys(this.accounts).length) * 2;
+    const height = b ? Math.min(140 + rows * 80, b.y / z - GAP) : 140 + rows * 80;
     const at = b ? { x: Math.max(0, b.x + b.width - (POPUP_W + GAP) * z), y: b.y - (height + GAP) * z } : undefined;
     openOverlay({ mod: "claude-usage", kind: "popup", frame: "none", width: POPUP_W, height, at, props: { details: true, height } });
   }
 
-  bar() {
+  bar(cx) {
     const t = theme();
-    const u = shared(KEY);
-    const stale = !u?.fetched || Boolean(u.error) || Date.now() - Date.parse(u.fetched) > STALE;
-    const shown = BAR.map(kind => u?.windows?.find(w => w.kind === kind)).filter(Boolean);
-    const edge = props()?.border;
+    const account = this.focusedAccount(cx);
+    const email = this.emails[account] ?? account;
+    const shown = BAR.map(kind => windowsOf(this.accounts[account]).find(w => w.kind === kind)).filter(Boolean);
     const tip = shown.length
-      ? shown.map(w => `${long(w)}: ${w.used}%, ${resets(w)}`).join("\n") + (u.error ? `\n${u.error}` : "")
-      : u?.error ?? "Loading Claude usage";
-    return h_flex().id("root").size_full().px(12).gap(12).items_center().bg(t.chrome).text_size(11.8)
+      ? `${email}\n` + shown.map(w => `${long(w)}: ${w.used}%, ${resets(w)}`).join("\n")
+      : `${email}: no limits yet. They come with this account's next Claude reply.`;
+    const edge = props()?.border;
+    return h_flex().id("root").size_full().px(12).gap(10).items_center().bg(t.chrome).text_size(11.8)
       .when(edge === "top", el => el.border_t(1).border_color(t.border))
       .when(edge === "bottom", el => el.border_b(1).border_color(t.border))
       .on_mouse_down("left", (e, cx) => { this.anchor = e.bounds; cx.stop_propagation(); })
       .on_click(() => this.open())
       .tooltip(tip)
-      .child(image("icons/claude.svg").size(14).flex_none().opacity(stale ? 0.5 : 1))
-      .when(!shown.length, el => el.child(div().text_color(t.dim).child(u?.error ? "no data" : "…")))
+      .child(image("icons/claude.svg").size(14).flex_none())
+      .child(div().flex_none().text_color(account === "gratiago" ? t.accent : t.ansi5).child(email))
+      .when(!shown.length, el => el.child(div().text_color(t.dim).child("…")))
       .children(shown.map(w => h_flex().gap(6).items_center().flex_none()
         .child(div().text_color(t.dim).child(short(w)))
-        .child(div().w(80).child(meter(w, stale, t, 5)))
-        .child(div().w(30).text_color(stale ? t.dim : w.used >= 80 ? color(w, stale, t) : t.muted).child(`${w.used}%`))));
+        .child(div().w(48).child(meter(w, t, 5)))
+        .child(div().w(30).text_color(stale(w) ? t.dim : w.used >= 80 ? color(w, t) : t.muted).child(`${w.used}%`))));
   }
 
   details() {
     const t = theme();
-    const u = shared(KEY);
-    const stale = !u?.fetched || Boolean(u.error) || Date.now() - Date.parse(u.fetched) > STALE;
-    const footer = !u?.fetched ? (u?.error ?? "not fetched yet")
-      : u.error ? `fetch failed: ${u.error} · data from ${clock(Date.parse(u.fetched))}`
-      : `updated ${clock(Date.parse(u.fetched))}`;
+    const names = Object.keys(this.accounts).sort((a, b) => (a === PERSONAL) - (b === PERSONAL));
     return v_flex().w_full().h(props().height ?? 0).justify_end().child(v_flex().w_full().p(14).gap(14).text_size(12).text_color(t.muted)
       .bg(t.popover).border(1).border_color(t.border).rounded(8)
-      .child(h_flex().justify_between().items_center()
-        .child(h_flex().gap(8).items_center().child(image("icons/claude.svg").size(16))
-          .child(div().text_size(13).font_semibold().text_color(t.foreground).child("Claude Usage")))
-        .child(div().id("refresh").px(6).py(2).rounded(5).text_color(t.dim).hover(s => s.bg(t.hover).text_color(t.foreground))
-          .on_click((_e, cx) => cx.spawn(async () => refresh())).child("Refresh")))
-      .children((u?.windows ?? []).map(w => v_flex().gap(6)
-        .child(h_flex().justify_between().items_end()
-          .child(div().text_color(t.foreground).child(long(w)))
-          .child(div().text_size(18).font_semibold().text_color(color(w, stale, t)).child(`${w.used}%`)))
-        .child(meter(w, stale, t, 6))
-        .child(div().text_size(11.5).text_color(t.dim).child(resets(w)))))
-      .child(div().text_size(11.5).text_color(u?.error ? t.blocked : t.dim).child(footer)));
+      .child(h_flex().gap(8).items_center().child(image("icons/claude.svg").size(16))
+        .child(div().text_size(13).font_semibold().text_color(t.foreground).child("Claude Usage")))
+      .when(!names.length, el => el.child(div().text_color(t.dim).child("No limits yet: they come with the next Claude reply.")))
+      .children(names.map(a => v_flex().gap(10)
+        .child(div().font_semibold().text_color(a === "gratiago" ? t.accent : t.ansi5).child(this.emails[a] ?? a))
+        .children(windowsOf(this.accounts[a]).map(w => v_flex().gap(6)
+          .child(h_flex().justify_between().items_end()
+            .child(div().text_color(t.foreground).child(long(w)))
+            .child(div().text_size(18).font_semibold().text_color(color(w, t)).child(`${w.used}%`)))
+          .child(meter(w, t, 6))
+          .child(div().text_size(11.5).text_color(t.dim).child(resets(w))))))));
   }
 }

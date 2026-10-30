@@ -5,7 +5,32 @@
 
 import { View, div, image, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { agents, terminals, panes, focused, spaces, run, theme, shared, setShared, setAgentOrder, openOverlay, closeOverlay, props, window, layout, nextCommand } from "herdr";
+import { agents, terminals, panes, focused, spaces, run, theme, shared, setShared, setAgentOrder, openOverlay, closeOverlay, props, window, layout, nextCommand, home, readTextFile, watchFolder } from "herdr";
+import * as fs from "fs/promises";
+
+// Each Claude's status line writes its hop account, PR and session name here
+// (~/.claude/scripts/statusline/src/lib/herdr.ts), one file per terminal.
+const CLAUDE_STATUS = () => `${home()}/.local/state/herdr-core/default/claude-status/terminals`;
+const ACCOUNT_LABEL = { mirko: "perso" };
+
+// hop's own rule until a session's status line has spoken: the nearest .hop
+// above its folder names the account, else the personal one.
+async function hopAccount(dir) {
+  for (let d = dir; d && d !== "/"; d = d.slice(0, d.lastIndexOf("/")) || "/") {
+    const pinned = (await readTextFile(`${d}/.hop`).catch(() => null))?.trim();
+    if (pinned) return pinned;
+  }
+  return "mirko";
+}
+
+async function claudeStatus() {
+  const dir = CLAUDE_STATUS(), out = {};
+  for (const f of await fs.readdir(dir).catch(() => [])) {
+    if (!f.endsWith(".json")) continue;
+    try { out[f.slice(0, -5)] = JSON.parse(await readTextFile(`${dir}/${f}`)); } catch {}
+  }
+  return out;
+}
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -91,7 +116,21 @@ export default class Agents extends View {
     // Each agent's last state and when it changed (ms), kept across restarts.
     this.changed = JSON.parse(localStorage.getItem("changed") ?? "{}");
     this.pins = JSON.parse(localStorage.getItem("pins") ?? "[]");
-    cx.timer.every(30000, (cx) => cx.notify());
+    this.claude = {};
+    this.hop = new Map();
+    // Reread on every change in the folder; without a watcher, on the 30 s tick.
+    this.watching = false;
+    cx.spawn(async (cx) => {
+      for (;;) {
+        this.claude = await claudeStatus();
+        cx.notify();
+        try { this.watching = true; await watchFolder(CLAUDE_STATUS()); } catch { this.watching = false; return; }
+      }
+    });
+    cx.timer.every(30000, (cx) => {
+      if (!this.watching) cx.spawn(async (cx) => { this.claude = await claudeStatus(); cx.notify(); });
+      cx.notify();
+    });
     cx.spawn(async (cx) => {
       for (;;) {
         const n = Number(await nextCommand());
@@ -243,8 +282,21 @@ export default class Agents extends View {
     if (props()?.sortMenu) return this.sortMenu(t);
     const collapsed = narrow();
     const sort = sortOf();
-    let list = agents();
+    // A terminal shown in two tabs is one agent: keep its first place, and the focused copy.
+    const once = new Map();
+    for (const a of agents()) if (!once.has(a.address) || a.focused) once.set(a.address, a);
+    let list = [...once.values()];
     this.listed = new Map(list.map((a) => [a.address, a.status]));
+    const cwdOf = new Map(panes().map((p) => [p.pane, p.cwd]));
+    const unknown = [...new Set(list.map((a) => cwdOf.get(a.pane)).filter((d) => d && !this.hop.has(d)))];
+    if (unknown.length) {
+      for (const d of unknown) this.hop.set(d, null);
+      cx.spawn(async (cx) => {
+        for (const d of unknown) this.hop.set(d, await hopAccount(d));
+        cx.notify();
+      });
+    }
+    const accountOf = (a) => this.claude[a.address]?.account ?? this.hop.get(cwdOf.get(a.pane));
     const all = terminals();
     const shown = focused()?.agent;
     const now = Date.now();
@@ -296,25 +348,22 @@ export default class Agents extends View {
         .when(!open, (el) => el.child(String(subs.length)));
     };
 
-    // A row reads "space \u00b7 detail": the detail is a tab someone named or the
-    // agent's own title, never an automatic tab number unless two rows would
-    // otherwise read the same.
     const tabs = spaces().flatMap(s => s.tabs);
     const label = (a) => {
       const tab = tabs.find(tab => tab.id === a.tab);
       return tab ? title(tab, lead(tab)) : a.title || a.program?.name || "";
     };
-    const detail = new Map(list.map(a => [a.address, /^\d+$/.test(label(a)) ? null : label(a)]));
-    const seen = {};
-    for (const a of list) { const k = `${a.space_name}\u0000${detail.get(a.address) ?? ""}`; seen[k] = (seen[k] ?? 0) + 1; }
-    for (const a of list) {
-      if (detail.get(a.address) == null && seen[`${a.space_name}\u0000`] > 1) detail.set(a.address, label(a));
-    }
+
+    // The tab: the terminal's own name (a classic herdr tab label), a tab someone
+    // named, Claude's session name, then the title.
+    const named = new Map(all.filter(k => k.name).map(k => [k.address, k.name]));
+    const tabLabel = (a) => {
+      const tab = tabs.find(tab => tab.id === a.tab);
+      return named.get(a.address) || (tab?.named ? tab.name : null) || this.claude[a.address]?.session_name || label(a);
+    };
 
     const row = (a, i, subs = []) => {
       const n = number.get(a.address), pill = flashing() && n <= 9 ? numberPill(n, t, 16) : null;
-      const pic = pill ?? icon(a.program, 16, t.foreground);
-      const more = detail.get(a.address);
       // An agent on another machine (`vps/t7`) says which.
       const machine = a.address.includes("/") ? a.address.split("/")[0] : null;
       if (collapsed) {
@@ -350,14 +399,26 @@ export default class Agents extends View {
           cx.notify();
         })
         .child(svg(`mods/workspace-chrome/${isPinned ? "pin-off" : "pin"}.svg`).size(13));
-      // Under a space header the space goes without saying; an automatic tab number says nothing.
-      // Without a space header above (priority, pinned) the row names its space.
-      const full = byPriority || isPinned;
-      const name = full ? a.space_name || label(a) : more ?? (/^\d+$/.test(label(a)) ? a.program?.name || label(a) : label(a));
+      // As in classic herdr: "SPACE · tab" then "claude · account · state".
+      const c = this.claude[a.address], account = accountOf(a);
+      const stateColor = { idle: t.ansi2, working: t.working, done: t.done, blocked: t.blocked }[a.status] ?? t.dim;
+      const sep = () => div().flex_none().text_color(t.dim).child("·");
+      const first = h_flex().min_w(0).gap(5).items_center()
+        .child(div().flex_none().max_w(110).truncate().font_bold().text_color(idle ? t.muted : t.foreground).child(a.space_name || ""))
+        .child(sep())
+        .child(div().flex_1().min_w(0).truncate().text_color(t.dim).child(tabLabel(a)))
+        .when(Boolean(c?.pr), el => el.child(div().flex_none().text_size(11).text_color(t.accent).child(`#${c.pr}`)));
+      const second = h_flex().min_w(0).gap(5).items_center().text_size(12)
+        .child(div().flex_none().text_color(t.dim).child(a.program?.key ?? a.app ?? ""))
+        .when(Boolean(account), el => el.child(sep())
+          .child(div().flex_none().text_color(account === "gratiago" ? t.accent : t.ansi5).child(ACCOUNT_LABEL[account] ?? account)))
+        .child(sep())
+        .child(div().flex_none().text_color(stateColor).when(a.status === "blocked", el => el.font_bold()).child(a.status));
       return h_flex()
         .id(`ag-${a.address}`)
         .px(8)
-        .h(30)
+        .py(4)
+        .h(44)
         .flex_none()
         .rounded(8)
         .items_center()
@@ -371,20 +432,17 @@ export default class Agents extends View {
           cx.notify();
         })
         .on_click(() => run("pane.focus", { pane: a.pane }))
-        .when(Boolean(pic), el => el.child(div().id(`agent-fold-${a.address}`)
+        .child(h_flex().id(`agent-fold-${a.address}`).w(16).flex_none().self_start().mt(3).justify_center()
           .when(subs.length > 0, el => el.on_click((_e, cx) => {
             cx.stop_propagation();
             this.folded.has(a.address) ? this.folded.delete(a.address) : this.folded.add(a.address);
             cx.notify();
-          })).child(pic)))
-        .child(h_flex().flex_1().min_w(0).gap(5).items_center()
-          .child(div().min_w(0).max_w(full && more ? 120 : 200).truncate().text_color(idle ? t.muted : t.foreground).child(name))
-          .when(full && Boolean(more), el => el.child(div().flex_1().min_w(0).truncate().text_color(t.dim).child(`\u00b7 ${more}`))))
+          })).child(pill ?? this.status(t, a, true)))
+        .child(v_flex().flex_1().min_w(0).gap(1).child(first).child(second))
         .when(Boolean(machine), el => el.child(div().text_size(10).text_color(t.dim).child(machine)))
         .when(subs.length > 0, el => el.child(fold(a, subs)))
         .when(this.hovered === a.address, el => el.child(pin))
-        .when(this.hovered !== a.address && Boolean(when), el => el.child(div().flex_none().text_size(11).text_color(t.dim).child(duration(now - when))))
-        .child(this.status(t, a, byPriority && !isPinned));
+        .when(this.hovered !== a.address && Boolean(when), el => el.child(div().flex_none().self_start().mt(2).text_size(11).text_color(t.dim).child(duration(now - when))));
     };
 
     // Groups in list order: spaces (grouped) or priority sections. Agents of a
@@ -424,9 +482,11 @@ export default class Agents extends View {
           .when(!byPriority && top && top !== "idle", (el) => el.child(this.status(t, { status: top }, true)))
           .child(svg("mods/workspace-chrome/chevron-right.svg").size(11).flex_none().text_color(t.dim)));
     };
+    // Grouped, each row names its space, as in classic herdr: no space headers.
+    const titled = (g) => byPriority || g.id === "pinned";
     const rows = collapsed
       ? list.flatMap(withKids)
-      : groups.flatMap((g) => [header(g), ...(this.folded.has(g.id) ? [] : g.members.flatMap(withKids))]);
+      : groups.flatMap((g) => [...(titled(g) ? [header(g)] : []), ...(titled(g) && this.folded.has(g.id) ? [] : g.members.flatMap(withKids))]);
 
     return v_flex()
       .size_full()
