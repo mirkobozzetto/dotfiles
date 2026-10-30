@@ -19,13 +19,17 @@ function quote(value: string): string {
 }
 
 // Anything already addressing a multiplexer or the runner would recurse.
-const ADDRESSES_PANE = /^\s*(tmux\b|herdr\b|\S*pane-run\b)/;
+const ADDRESSES_PANE = /^\s*(tmux\b|herdr\b|hc\b|\S*herdr-core\b|\S*pane-run\b)/;
 
 export default function paneRunExtension(pi: ExtensionAPI) {
 	pi.on("tool_call", async (event, ctx) => {
 		if (event.toolName !== "bash") return;
 
-		const inPane = Boolean(process.env.TMUX) || process.env.HERDR_ENV === "1";
+		// The Herdr app's core gives every terminal its id and socket.
+		const inPane =
+			Boolean(process.env.TMUX) ||
+			process.env.HERDR_ENV === "1" ||
+			Boolean(process.env.HC_TERMINAL_ID && process.env.HC_TERMINAL_SOCKET);
 		if (!inPane) return;
 
 		const command = String(event.input?.command ?? "");

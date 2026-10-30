@@ -19,7 +19,7 @@ import { join } from "node:path";
 const RUNNER = join(homedir(), ".claude", "bin", "pane-run");
 
 /** Anything already addressing a multiplexer or the runner would recurse. */
-const ADDRESSES_PANE = /^\s*(tmux\b|herdr\b|\S*pane-run\b)/;
+const ADDRESSES_PANE = /^\s*(tmux\b|herdr\b|hc\b|\S*herdr-core\b|\S*pane-run\b)/;
 
 function quote(value: string): string {
 	return `'${value.replace(/'/g, `'\\''`)}'`;
@@ -27,7 +27,9 @@ function quote(value: string): string {
 
 function inPane(): boolean {
 	const herdr = process.env.HERDR_ENV === "1" && Boolean(process.env.HERDR_PANE_ID);
-	return herdr || Boolean(process.env.TMUX);
+	// The Herdr app's core gives every terminal its id and socket.
+	const app = Boolean(process.env.HC_TERMINAL_ID && process.env.HC_TERMINAL_SOCKET);
+	return herdr || app || Boolean(process.env.TMUX);
 }
 
 export default function paneRunExtension(pi: any) {

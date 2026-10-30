@@ -157,6 +157,78 @@ herdr_send() {
   herdr pane run "$1" " bash '$2'" >/dev/null 2>&1
 }
 
+# ------------------------------------------------------------ Herdr app backend
+# Same rule as herdr's: a "cmd" tab per space, at most two panes. Its terminals
+# belong to the core (herdr-core), named cmd-<space>-<n>, and land in the app's
+# space and tab through the herdr.space and herdr.tab labels.
+HC="$HOME/.local/bin/herdr-core"
+
+hc_space() {
+  "$HC" get "$HC_TERMINAL_ID" --json 2>/dev/null | jq -r '.labels["herdr.space"] // empty'
+}
+
+hc_cmd_terminals() {
+  "$HC" ls --json 2>/dev/null | jq -r --arg p "cmd-${1: -8}-" \
+    '.terminals[] | select(.state == "live" and ((.name // "") | startswith($p))) | "\(.address) \(.agent // "")"'
+}
+
+# The app adopts a labelled terminal a moment after it starts: retry the rename.
+hc_name_tab() {
+  local n
+  for n in 1 2 3 4 5 6 7 8 9 10; do
+    herdr-app do tab.rename "{\"id\":\"$1\",\"name\":\"$HERDR_COMMAND_TAB_LABEL\"}" >/dev/null 2>&1 && return 0
+    sleep 0.3
+  done
+  return 1
+}
+
+# 0: a pane is claimed and printed. 2: none free yet, retry. 1: give up.
+hc_pick() {
+  local space=$1 lines count address agent tab
+  lines=$(hc_cmd_terminals "$space")
+  while read -r address agent; do
+    [ -n "$address" ] || continue
+    case "$agent" in zsh | bash | fish | sh) ;; *) continue ;; esac
+    take_lock "$(lock_of "$address")" && { printf '%s' "$address"; return 0; }
+  done <<< "$lines"
+
+  count=$(printf '%s\n' "$lines" | grep -c .)
+  [ "$count" -lt "$HERDR_MAX_PANES" ] || return 2
+  if [ "$count" -eq 0 ]; then
+    tab="tb$(openssl rand -hex 16)"
+  else
+    tab=$("$HC" get "${lines%% *}" --json 2>/dev/null | jq -r '.labels["herdr.tab"] // empty')
+    [ -n "$tab" ] || return 1
+  fi
+  # No parent: the pane outlives the agent that opened it, and is not its sub-agent.
+  "$HC" run --bg --keep --no-parent --no-notify --json --cwd "$CWD" \
+    --name "cmd-${space: -8}-$((count + 1))" \
+    --label "herdr.space=$space" --label "herdr.tab=$tab" >/dev/null 2>&1 || return 1
+  [ "$count" -eq 0 ] && hc_name_tab "$tab"
+  return 2
+}
+
+hc_target() {
+  local space ticks=0 target rc
+  space=$(hc_space)
+  [ -n "$space" ] || return 1
+  while [ "$ticks" -lt "$HERDR_WAIT_TICKS" ]; do
+    if take_lock "$JOBS/pick-$space"; then
+      target=$(hc_pick "$space"); rc=$?
+      drop_lock "$JOBS/pick-$space"
+      [ "$rc" -eq 0 ] && { printf '%s' "$target"; return 0; }
+      [ "$rc" -eq 1 ] && return 1
+    fi
+    ticks=$((ticks + 1))
+    sleep 0.5
+  done
+  return 1
+}
+
+hc_send() {
+  "$HC" send "$1" " bash '$2'" >/dev/null 2>&1
+}
+
 # ------------------------------------------------------------------- dispatch
 
 # A stale $TMUX from a dead server must not capture the dispatch: has-session
@@ -164,6 +236,9 @@ herdr_send() {
 backend=""
 if [ "${HERDR_ENV:-}" = "1" ] && [ -n "${HERDR_PANE_ID:-}" ] && command -v herdr >/dev/null 2>&1; then
   backend="herdr"
+elif [ -n "${HC_TERMINAL_ID:-}" ] && [ -n "${HC_TERMINAL_SOCKET:-}" ] && [ -x "$HC" ] \
+  && command -v herdr-app >/dev/null 2>&1; then
+  backend="hc"
 elif [ -n "${TMUX:-}" ] && [ -n "${TMUX_PANE:-}" ] && command -v tmux >/dev/null 2>&1 \
   && tmux has-session 2>/dev/null; then
   backend="tmux"
@@ -176,7 +251,7 @@ command -v jq >/dev/null 2>&1 || [ "$backend" = "tmux" ] || run_local "jq missin
 target=$("${backend}_target") || run_local "no $backend pane available"
 # The pane lock was taken by the picker subshell under this process id; it is
 # released when this process exits, whatever the outcome.
-[ "$backend" = "herdr" ] && trap 'drop_lock "$(lock_of "$target")"' EXIT
+[ "$backend" != "tmux" ] && trap 'drop_lock "$(lock_of "$target")"' EXIT
 
 id="$$-${RANDOM}"
 job="$JOBS/$id.sh"

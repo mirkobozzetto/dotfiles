@@ -107,6 +107,16 @@ function throughRtk(raw) {
   }
 }
 
+// tmux, herdr in a terminal, or the Herdr app, whose core gives every terminal its id and socket.
+function inPane(env) {
+  return Boolean(env.TMUX) || env.HERDR_ENV === '1' || Boolean(env.HC_TERMINAL_ID && env.HC_TERMINAL_SOCKET);
+}
+
+// Addressing the multiplexer or the runner through the runner would recurse.
+function addressesPane(command) {
+  return /^\s*(tmux\b|herdr\b|hc\b|\S*herdr-core\b|\S*pane-run\b)/.test(command);
+}
+
 function main() {
   let raw;
   try {
@@ -150,12 +160,10 @@ function main() {
 
   // Silence is judged on what the agent asked for, not on rtk's rewrite: rtk
   // renames commands (`cat` -> `rtk read`) and no allow list can track that.
-  const inPane = Boolean(process.env.TMUX) || process.env.HERDR_ENV === '1';
   const skip =
-    !inPane ||
+    !inPane(process.env) ||
     toolInput.run_in_background === true ||
-    // Addressing the multiplexer or the runner through the runner would recurse.
-    /^\s*(tmux\b|herdr\b|\S*pane-run\b)/.test(command) ||
+    addressesPane(command) ||
     isSilent(original);
 
   const finalCommand = skip ? command : `${RUNNER} ${quote(input.cwd || process.cwd())} ${quote(command)}`;
@@ -177,4 +185,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { permissionFor };
+module.exports = { permissionFor, inPane, addressesPane };
