@@ -1,0 +1,18 @@
+{
+  "id": "root", "type": "column", "titlebar": "none", "theme": "paper", "preview": "mods/board/preview.svg",
+  "ui_font": "Geist", "font_size": 13, "background": "#f6f7f9",
+  "colors": { "background": "#ffffff", "foreground": "#303746", "border": "#e5e7ec", "accent": "#7465db" },
+  "terminal_padding": [12, 10], "gap": 0, "resizable": false,
+  "children": [
+    { "id": "board-header", "type": "block", "size": { "px": 100 }, "window_drag": true, "content": { "mod": "board", "props": { "role": "header" } } },
+    { "id": "board-cards", "type": "block", "size": { "px": 355 }, "border": { "width": 1, "color": "#e5e7ec" }, "content": { "mod": "board" } },
+    { "id": "workspace", "type": "column", "padding": [14, 24], "gap": 0, "resizable": false, "children": [
+      { "id": "workspace-title", "type": "block", "size": { "px": 34 }, "background": "#ffffff", "radius": 7, "content": { "mod": "board", "props": { "role": "terminals" } } },
+      { "id": "live-terminals", "type": "block", "background": "#ffffff", "content": { "tab": "active", "pane": {
+        "gap": 12, "radius": 7, "background": "#ffffff", "lone": true,
+        "border": { "width": 1, "color": "#e5e7ec" }, "focus": { "width": 1, "color": "#c8c1ef" },
+        "header": { "content": { "mod": "board", "props": { "role": "pane" } }, "height": 28, "position": "top", "reveal": "always" }
+      } } }
+    ] }
+  ]
+}
