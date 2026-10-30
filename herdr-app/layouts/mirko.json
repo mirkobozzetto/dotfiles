@@ -29,7 +29,7 @@
               "id": "spaces",
               "type": "block",
               "content": {
-                "mod": "spaces"
+                "mod": "spaces-jump"
               },
               "size": {
                 "weight": 1
@@ -40,7 +40,7 @@
               "id": "agents",
               "type": "block",
               "content": {
-                "mod": "agents"
+                "mod": "agents-jump"
               },
               "size": {
                 "weight": 1
@@ -147,6 +147,13 @@
                       "content": {
                         "mod": "github"
                       }
+                    },
+                    {
+                      "id": "graph",
+                      "type": "block",
+                      "content": {
+                        "mod": "git-graph"
+                      }
                     }
                   ],
                   "active": "files"
@@ -176,6 +183,19 @@
               "type": "block",
               "content": {
                 "mod": "workspace-status"
+              }
+            },
+            {
+              "id": "usage",
+              "type": "block",
+              "size": {
+                "px": 330
+              },
+              "content": {
+                "mod": "claude-usage",
+                "props": {
+                  "border": "top"
+                }
               }
             },
             {
@@ -220,5 +240,6 @@
   "traffic_lights": [
     12,
     16
-  ]
+  ],
+  "terminal_menu": "path-menu"
 }

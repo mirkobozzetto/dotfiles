@@ -1,0 +1,1 @@
+{ "place": "none", "title": "Reopen closed tab", "overlay": { "kind": "popup", "at": "top", "offset": 44, "width": 360, "height": 40, "frame": "none" } }

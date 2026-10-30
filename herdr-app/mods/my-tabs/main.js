@@ -1,8 +1,10 @@
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings, nextCommand } from "herdr";
+import { syncNames } from "./names.js";
 
-const PANELS = ["files", "changes", "github"];
+const PANELS = ["files", "changes", "github", "graph"];
+const NAMES_MS = 3000;
 const MINUTE_MS = 60000;
 
 // Short "how long it has been working": 45s, 12m, 1h05.
@@ -41,6 +43,8 @@ export default class Tabs extends View {
         cx.notify();
       }
     });
+    // Tabs nobody named follow their Claude title, program or folder (herdr-auto-tabs).
+    cx.timer.every(NAMES_MS, () => syncNames());
     // The working timers only move by the minute past the first one.
     cx.timer.every(MINUTE_MS / 4, (cx) => {
       if (spaces().some(s => s.tabs.some(c => c.working_since))) cx.notify();
@@ -96,7 +100,7 @@ export default class Tabs extends View {
         })
         .on_mouse_down("right", (_e, cx) => { cx.stop_propagation(); openOverlay({ mod: "menu", kind: "popup", width: 200, props: { tab: "tab", target: { id: c.id, space: space.id } } }); })
         .when(Boolean(program?.icon), el => el.child(program.tint ? svg(program.icon).size(14).text_color(t.muted) : image(program.icon).size(14)))
-        .child(div().max_w(170).truncate().child(c.zoomed ? `${name} Z` : name))
+        .child(div().max_w(280).truncate().child(c.zoomed ? `${name} Z` : name))
         .when(c.status === "working", el => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).flex_none().text_color(t.working).spin(900)))
         .when(Boolean(c.working_since), el => el.child(div().flex_none().text_size(11).text_color(t.dim).child(elapsed(c.working_since))))
         .when(c.status === "blocked" || c.status === "done", el => el.child(div().size(6).rounded(3).bg(t[c.status])))
@@ -108,7 +112,7 @@ export default class Tabs extends View {
       ? Math.max(10, (root.traffic_lights[0] + 64) / settings().zoom - (sidebar?.hidden ? 0 : sidebar?.size?.px ?? 0))
       : 10;
     const panel = find(root, "panel"), body = find(root, "panel-body");
-    const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "github"];
+    const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "github", "graph"];
     this.syncPanel(space, panel, body, enabled);
     const panelButton = (id, label, icon) => {
       const on = panel && !panel.hidden && body?.active === id;
@@ -124,6 +128,7 @@ export default class Tabs extends View {
       .child(button("tab-new", "+", () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 })))
       .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg")))
       .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg")))
+      .child(panelButton("graph", "Graph", "mods/git-graph/icons/graph.svg"))
       .child(panelButton("github", "GitHub", "mods/github/github.svg"))
       .when(w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/my-tabs/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/my-tabs/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
