@@ -85,7 +85,8 @@
     "cmd-shift-k": "mod.open:walkthrough",
     "cmd-shift-f": "mod.open:fleece",
     "cmd-alt-f": "mod.open:fleece-dock",
-    "cmd-shift-y": "fleece.copy"
+    "cmd-shift-y": "fleece.copy",
+    "ctrl-shift-y": "mod.open:linear"
   },
   "terminal": {
     "ctrl-space": "mod.open:tmux-prefix",
