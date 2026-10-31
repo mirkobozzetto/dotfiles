@@ -10,6 +10,10 @@
 # shell outside tmux.
 set -uo pipefail
 
+# git-delta by its Homebrew path: Zed's Delta app puts its own `delta` CLI
+# first in PATH (~/.local/bin), which rejects these flags.
+readonly DELTA=/opt/homebrew/bin/delta
+
 appearance() {
   local from_tmux
   from_tmux="$(tmux display-message -p '#{client_theme}' 2>/dev/null)"
@@ -24,7 +28,7 @@ appearance() {
 }
 
 if [[ "$(appearance)" == "light" ]]; then
-  exec delta --light --syntax-theme="Catppuccin Latte" --line-numbers "$@"
+  exec "$DELTA" --light --syntax-theme="Catppuccin Latte" --line-numbers "$@"
 else
-  exec delta --dark --syntax-theme="Catppuccin Mocha" --line-numbers "$@"
+  exec "$DELTA" --dark --syntax-theme="Catppuccin Mocha" --line-numbers "$@"
 fi
