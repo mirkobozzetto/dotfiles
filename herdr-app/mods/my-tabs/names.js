@@ -25,7 +25,10 @@ function homeOf(cwd) {
 export function syncNames() {
   const saved = shared(KEY) ?? {};
   const ours = { ...saved };
-  const tabs = new Map(spaces().flatMap(s => s.tabs).map(t => [t.id, t]));
+  // A space can list the same tab twice, once unnamed: keep the named entry,
+  // or the unnamed one would rename the tab back to Claude's title.
+  const tabs = new Map();
+  for (const t of spaces().flatMap(s => s.tabs)) if (!tabs.has(t.id) || t.named) tabs.set(t.id, t);
   // One pane per tab: its Claude pane if it has one, else its first terminal.
   const pick = new Map();
   for (const p of panes()) {
