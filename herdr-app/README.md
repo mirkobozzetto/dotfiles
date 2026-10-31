@@ -24,7 +24,7 @@ Only what Herdr did not ship is copied: `settings.json`, `keys.json`, the
 `icon/apply.sh` puts it on `/Applications/Herdr.app` as a Finder custom icon,
 the same as Get Info > paste, so the app's signed bundle stays untouched.
 A Herdr update brings the original icon back; the next Herdr terminal puts the
-pink one on again (a line at the end of `~/.zshrc`). launchd can't do it:
+pink one on again (a line at the end of `zsh/.zshrc`). launchd can't do it:
 macOS refuses it the app's bundle.
 
 ## Keys
@@ -111,7 +111,7 @@ Linear reads its key from the macOS keychain (`hop:gratiago:LINEAR_API_KEY`).
   panes at most, started the same quiet way.
 - Claude sessions come back after a reboot or an app quit:
   `~/.claude/hooks/hc-claude-session.sh` records the session of each terminal,
-  and the end of `~/.zshrc` resumes it in the shell Herdr gives back. Test:
+  and the end of `zsh/.zshrc` (linked to `~/.zshrc`) resumes it in the shell Herdr gives back. Test:
   `~/.claude/hooks/tests/hc-claude-resume.test.sh`.
 
 ## Known limits
