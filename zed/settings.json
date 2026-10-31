@@ -7,6 +7,9 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "markdown_preview": {
+    "open_markdown_files_in_preview": false
+  },
   "context_servers": {
     "fff": {
       "command": "/opt/homebrew/bin/fff-mcp",
@@ -14,10 +17,12 @@
       "env": {},
     },
   },
-
+  "cursor_animation": {
+    "enabled": true,
+  },
   "theme": {
     "mode": "dark",
-    "light": "GitHub Light",
+    "light": "Flexoki Light",
     "dark": "Catppuccin Mocha - No Italics",
   },
 
@@ -105,6 +110,21 @@
       "type": "registry",
     },
     "claude-acp": {
+      "favorite_config_option_values": {
+        "effort": [
+          "high"
+        ],
+        "model": [
+          "opus[1m]"
+        ],
+        "mode": [
+          "bypassPermissions"
+        ]
+      },
+      "default_config_options": {
+        "model": "opus[1m]",
+        "mode": "bypassPermissions"
+      },
       "type": "registry",
     },
   },

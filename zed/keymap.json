@@ -6,7 +6,7 @@
       "cmd-alt-b": "workspace::ToggleLeftDock",
       "ctrl-shift-m": "workspace::ToggleZoom",
       "cmd-shift-b": "workspace::ToggleLeftDock",
-      "ctrl-shift-escape": "workspace::ToggleZoom",
+      "alt-cmd-space": "workspace::ToggleZoom",
     },
   },
   {
