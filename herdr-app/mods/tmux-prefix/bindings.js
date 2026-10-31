@@ -1,6 +1,18 @@
 // The keys after ctrl+space, grouped as the menu shows them. keys-help reads
 // GROUPS from this file's text: keep one group or row per line, as below.
-import { appHome, layout, notify, readTextFile, run, spaces, writeTextFile } from "herdr";
+import { agents, appHome, layout, notify, readTextFile, run, spaces, writeTextFile } from "herdr";
+
+// Agents waiting on you, most urgent first: a question before a finished job.
+const WAITING = ["blocked", "done"];
+
+// The next agent that needs you; from one of them, the one after it, so
+// pressing again walks through all of them.
+async function nextWaiting() {
+  const waiting = WAITING.flatMap((status) => agents().filter((a) => a.status === status));
+  if (!waiting.length) return notify({ title: "No agent needs you", level: "info", timeout: 2000 });
+  const at = waiting.findIndex((a) => a.focused);
+  run("agent.focus", { terminal: waiting[(at + 1) % waiting.length].address });
+}
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -70,6 +82,7 @@ export const GROUPS = [
     ["e", "Sidebar", "layout.toggle", { id: "sidebar" }],
   ]],
   ["Agents", [
+    ["enter", "Agent that needs you", nextWaiting],
     ["g", "Next agent", "agent.next", {}, true],
     ["y", "Agent's last answer", "mod.open", { name: "fleece" }],
     ["r", "Walk through the diff", "mod.open", { name: "walkthrough" }],

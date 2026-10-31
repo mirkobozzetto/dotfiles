@@ -61,7 +61,8 @@ export default class TmuxPrefix extends View {
     // A Belgian Mac types | with option+shift+L: Option composing a character still counts as plain.
     const composed = m.alt && e.key_char && e.key_char !== e.key;
     const plain = !m.control && !m.platform && (!m.alt || composed);
-    const key = plain ? (e.key_char ?? (m.shift && e.key.length === 1 ? e.key.toUpperCase() : e.key)) : e.key;
+    // Named keys (enter, arrows) by name: their key_char is a control character.
+    const key = plain && e.key.length === 1 ? (e.key_char ?? (m.shift ? e.key.toUpperCase() : e.key)) : e.key;
     const binding = plain && BINDINGS.find((b) => b[0] === key);
     if (!binding) {
       const forwarded = this.repeat && plain && forwardKey(e, key);
@@ -92,7 +93,7 @@ export default class TmuxPrefix extends View {
   render() {
     const t = theme();
     const row = ([key, label, , , repeatable]) =>
-      h_flex().h(20).flex_none().items_center().gap(10).child(div().w(28).text_color(t.accent).child(key))
+      h_flex().h(20).flex_none().items_center().gap(10).child(div().w(40).text_color(t.accent).child(key))
         .child(div().flex_1().child(label)).child(div().text_color(t.dim).child(repeatable ? "repeat" : ""));
     const group = ([name, rows]) =>
       v_flex().gap(2).child(div().h(18).text_size(11).font_medium().text_color(t.dim).child(name)).children(rows.map(row));
