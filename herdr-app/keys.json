@@ -107,7 +107,14 @@
     "cmd-shift-s": "send:\u0013",
     "shift-enter": "send:\u001b[13;2u",
     "alt-enter": "send:\u001b[13;3u",
-    "ctrl-shift-k": "mod.open:launcher"
+    "ctrl-shift-k": "mod.open:launcher",
+    "alt-p": "send:\u001bp",
+    "alt-shift-p": "send:\u001bP",
+    "alt-t": "send:\u001bt",
+    "alt-m": "send:\u001bm",
+    "alt-1": "send:\u001b1",
+    "alt-2": "send:\u001b2",
+    "alt-3": "send:\u001b3"
   },
   "mod:tmux-prefix": {
     "ctrl-space": "tmux-prefix.send-prefix"
