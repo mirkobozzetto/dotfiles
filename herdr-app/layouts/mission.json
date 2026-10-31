@@ -1,0 +1,16 @@
+{
+  "id": "mission-root", "type": "column", "titlebar": "none", "theme": "moss", "preview": "mods/mission/preview.svg",
+  "font": "JetBrains Mono", "ui_font": "JetBrains Mono", "font_size": 12,
+  "background": "#030906", "terminal_padding": [12, 12],
+  "colors": {"background":"#050d08", "foreground":"#c1d9c4", "canvas":"#030906", "chrome":"#030906", "border":"#234b32", "accent":"#99ffa9"},
+  "resizable": false,
+  "children": [
+    {"id":"mission-top", "type":"block", "size":{"px":108}, "window_drag":true, "content":{"mod":"mission", "props":{"role":"top"}}},
+    {"id":"mission-content", "type":"column", "padding":[10,20], "gap":12, "resizable":false, "children":[
+      {"id":"mission-feed-label", "type":"block", "size":{"px":22}, "content":{"mod":"mission", "props":{"role":"feeds"}}},
+      {"id":"mission-live", "type":"block", "size":{"weight":1}, "content":{"tab":"active", "pane":{"gap":12,"radius":0,"background":"#050d08","border":{"width":1,"color":"#416b48"},"focus":{"width":1,"color":"#99ffa9"},"header":{"height":38,"position":"top","reveal":"always","content":{"mod":"mission","props":{"role":"pane"}}},"lone":true}}},
+      {"id":"mission-grid", "type":"block", "size":{"px":278}, "content":{"mod":"mission", "props":{"role":"grid"}}}
+    ]},
+    {"id":"mission-footer", "type":"block", "size":{"px":30}, "content":{"mod":"mission", "props":{"role":"footer"}}}
+  ]
+}

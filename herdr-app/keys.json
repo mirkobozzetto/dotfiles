@@ -122,5 +122,9 @@
     "ctrl-1": "launcher.launcher",
     "ctrl-2": "launcher.panes",
     "ctrl-3": "launcher.spaces"
+  },
+  "layout:shepherd": {
+    "escape": "shepherd.escape",
+    "cmd-enter": "shepherd.type"
   }
 }

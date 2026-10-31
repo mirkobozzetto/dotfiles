@@ -1,0 +1,9 @@
+{
+  "id": "root",
+  "type": "column",
+  "background": "#0c0f1e",
+  "preview": "layouts/shepherd.svg",
+  "children": [
+    { "id": "shepherd", "type": "block", "content": { "mod": "shepherd" } }
+  ]
+}
