@@ -1,0 +1,9 @@
+{
+  "place": "none",
+  "title": "All shortcuts",
+  "overlay": { "kind": "popup", "at": "top", "offset": 64, "width": 720, "height": 640 },
+  "cloned_from": {
+    "name": "help",
+    "version": "0.1.10"
+  }
+}

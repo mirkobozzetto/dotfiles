@@ -3,7 +3,7 @@
   "sounds": {
     "enabled": false
   },
-  "font": "MonaspiceAr Nerd Font",
+  "font": "FiraCode Nerd Font",
   "font_size": 14,
   "minimum_contrast": 1.1,
   "appearance": "dark",

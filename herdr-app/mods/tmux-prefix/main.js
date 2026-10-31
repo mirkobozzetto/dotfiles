@@ -1,89 +1,13 @@
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { appHome, closeOverlay, focused, hc, layout, nextCommand, notify, props, readTextFile, run, spaces, theme, writeTextFile } from "herdr";
-
-function find(node, id) {
-  if (node?.id === id) return node;
-  for (const child of node?.children ?? []) {
-    const found = find(child, id);
-    if (found) return found;
-  }
-  return null;
-}
-
-// Same as the panel buttons of my-tabs: close the panel when it's the one shown, else show it.
-async function togglePanel(id) {
-  const root = layout(), panel = find(root, "panel"), body = find(root, "panel-body");
-  if (panel && !panel.hidden && body?.active === id) run("layout.hide", { id: "panel" });
-  else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
-}
-
-// One step left or right in its space, stopping at the ends.
-async function moveTab(step) {
-  const tabs = spaces().find((s) => s.active)?.tabs ?? [];
-  const tab = tabs.find((t) => t.active);
-  if (!tab) return;
-  const index = Math.min(tabs.length, Math.max(1, tab.index + step));
-  if (index !== tab.index) run("tab.move", { id: tab.id, index });
-}
-
-// Sound alerts on/off: settings.json `sounds.enabled`, which Herdr applies live.
-async function toggleSound() {
-  const path = `${appHome()}/settings.json`;
-  const text = await readTextFile(path);
-  const settings = JSON.parse(text ?? "{}");
-  const enabled = settings.sounds?.enabled === false;
-  settings.sounds = { ...settings.sounds, enabled };
-  await writeTextFile(path, `${JSON.stringify(settings, null, 2)}\n`, text);
-  notify({ title: enabled ? "Sound alerts on" : "Sound alerts off", level: "info", timeout: 2000 });
-}
+import { closeOverlay, focused, hc, nextCommand, props, run, theme } from "herdr";
+import { BINDINGS, GROUPS, UNLISTED_NOTE } from "./bindings.js";
 
 // The keys of ~/dotfiles/herdr/config.toml, prefix ctrl+space. Only repeatable
 // actions start a timer: the first key after the prefix can take as long as you like.
 const REPEAT_MS = 500;
-const BINDINGS = [
-  ["c", "New tab", "tab.new"],
-  ["|", "Split right", "pane.split", { direction: "right" }],
-  ["-", "Split down", "pane.split", { direction: "down" }],
-  ["x", "Close pane", "pane.close"],
-  ["X", "Close tab", "tab.close"],
-  ["n", "Next tab", "tab.next", {}, true],
-  ["p", "Previous tab", "tab.prev", {}, true],
-  [")", "Next space", "space.next", {}, true],
-  ["(", "Previous space", "space.prev", {}, true],
-  ["g", "Next agent", "agent.next", {}, true],
-  ["s", "Go to anything", "mod.open", { name: "picker" }],
-  ["o", "Launcher", "mod.open", { name: "launcher" }],
-  ["w", "Go to anything", "mod.open", { name: "picker" }],
-  ["e", "Toggle sidebar", "layout.toggle", { id: "sidebar" }],
-  ["t", "Rename tab", "tab.rename"],
-  ["S", "Settings", "app.settings"],
-  ["q", "Minimize window", "window.minimize"],
-  ["h", "Focus left", "pane.go", { direction: "left" }, true],
-  ["j", "Focus down", "pane.go", { direction: "down" }, true],
-  ["k", "Focus up", "pane.go", { direction: "up" }, true],
-  ["l", "Focus right", "pane.go", { direction: "right" }, true],
-  ["left", "Focus left", "pane.go", { direction: "left" }, true],
-  ["down", "Focus down", "pane.go", { direction: "down" }, true],
-  ["up", "Focus up", "pane.go", { direction: "up" }, true],
-  ["right", "Focus right", "pane.go", { direction: "right" }, true],
-  ["J", "Next space", "space.next", {}, true],
-  ["K", "Previous space", "space.prev", {}, true],
-  ["z", "Zoom pane", "pane.zoom"],
-  ["m", "Sound alerts on/off", toggleSound],
-  ["<", "Move tab left", () => moveTab(-1)],
-  [">", "Move tab right", () => moveTab(1)],
-  ["f", "Files panel", () => togglePanel("files")],
-  ["d", "Changes panel", () => togglePanel("changes")],
-  ["G", "Graph panel", () => togglePanel("graph")],
-  ["b", "GitHub panel", () => togglePanel("github")],
-  ["T", "Rename space", "space.rename"],
-  [":", "Command palette", "app.palette"],
-  ["i", "Linear issues", "mod.open", { name: "linear" }],
-  ["r", "Walk through the diff", "mod.open", { name: "walkthrough" }],
-  ["y", "Agent's last answer", "mod.open", { name: "fleece" }],
-  ...Array.from({ length: 10 }, (_, i) => [String(i), `Tab ${i === 0 ? 10 : i}`, "tab.select", { index: i === 0 ? 10 : i }]),
-];
+// Three groups per column, all shown at once.
+const COLUMNS = [GROUPS.slice(0, 3), GROUPS.slice(3)];
 
 function forwardKey(e, key) {
   if (["enter", "tab", "backspace", "left", "right", "up", "down", "space"].includes(e.key)) return e.key;
@@ -99,7 +23,6 @@ export default class TmuxPrefix extends View {
     this.handle.focus();
     this.repeat = false;
     this.generation = 0;
-    this.all = false;
     // The mod-specific key binding beats the global opener while we're open.
     cx.spawn(async (cx) => {
       for (;;) {
@@ -139,13 +62,6 @@ export default class TmuxPrefix extends View {
     const composed = m.alt && e.key_char && e.key_char !== e.key;
     const plain = !m.control && !m.platform && (!m.alt || composed);
     const key = plain ? (e.key_char ?? (m.shift && e.key.length === 1 ? e.key.toUpperCase() : e.key)) : e.key;
-    if (plain && key === "?") {
-      this.all = !this.all;
-      this.repeat = false;
-      this.generation++;
-      cx.notify();
-      return;
-    }
     const binding = plain && BINDINGS.find((b) => b[0] === key);
     if (!binding) {
       const forwarded = this.repeat && plain && forwardKey(e, key);
@@ -175,15 +91,17 @@ export default class TmuxPrefix extends View {
 
   render() {
     const t = theme();
-    const rows = this.all ? BINDINGS : BINDINGS.filter(([key]) => !["left", "right", "up", "down"].includes(key) && !/^\d$/.test(key));
+    const row = ([key, label, , , repeatable]) =>
+      h_flex().h(20).flex_none().items_center().gap(10).child(div().w(28).text_color(t.accent).child(key))
+        .child(div().flex_1().child(label)).child(div().text_color(t.dim).child(repeatable ? "repeat" : ""));
+    const group = ([name, rows]) =>
+      v_flex().gap(2).child(div().h(18).text_size(11).font_medium().text_color(t.dim).child(name)).children(rows.map(row));
     return v_flex().id("tmux-prefix").track_focus(this.handle)
       .on_key_down((e, cx) => this.key(e, cx))
-      .p(14).gap(8).bg(t.popover).text_color(t.foreground).text_size(12)
+      .size_full().p(14).gap(10).bg(t.popover).text_color(t.foreground).text_size(12)
       .child(h_flex().justify_between().child(div().font_semibold().child(this.repeat ? `Repeat · ${REPEAT_MS} ms` : "Ctrl+Space · waiting for a key"))
         .child(div().text_color(t.muted).child("Esc cancel · ^Space send prefix")))
-      .child(v_flex().h(280).min_h(0).overflow_y_scrollbar().children(rows.map(([key, label, , , repeatable]) =>
-        h_flex().h(20).flex_none().items_center().gap(12).child(div().w(40).text_color(t.accent).child(key))
-          .child(div().flex_1().child(label)).child(div().text_color(t.dim).child(repeatable ? "repeat" : "")))))
-      .child(div().text_color(t.muted).child("0–9 tabs (0 = 10) · arrows focus · ? all bindings"));
+      .child(h_flex().items_start().gap(24).children(COLUMNS.map((groups) => v_flex().flex_1().gap(10).children(groups.map(group)))))
+      .child(div().text_color(t.muted).child(UNLISTED_NOTE));
   }
 }
