@@ -24,7 +24,8 @@ Only what Herdr did not ship is copied: `settings.json`, `keys.json`, the
 `icon/apply.sh` puts it on `/Applications/Herdr.app` as a Finder custom icon,
 the same as Get Info > paste, so the app's signed bundle stays untouched.
 A Herdr update brings the original icon back; the next Herdr terminal puts the
-pink one on again (a line at the end of `zsh/.zshrc`). launchd can't do it:
+pink one on again (a line at the end of `zsh/.zshrc`).
+It also clears the Dock's own icon cache, which a Dock restart keeps. launchd can't do it:
 macOS refuses it the app's bundle.
 
 ## Keys

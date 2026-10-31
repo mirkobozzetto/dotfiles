@@ -16,3 +16,7 @@ function run([icon, app]) {
   return `icon set on ${app}`;
 }
 JS
+# The Dock keeps its own icon cache, which a Dock restart alone doesn't clear:
+# it would go on showing the icon it saw while the update had none.
+rm -f "$(getconf DARWIN_USER_CACHE_DIR)com.apple.dock.iconcache"
+killall Dock
