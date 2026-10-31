@@ -13,6 +13,13 @@
       "lifecycle": "lazy",
       "directTools": true,
       "toolPrefix": "mcp"
+    },
+    "gitnexus": {
+      "command": "gitnexus",
+      "args": [
+        "mcp"
+      ],
+      "lifecycle": "lazy"
     }
   }
 }

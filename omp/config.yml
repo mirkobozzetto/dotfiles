@@ -218,3 +218,5 @@ retry:
 extensions:
   - /Users/mirkobozzetto/dotfiles/claude-bridge-compat/src/index.ts
   - /Users/mirkobozzetto/code/skills/arsenal/plugins/ship/runtime/extension.ts
+marketplace:
+  autoUpdate: auto
