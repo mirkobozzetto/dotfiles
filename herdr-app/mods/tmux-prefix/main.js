@@ -1,6 +1,17 @@
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { closeOverlay, focused, hc, nextCommand, props, run, theme } from "herdr";
+import { appHome, closeOverlay, focused, hc, nextCommand, notify, props, readTextFile, run, theme, writeTextFile } from "herdr";
+
+// Sound alerts on/off: settings.json `sounds.enabled`, which Herdr applies live.
+async function toggleSound() {
+  const path = `${appHome()}/settings.json`;
+  const text = await readTextFile(path);
+  const settings = JSON.parse(text ?? "{}");
+  const enabled = settings.sounds?.enabled === false;
+  settings.sounds = { ...settings.sounds, enabled };
+  await writeTextFile(path, `${JSON.stringify(settings, null, 2)}\n`, text);
+  notify({ title: enabled ? "Sound alerts on" : "Sound alerts off", level: "info", timeout: 2000 });
+}
 
 // The keys of ~/dotfiles/herdr/config.toml, prefix ctrl+space. Only repeatable
 // actions start a timer: the first key after the prefix can take as long as you like.
@@ -34,6 +45,7 @@ const BINDINGS = [
   ["J", "Next space", "space.next", {}, true],
   ["K", "Previous space", "space.prev", {}, true],
   ["z", "Zoom pane", "pane.zoom"],
+  ["m", "Sound alerts on/off", toggleSound],
   ...Array.from({ length: 10 }, (_, i) => [String(i), `Tab ${i === 0 ? 10 : i}`, "tab.select", { index: i === 0 ? 10 : i }]),
 ];
 
@@ -105,6 +117,14 @@ export default class TmuxPrefix extends View {
       return this.dismiss();
     }
     const [, , command, args = {}, repeatable = false] = binding;
+    // A local action finishes before the popup closes: closing ends this view's tasks.
+    if (typeof command === "function") {
+      cx.spawn(async () => {
+        await command().catch((e) => console.log(`tmux-prefix: ${e}`));
+        this.dismiss();
+      });
+      return;
+    }
     if (!repeatable) this.dismiss();
     run(command, args);
     if (repeatable) {

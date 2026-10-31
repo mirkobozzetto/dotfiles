@@ -1,12 +1,14 @@
 {
-  "zoom": 0.9,
+  "zoom": 1.1,
   "sounds": {
     "enabled": true
   },
-  "font": "FiraCode Nerd Font",
+  "font": "MonaspiceAr Nerd Font",
+  "font_size": 14,
+  "minimum_contrast": 1.1,
+  "appearance": "dark",
   "theme": {
     "light": "catppuccin-latte",
     "dark": "catppuccin-mocha"
-  },
-  "minimum_contrast": 1.1
+  }
 }
