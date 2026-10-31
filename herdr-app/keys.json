@@ -81,7 +81,11 @@
     "cmd-o": "mod.open:space-picker",
     "cmd-g": "my-tabs.graph",
     "cmd-shift-t": "mod.open:reopen-tab",
-    "cmd-shift-m": "mod.open:herdr-migration"
+    "cmd-shift-m": "mod.open:herdr-migration",
+    "cmd-shift-k": "mod.open:walkthrough",
+    "cmd-shift-f": "mod.open:fleece",
+    "cmd-alt-f": "mod.open:fleece-dock",
+    "cmd-shift-y": "fleece.copy"
   },
   "terminal": {
     "ctrl-space": "mod.open:tmux-prefix",
