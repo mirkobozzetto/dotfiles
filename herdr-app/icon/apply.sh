@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Puts herdr-pink.png on /Applications/Herdr.app as a Finder custom icon, the
+# Puts herdr-red.png on /Applications/Herdr.app as a Finder custom icon, the
 # same as Get Info > paste. An update of Herdr brings its own icon back: run
 # this again after one; a new Herdr terminal does it (~/.zshrc).
 set -euo pipefail
-readonly ICON="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/herdr-pink.png"
+readonly ICON="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/herdr-red.png"
 readonly APP="${1:-/Applications/Herdr.app}"
 # Already there: nothing to do (runs at every login and every change of the app).
 [ -e "$APP/Icon"$'\r' ] && exit 0
