@@ -25,7 +25,6 @@
     "cmd-alt-[": "space.prev",
     "cmd-]": "agent.next",
     "cmd-[": "agent.prev",
-    "cmd-shift-l": "layout.switch",
     "cmd-n": "space.new",
     "cmd-p": "mod.open:launcher",
     "cmd-shift-p": "app.palette",
@@ -86,7 +85,8 @@
     "cmd-shift-f": "mod.open:fleece",
     "cmd-alt-f": "mod.open:fleece-dock",
     "cmd-shift-y": "fleece.copy",
-    "ctrl-shift-y": "mod.open:linear"
+    "ctrl-shift-y": "mod.open:linear",
+    "ctrl-shift-l": "layout.switch:mirko"
   },
   "terminal": {
     "ctrl-space": "mod.open:tmux-prefix",
@@ -123,9 +123,5 @@
     "ctrl-1": "launcher.launcher",
     "ctrl-2": "launcher.panes",
     "ctrl-3": "launcher.spaces"
-  },
-  "layout:shepherd": {
-    "escape": "shepherd.escape",
-    "cmd-enter": "shepherd.type"
   }
 }
