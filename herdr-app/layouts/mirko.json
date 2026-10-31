@@ -100,7 +100,7 @@
                     "content": {
                       "mod": "pane"
                     },
-                    "reveal": "always",
+                    "reveal": "hover",
                     "height": 30,
                     "position": "top"
                   },
@@ -168,7 +168,18 @@
             }
           ],
           "padding": 8,
-          "gap": 8
+          "gap": 8,
+          "floating": [
+            {
+              "id": "board-drawer",
+              "content": {
+                "mod": "board-drawer"
+              },
+              "edge": "right",
+              "align": "center",
+              "peek": 52
+            }
+          ]
         },
         {
           "id": "status-row",
