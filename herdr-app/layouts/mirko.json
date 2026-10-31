@@ -168,18 +168,7 @@
             }
           ],
           "padding": 8,
-          "gap": 8,
-          "floating": [
-            {
-              "id": "board-drawer",
-              "content": {
-                "mod": "board-drawer"
-              },
-              "edge": "right",
-              "align": "center",
-              "peek": 52
-            }
-          ]
+          "gap": 8
         },
         {
           "id": "status-row",
