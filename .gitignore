@@ -54,3 +54,6 @@ omp/blobs/
 omp/cache/
 omp/plugins/
 omp/*.lock
+
+# Hand-made backups next to the file they copy
+*.bak-*
