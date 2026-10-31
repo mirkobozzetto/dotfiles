@@ -1,6 +1,31 @@
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { appHome, closeOverlay, focused, hc, nextCommand, notify, props, readTextFile, run, theme, writeTextFile } from "herdr";
+import { appHome, closeOverlay, focused, hc, layout, nextCommand, notify, props, readTextFile, run, spaces, theme, writeTextFile } from "herdr";
+
+function find(node, id) {
+  if (node?.id === id) return node;
+  for (const child of node?.children ?? []) {
+    const found = find(child, id);
+    if (found) return found;
+  }
+  return null;
+}
+
+// Same as the panel buttons of my-tabs: close the panel when it's the one shown, else show it.
+async function togglePanel(id) {
+  const root = layout(), panel = find(root, "panel"), body = find(root, "panel-body");
+  if (panel && !panel.hidden && body?.active === id) run("layout.hide", { id: "panel" });
+  else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
+}
+
+// One step left or right in its space, stopping at the ends.
+async function moveTab(step) {
+  const tabs = spaces().find((s) => s.active)?.tabs ?? [];
+  const tab = tabs.find((t) => t.active);
+  if (!tab) return;
+  const index = Math.min(tabs.length, Math.max(1, tab.index + step));
+  if (index !== tab.index) run("tab.move", { id: tab.id, index });
+}
 
 // Sound alerts on/off: settings.json `sounds.enabled`, which Herdr applies live.
 async function toggleSound() {
@@ -46,6 +71,17 @@ const BINDINGS = [
   ["K", "Previous space", "space.prev", {}, true],
   ["z", "Zoom pane", "pane.zoom"],
   ["m", "Sound alerts on/off", toggleSound],
+  ["<", "Move tab left", () => moveTab(-1)],
+  [">", "Move tab right", () => moveTab(1)],
+  ["f", "Files panel", () => togglePanel("files")],
+  ["d", "Changes panel", () => togglePanel("changes")],
+  ["G", "Graph panel", () => togglePanel("graph")],
+  ["b", "GitHub panel", () => togglePanel("github")],
+  ["T", "Rename space", "space.rename"],
+  [":", "Command palette", "app.palette"],
+  ["i", "Linear issues", "mod.open", { name: "linear" }],
+  ["r", "Walk through the diff", "mod.open", { name: "walkthrough" }],
+  ["y", "Agent's last answer", "mod.open", { name: "fleece" }],
   ...Array.from({ length: 10 }, (_, i) => [String(i), `Tab ${i === 0 ? 10 : i}`, "tab.select", { index: i === 0 ? 10 : i }]),
 ];
 
