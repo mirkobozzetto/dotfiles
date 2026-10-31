@@ -9,7 +9,7 @@ const WAITING = ["blocked", "done"];
 // pressing again walks through all of them.
 async function nextWaiting() {
   const waiting = WAITING.flatMap((status) => agents().filter((a) => a.status === status));
-  if (!waiting.length) return notify({ title: "No agent needs you", level: "info", timeout: 2000 });
+  if (!waiting.length) return;
   const at = waiting.findIndex((a) => a.focused);
   run("agent.focus", { terminal: waiting[(at + 1) % waiting.length].address });
 }
