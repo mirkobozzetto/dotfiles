@@ -28,6 +28,7 @@ written down at the bottom.
 | **Ghostty** | launches straight into a multiplexer; every `Cmd` shortcut is forwarded as a tmux prefix sequence, so the same keys work over SSH |
 | **tmux** | session persistence across reboots, sesh picker, extrakto, hand-written Catppuccin status bar |
 | **herdr** | the other multiplexer: workspaces, an agent sidebar, and a socket API to drive panes from a script |
+| **Herdr app** | the desktop app on herdr-core: a Ctrl+Space menu, a searchable shortcuts window, background agent tabs - see [herdr-app/README.md](herdr-app/README.md) |
 | **mux** | one switch between the two, from Ghostty or from Raycast, in the window you are already in |
 | **Neovim** | LazyVim, 34 language servers, debugger, tests, harpoon, format on save |
 | **Agent redirection** | live state of every coding agent, and automatic focus when one finishes or needs you - on both multiplexers |
