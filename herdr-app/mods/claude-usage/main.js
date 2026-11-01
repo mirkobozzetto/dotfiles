@@ -56,6 +56,13 @@ function pace(w) {
 // Past its reset, a window says nothing about now.
 const stale = w => Date.parse(w.resets_at) < Date.now();
 
+// Time until the window starts over: "2h10" within a day, else "3d".
+function left(w) {
+  const min = Math.max(0, Math.round((Date.parse(w.resets_at) - Date.now()) / 60000));
+  if (min >= 1440) return `${Math.round(min / 1440)}d`;
+  return min >= 60 ? `${Math.floor(min / 60)}h${String(min % 60).padStart(2, "0")}` : `${min}m`;
+}
+
 function color(w, t) {
   if (stale(w)) return t.dim;
   if (w.used >= 95) return RED;
@@ -166,12 +173,13 @@ export default class ClaudeUsage extends View {
       .on_click(() => this.open())
       .tooltip(tip)
       .child(image("icons/claude.svg").size(14).flex_none())
-      .child(div().flex_none().text_color(account !== PERSONAL ? t.accent : t.ansi5).child(email))
+      .child(div().flex_none().text_color(account !== PERSONAL ? t.accent : t.ansi5).child(account === PERSONAL ? "perso" : account))
       .when(!shown.length, el => el.child(div().text_color(t.dim).child("…")))
       .children(shown.map(w => h_flex().gap(6).items_center().flex_none()
         .child(div().text_color(t.dim).child(short(w)))
         .child(div().w(48).child(meter(w, t, 5)))
-        .child(div().w(30).text_color(stale(w) ? t.dim : w.used >= 80 ? color(w, t) : t.muted).child(`${w.used}%`))));
+        .child(div().text_color(stale(w) ? t.dim : w.used >= 80 ? color(w, t) : t.muted).child(`${w.used}%`))
+        .when(!stale(w), el => el.child(div().text_color(t.dim).child(left(w))))));
   }
 
   details() {
