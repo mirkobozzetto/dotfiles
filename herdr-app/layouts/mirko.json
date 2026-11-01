@@ -220,10 +220,20 @@
               }
             },
             {
+              "id": "omp-cost",
+              "type": "block",
+              "size": {
+                "px": 92
+              },
+              "content": {
+                "mod": "custom-omp-cost"
+              }
+            },
+            {
               "id": "usage",
               "type": "block",
               "size": {
-                "px": 440
+                "px": 380
               },
               "content": {
                 "mod": "claude-usage",
