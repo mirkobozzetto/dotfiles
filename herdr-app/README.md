@@ -4,6 +4,18 @@
 > [herdr-app-config](https://github.com/mirkobozzetto/herdr-app-config) is its mirror, updated on every push.
 > To install it, give that repo's link to your agent, as herdr.dev/layouts explains.
 
+## Screenshots
+
+![The window: many tabs that shrink, the active one in full, Files with icons](screenshots/window-files.png)
+
+| Ctrl+Space: every key at once | Cmd+/: every shortcut, searchable |
+|---|---|
+| ![Ctrl+Space menu](screenshots/ctrl-space-menu.png) | ![All shortcuts](screenshots/all-shortcuts.png) |
+| **Changes: review a diff like a pull request** | **Graph: commit lanes** |
+| ![Review panel](screenshots/window-changes.png) | ![Commit graph](screenshots/window-graph.png) |
+
+![Bottom bar: agents by state, CPU, RAM and GPU, then the Claude account with its gauges and reset countdowns](screenshots/bottom-bar.png)
+
 Config for the Herdr desktop app (0.1.10) and its terminal server, herdr-core
 (`hc`). The app reads `~/.config/herdr-app` and does not follow symlinks, so
 this folder holds copies.
