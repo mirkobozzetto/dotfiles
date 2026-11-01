@@ -8,7 +8,7 @@
 // After a copy, Herdr's own notification (the toast mod) says "Copied".
 
 import { View, div } from "gpui-kit";
-import { focused, run, notify, exec } from "herdr";
+import { focused, run, exec } from "herdr";
 
 const DRAG_PX = 4; // movement that counts as a drag, not a click
 
@@ -51,8 +51,7 @@ export default class CopyOnSelect extends View {
       if (Math.abs(p.x - down.x) > DRAG_PX || Math.abs(p.y - down.y) > DRAG_PX) dragged = true;
       if (!(dragged || multiClick)) return;
       if (!focused()?.terminal) return;
-      run("terminal.copy");
-      notify({ title: "Copied", level: "success", timeout: 1500 });
+      run("terminal.copy"); // silent: no note on every copy
     });
   }
 

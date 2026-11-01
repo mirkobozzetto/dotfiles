@@ -42,7 +42,7 @@ macOS refuses it the app's bundle.
 | + menu | click + | omp, Prime Agent and Hermes (VPS) |
 | Panels | `ctrl+space` then `f`, `d`, `I`, `u`, `v` | Files with icons, review a diff, GitHub issues, omp usage, Blueprint |
 | Bottom bar | look at it | CPU, RAM and GPU load |
-| Copy on select | select text in a terminal | a "Copied" note |
+| Copy on select | select text in a terminal | the text is in the clipboard, without a note |
 | Float space | `ctrl+shift+space` | a floating window with a terminal and notes |
 | Icon | look at the Dock | the black ram on white, also after a Herdr update |
 
@@ -122,7 +122,7 @@ They no longer type `π`, `†`, `µ` and the characters of `option+1..3`.
 | `token-usage` | omp tokens and cost, `ctrl+space u` (nakamotosai/herdr-agent-panels; lists sessions with BSD `stat`) |
 | `blueprint` | a live diagram of what the agent builds, `ctrl+space v` (chappse6/herdr-blueprint-app; never run its add-button) |
 | `system` | CPU, RAM and GPU load in the bottom bar; RAM is macOS's memory pressure, as CleanMyMac shows it (Lakris2407/herdr-quota, system part only) |
-| `copy-on-select` | a terminal selection is copied when the mouse comes up (jspoynor/herdr-copy-on-select) |
+| `copy-on-select` | a terminal selection is copied when the mouse comes up, silently (jspoynor/herdr-copy-on-select) |
 | `float-space` | a floating scratch window with its own tabs and notes, `ctrl+shift+space` (thuanlm215/herdr-float-space) |
 
 Middle click on a tab or an agent row closes its tab (ported from ayayaQ/herdr-quick-close).
