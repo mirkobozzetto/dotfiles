@@ -9,3 +9,17 @@ copy-on-select	jspoynor/herdr-copy-on-select	mods/copy-on-select	ea2304a28e3bda6
 float-space	thuanlm215/herdr-float-space	mods/float-space	9cf49835d7a5593d13e10a9c97cb46c83a2bc63e	MIT
 issues	jankeesvw/herdr-issues	mods/issues	5b68adc328fc541d2a5ad12df999cd045ec4883a	none
 my-tabs, agents-jump (middle click)	ayayaQ/herdr-quick-close	mods	54f1ec167152a324369903066300646116f3fbf4	Apache-2.0
+agents-jump	jorgeorejas/herdr-jump	mods/agents-jump	8a7c7c73d21cfa1738787f192d5ab59ed347d494	Apache-2.0
+spaces-jump	jorgeorejas/herdr-jump	mods/spaces-jump	8a7c7c73d21cfa1738787f192d5ab59ed347d494	Apache-2.0
+fleece	dmazlum/herdr-fleece	app/mods/fleece	eb903831c225c1017cab670bbfbc4434e54672ca	MIT
+fleece-dock	dmazlum/herdr-fleece	app/mods/fleece-dock	eb903831c225c1017cab670bbfbc4434e54672ca	MIT
+walkthrough	dmazlum/herdr-walkthrough	mods/walkthrough	0064cce71e7fc667dd0ff5c67aeffa733908ecee	MIT
+git-graph	rabeeh-ta/herdr-git-graph	mods/git-graph	1cfcff364e4796feabdd8f396feb61a1213b3c45	MIT
+herdr-migration	CiprianSpiridon/herdr-migration	mods/herdr-migration	dd20d59e94f9502dccbb63a41f6b43c710ca5618	MIT
+issue-agent	obrunogonzaga/herdr-mods	github-panel/mods/issue-agent	8989980925aa693174f4ebdb4e52e3f9acc990ae	MIT
+launcher	EkeMinusYou/herdr-launcher	mods/launcher	cf9ef7104b21747e4981ea30d732724548ac5cf8	MIT
+linear	dantech99/herdr-linear	mods/linear	8dba59eaf0f563f9d635a4c24edd8195b5900686	MIT
+linear-agent	dantech99/herdr-linear	mods/linear-agent	8dba59eaf0f563f9d635a4c24edd8195b5900686	MIT
+reopen-tab	mustafaTokmak/herdr-reopen-tab	mods/reopen-tab	9322da9b516b65e5f0f9b03e9e2d123448b05ff9	MIT
+space-picker	iqthink/herdr-space-picker	mods/space-picker	c4f5b429b5b29d3d6cc6c5ff7f02a6d53ed4027e	MIT
+claude-usage (rewritten)	dev-gvs/herdr-claude-usage	mods/claude-usage	d77eddc723e9c1b07da16390d68ea818904e195f	none

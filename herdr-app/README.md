@@ -131,6 +131,39 @@ Middle click on a tab or an agent row closes its tab (ported from ayayaQ/herdr-q
 Linear reads its key from the macOS keychain (`hop:<account>:LINEAR_API_KEY`).
 The account sits in `~/.config/herdr-app/custom.json` (`hop_account`), kept out of this repo.
 
+## Credits
+
+Mods copied from other people, with their license (`sources.tsv`).
+`bash herdr-app/upstream.sh` lists the ones changed upstream since the copy.
+
+| Mod | From | License |
+|---|---|---|
+| `reviewer` | [vytasgavelis/herdr-reviewer](https://github.com/vytasgavelis/herdr-reviewer) | no license |
+| `file-icons` | [amster93/herdr-file-icons](https://github.com/amster93/herdr-file-icons) | Apache-2.0 |
+| `token-usage` | [nakamotosai/herdr-agent-panels](https://github.com/nakamotosai/herdr-agent-panels) | MIT |
+| `blueprint` | [chappse6/herdr-blueprint-app](https://github.com/chappse6/herdr-blueprint-app) | MIT |
+| `system` | [Lakris2407/herdr-quota](https://github.com/Lakris2407/herdr-quota) | MIT |
+| `copy-on-select` | [jspoynor/herdr-copy-on-select](https://github.com/jspoynor/herdr-copy-on-select) | no license |
+| `float-space` | [thuanlm215/herdr-float-space](https://github.com/thuanlm215/herdr-float-space) | MIT |
+| `issues` | [jankeesvw/herdr-issues](https://github.com/jankeesvw/herdr-issues) | no license |
+| `my-tabs, agents-jump (middle click)` | [ayayaQ/herdr-quick-close](https://github.com/ayayaQ/herdr-quick-close) | Apache-2.0 |
+| `agents-jump` | [jorgeorejas/herdr-jump](https://github.com/jorgeorejas/herdr-jump) | Apache-2.0 |
+| `spaces-jump` | [jorgeorejas/herdr-jump](https://github.com/jorgeorejas/herdr-jump) | Apache-2.0 |
+| `fleece` | [dmazlum/herdr-fleece](https://github.com/dmazlum/herdr-fleece) | MIT |
+| `fleece-dock` | [dmazlum/herdr-fleece](https://github.com/dmazlum/herdr-fleece) | MIT |
+| `walkthrough` | [dmazlum/herdr-walkthrough](https://github.com/dmazlum/herdr-walkthrough) | MIT |
+| `git-graph` | [rabeeh-ta/herdr-git-graph](https://github.com/rabeeh-ta/herdr-git-graph) | MIT |
+| `herdr-migration` | [CiprianSpiridon/herdr-migration](https://github.com/CiprianSpiridon/herdr-migration) | MIT |
+| `issue-agent` | [obrunogonzaga/herdr-mods](https://github.com/obrunogonzaga/herdr-mods) | MIT |
+| `launcher` | [EkeMinusYou/herdr-launcher](https://github.com/EkeMinusYou/herdr-launcher) | MIT |
+| `linear` | [dantech99/herdr-linear](https://github.com/dantech99/herdr-linear) | MIT |
+| `linear-agent` | [dantech99/herdr-linear](https://github.com/dantech99/herdr-linear) | MIT |
+| `reopen-tab` | [mustafaTokmak/herdr-reopen-tab](https://github.com/mustafaTokmak/herdr-reopen-tab) | MIT |
+| `space-picker` | [iqthink/herdr-space-picker](https://github.com/iqthink/herdr-space-picker) | MIT |
+| `claude-usage (rewritten)` | [dev-gvs/herdr-claude-usage](https://github.com/dev-gvs/herdr-claude-usage) | no license |
+
+Clones of Herdr's shipped mods (Apache-2.0): `my-tabs`, `path-menu`, `keys-help`, `custom-status`.
+
 ## Outside this folder
 
 - `~/.claude/bin/herdr-app-tab <label> <cwd> <prompt.md>`: opens a Claude
