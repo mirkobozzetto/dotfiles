@@ -6,6 +6,20 @@ import { syncNames } from "./names.js";
 const PANELS = ["files", "changes", "github", "graph"];
 const NAMES_MS = 3000;
 const MINUTE_MS = 60000;
+// A space can list a tab twice, once unnamed (shown as its number), and keep a
+// tab with nothing left in it: each tab shows once, under its name, and an empty
+// one not at all.
+function unique(tabs) {
+  const byId = new Map();
+  for (const t of tabs) {
+    const seen = byId.get(t.id);
+    if (!seen) byId.set(t.id, t);
+    else byId.set(t.id, { ...(t.named && !seen.named ? t : seen), active: seen.active || t.active });
+  }
+  const filled = new Set(panes().map(p => p.tab));
+  return [...byId.values()].filter(t => t.active || filled.has(t.id));
+}
+
 // The narrowest a tab gets when many share the bar: its icon and a few letters.
 const MIN_TAB = 72;
 
@@ -84,7 +98,7 @@ export default class Tabs extends View {
   render() {
     const t = theme();
     const space = spaces().find(p => p.active);
-    const shown = space?.tabs ?? [];
+    const shown = unique(space?.tabs ?? []);
     const stop = (_e, cx) => cx.stop_propagation();
     const button = (id, label, action) => div().id(id).size(26).flex_none().flex().items_center().justify_center().rounded(6).text_color(t.dim).hover(s => s.bg(t.hover).text_color(t.foreground))
       .on_mouse_down("left", stop).on_click(action).child(label);

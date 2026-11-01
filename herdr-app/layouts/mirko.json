@@ -171,6 +171,13 @@
                           "panel": true
                         }
                       }
+                    },
+                    {
+                      "id": "issues",
+                      "type": "block",
+                      "content": {
+                        "mod": "issues"
+                      }
                     }
                   ],
                   "active": "files"

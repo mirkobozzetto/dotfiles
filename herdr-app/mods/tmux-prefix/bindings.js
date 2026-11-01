@@ -92,6 +92,7 @@ export const GROUPS = [
     ["b", "GitHub", () => togglePanel("github")],
     ["u", "omp usage", () => togglePanel("usage-omp")],
     ["v", "Blueprint", () => togglePanel("blueprint")],
+    ["I", "GitHub issues", () => togglePanel("issues")],
     ["e", "Sidebar", "layout.toggle", { id: "sidebar" }],
   ]],
   ["Agents", [
