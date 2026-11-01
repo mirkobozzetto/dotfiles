@@ -1,5 +1,9 @@
 # Herdr app
 
+> **Source:** this folder lives in [mirkobozzetto/dotfiles](https://github.com/mirkobozzetto/dotfiles/tree/main/herdr-app).
+> [herdr-app-config](https://github.com/mirkobozzetto/herdr-app-config) is its mirror, updated on every push.
+> To install it, give that repo's link to your agent, as herdr.dev/layouts explains.
+
 Config for the Herdr desktop app (0.1.10) and its terminal server, herdr-core
 (`hc`). The app reads `~/.config/herdr-app` and does not follow symlinks, so
 this folder holds copies.

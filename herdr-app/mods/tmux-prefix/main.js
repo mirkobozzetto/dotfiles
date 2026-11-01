@@ -6,8 +6,9 @@ import { BINDINGS, GROUPS, UNLISTED_NOTE } from "./bindings.js";
 // The keys of ~/dotfiles/herdr/config.toml, prefix ctrl+space. Only repeatable
 // actions start a timer: the first key after the prefix can take as long as you like.
 const REPEAT_MS = 500;
-// Three groups per column, all shown at once.
-const COLUMNS = [GROUPS.slice(0, 3), GROUPS.slice(3)];
+// Three groups per column, balanced by rows, all shown at once.
+const byName = name => GROUPS.find(([n]) => n === name);
+const COLUMNS = [["Tabs", "Spaces", "Agents"], ["Panels", "Panes", "App"]].map(names => names.map(byName).filter(Boolean));
 
 function forwardKey(e, key) {
   if (["enter", "tab", "backspace", "left", "right", "up", "down", "space"].includes(e.key)) return e.key;

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Mirrors herdr-app/ to github.com/mirkobozzetto/herdr-app-config on every push
+# of main: that repo is the one herdr.dev lists, built from this folder alone.
+# Edit the config here; the mirror is never edited by hand.
+#
+# Enabled by `git config core.hooksPath hooks` (install.sh does it).
+# A failed mirror is reported and never blocks the dotfiles push.
+
+set -uo pipefail
+readonly MIRROR="git@github.com:mirkobozzetto/herdr-app-config.git"
+
+# The push below runs this hook again: only the outer push mirrors.
+[ -n "${HERDR_APP_MIRROR:-}" ] && exit 0
+
+while read -r _local_ref local_sha remote_ref _remote_sha; do
+  [ "$remote_ref" = "refs/heads/main" ] || continue
+  case "$local_sha" in *[!0]*) ;; *) continue ;; esac # a deleted branch
+  split=$(git subtree split --quiet --prefix=herdr-app "$local_sha" 2>/dev/null) || {
+    echo "herdr-app mirror: split failed, mirror not updated" >&2; continue; }
+  HERDR_APP_MIRROR=1 git push --quiet "$MIRROR" "$split:refs/heads/main" 2>/dev/null ||
+    echo "herdr-app mirror: push to herdr-app-config failed" >&2
+done
+exit 0
