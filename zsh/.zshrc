@@ -308,6 +308,18 @@ if [[ -o interactive && -n $HC_TERMINAL_ID && -n $HC_TERMINAL_SOCKET ]] &&
   fi
 fi
 
+# Herdr app: a send from an agent started by hc arrives wrapped in
+# <hc from="…">…</hc>, which zsh can't parse; pane-run's "cmd" shells hung on
+# it. Strip the tags before running the line.
+if [[ -o interactive && -n $HC_TERMINAL_ID ]]; then
+  _hc_unwrap() {
+    BUFFER=${BUFFER#\<hc from=*\> }
+    BUFFER=${BUFFER%\</hc\>}
+    zle .accept-line
+  }
+  zle -N accept-line _hc_unwrap
+fi
+
 # Herdr app: an update brings Herdr's own icon back. A Herdr terminal puts the
 # pink ram on again; launchd can't, macOS refuses it the app's bundle.
 [[ -n $HC_TERMINAL_ID && -d /Applications/Herdr.app && ! -e /Applications/Herdr.app/Icon$'\r' ]] &&
