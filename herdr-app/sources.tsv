@@ -1,0 +1,11 @@
+# Mods copied from other people's repos: where from, which commit, which license.
+# mod	repo	path in the repo	commit copied	license
+reviewer	vytasgavelis/herdr-reviewer	mods/reviewer	fba46cb3826985efe134c5f2a89227881e3ca6b3	none
+file-icons	amster93/herdr-file-icons	mods/file-icons	48095c84c7f3ba1d031adfd67f584b2438d9276b	Apache-2.0
+token-usage	nakamotosai/herdr-agent-panels	token-usage/mods/token-usage	29d1e427e4b5891f125ac57ff0b30b27580a6ef2	MIT
+blueprint	chappse6/herdr-blueprint-app	mods/blueprint	80d424a8af753b6532500e2dcef5d722489c3f93	MIT
+system	Lakris2407/herdr-quota	mods/system	7ac0037e04c3261677975f8f013815c5809c4af9	MIT
+copy-on-select	jspoynor/herdr-copy-on-select	mods/copy-on-select	ea2304a28e3bda6812048ee556c592a558320aa2	none
+float-space	thuanlm215/herdr-float-space	mods/float-space	9cf49835d7a5593d13e10a9c97cb46c83a2bc63e	MIT
+issues	jankeesvw/herdr-issues	mods/issues	5b68adc328fc541d2a5ad12df999cd045ec4883a	none
+my-tabs, agents-jump (middle click)	ayayaQ/herdr-quick-close	mods	54f1ec167152a324369903066300646116f3fbf4	Apache-2.0
