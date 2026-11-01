@@ -100,7 +100,8 @@ They no longer type `π`, `†`, `µ` and the characters of `option+1..3`.
 | `linear`, `linear-agent`, `issue-agent` | issues, and an agent started on one in a worktree |
 | `herdr-migration` | moves tabs over from the terminal herdr |
 
-Linear reads its key from the macOS keychain (`hop:gratiago:LINEAR_API_KEY`).
+Linear reads its key from the macOS keychain (`hop:<account>:LINEAR_API_KEY`).
+The account sits in `~/.config/herdr-app/custom.json` (`hop_account`), kept out of this repo.
 
 ## Outside this folder
 

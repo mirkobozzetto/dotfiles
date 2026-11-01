@@ -6,21 +6,27 @@ import { API_URL, ISSUES_QUERY, STATUSES, parseConfig, parseIssues, linearError,
 import { openUrl } from "./open.js";
 
 const REFRESH_MS = 60000;
-const NO_KEY = "No Linear API key. In a terminal: hop secret set LINEAR_API_KEY gratiago";
-// Where `hop secret set` keeps it: the key never sits in a plain file.
-const KEYCHAIN_SERVICE = "hop:gratiago:LINEAR_API_KEY";
+const NO_KEY = "No Linear API key. In a terminal: hop secret set LINEAR_API_KEY <account>, then put that account in ~/.config/herdr-app/custom.json as hop_account";
+// Private settings, kept out of the dotfiles: { "hop_account": "<the hop account holding the key>" }.
+const CUSTOM = "custom.json";
 
-// LINEAR_API_KEY from the environment, else from the macOS keychain.
-async function envKey() {
+async function hopAccount() {
+  const text = await readTextFile(`${appHome()}/${CUSTOM}`).catch(() => null);
+  try { return JSON.parse(text ?? "{}").hop_account ?? null; } catch { return null; }
+}
+
+// LINEAR_API_KEY from the environment, else from the macOS keychain, where
+// `hop secret set` keeps it: the key never sits in a plain file.
+async function envKey(account) {
   const script = 'printf %s "${LINEAR_API_KEY:-$(security find-generic-password -a "$USER" -s "$1" -w 2>/dev/null)}"';
-  const r = await exec("sh", ["-c", script, "sh", KEYCHAIN_SERVICE]).catch(() => null);
+  const r = await exec("sh", ["-c", script, "sh", `hop:${account ?? ""}:LINEAR_API_KEY`]).catch(() => null);
   return r?.code === 0 && r.stdout.trim() ? r.stdout.trim() : null;
 }
 
 async function loadConfig() {
   const text = await readTextFile(`${appHome()}/linear.json`).catch(() => null);
   const config = parseConfig(text, home());
-  if (!config.apiKey && !config.error) config.apiKey = await envKey();
+  if (!config.apiKey && !config.error) config.apiKey = await envKey(await hopAccount());
   return config;
 }
 

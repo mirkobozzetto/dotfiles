@@ -11,7 +11,9 @@ import * as fs from "fs/promises";
 // Each Claude's status line writes its hop account, PR and session name here
 // (~/.claude/scripts/statusline/src/lib/herdr.ts), one file per terminal.
 const CLAUDE_STATUS = () => `${home()}/.local/state/herdr-core/default/claude-status/terminals`;
-const ACCOUNT_LABEL = { mirko: "perso" };
+// The personal hop account; any other account is a work one, in the accent color.
+const PERSONAL = "mirko";
+const ACCOUNT_LABEL = { [PERSONAL]: "perso" };
 
 // hop's own rule until a session's status line has spoken: the nearest .hop
 // above its folder names the account, else the personal one.
@@ -20,7 +22,7 @@ async function hopAccount(dir) {
     const pinned = (await readTextFile(`${d}/.hop`).catch(() => null))?.trim();
     if (pinned) return pinned;
   }
-  return "mirko";
+  return PERSONAL;
 }
 
 async function claudeStatus() {
@@ -411,7 +413,7 @@ export default class Agents extends View {
       const second = h_flex().min_w(0).gap(5).items_center().text_size(12)
         .child(div().flex_none().text_color(t.dim).child(a.program?.key ?? a.app ?? ""))
         .when(Boolean(account), el => el.child(sep())
-          .child(div().flex_none().text_color(account === "gratiago" ? t.accent : t.ansi5).child(ACCOUNT_LABEL[account] ?? account)))
+          .child(div().flex_none().text_color(account !== PERSONAL ? t.accent : t.ansi5).child(ACCOUNT_LABEL[account] ?? account)))
         .child(sep())
         .child(div().flex_none().text_color(stateColor).when(a.status === "blocked", el => el.font_bold()).child(a.status));
       return h_flex()
