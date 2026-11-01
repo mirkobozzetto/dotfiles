@@ -167,9 +167,13 @@ hc_space() {
   "$HC" get "$HC_TERMINAL_ID" --json 2>/dev/null | jq -r '.labels["herdr.space"] // empty'
 }
 
+# A coding agent can end up in a terminal named like a cmd pane (resumed there
+# after a restart): it is no cmd pane, and must not take one of the two places.
 hc_cmd_terminals() {
   "$HC" ls --json 2>/dev/null | jq -r --arg p "cmd-${1: -8}-" \
-    '.terminals[] | select(.state == "live" and ((.name // "") | startswith($p))) | "\(.address) \(.agent // "")"'
+    '.terminals[] | select(.state == "live" and ((.name // "") | startswith($p)))
+     | select((.agent // "") | IN("claude", "codex", "omp", "pi", "opencode", "gemini", "hermes") | not)
+     | "\(.address) \(.agent // "")"'
 }
 
 # The app adopts a labelled terminal a moment after it starts: retry the rename.
@@ -202,7 +206,7 @@ hc_pick() {
   fi
   # No parent: the pane outlives the agent that opened it, and is not its sub-agent.
   "$HC" run --bg --keep --no-parent --no-notify --json --cwd "$CWD" \
-    --name "cmd-${space: -8}-$((count + 1))" \
+    --name "cmd-${space: -8}-$RANDOM" \
     --label "herdr.space=$space" --label "herdr.tab=$tab" >/dev/null 2>&1 || return 1
   [ "$count" -eq 0 ] && hc_name_tab "$tab"
   return 2
