@@ -1,6 +1,13 @@
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, agents, theme, run } from "herdr";
+import { spaces, agents, panes, focused, theme, run } from "herdr";
+
+// Bottom-bar blocks that only matter beside their own agent: shown while the
+// focused terminal runs it, hidden otherwise. A focused panel keeps the last state.
+const AGENT_BLOCKS = [
+  ["usage", (app) => /claude/i.test(app)],
+  ["omp-cost", (app) => /^omp$/i.test(app)],
+];
 
 export default class WorkspaceStatus extends View {
   // Agents by state, each in its color: "3 working · 1 needs you · 2 done".
@@ -22,7 +29,23 @@ export default class WorkspaceStatus extends View {
     ]));
   }
 
+  syncBlocks() {
+    const terminal = focused()?.terminal;
+    if (!terminal) return;
+    // The agent Herdr detected there, else the program it runs (omp shows as a program).
+    const pane = panes().find((p) => p.terminal === terminal);
+    const app = agents().find((a) => a.address === terminal)?.app ?? pane?.program?.agent ?? pane?.program?.name ?? "";
+    this.shown ??= {};
+    for (const [id, wants] of AGENT_BLOCKS) {
+      const on = wants(app);
+      if (this.shown[id] === on) continue;
+      this.shown[id] = on;
+      run(on ? "layout.show" : "layout.hide", { id });
+    }
+  }
+
   render() {
+    this.syncBlocks();
     const t = theme();
     const space = spaces().find(s => s.active);
     const list = agents();
