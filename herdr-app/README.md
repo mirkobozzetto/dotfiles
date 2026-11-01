@@ -1,13 +1,9 @@
 # Mirko's Herdr setup
 
-A keyboard-first setup for the [Herdr](https://herdr.dev) desktop app, made for
-a day spent with many coding agents: one key shows every key, tabs never hide
-the one you are on, and the bottom bar only talks about the agent in front of
-you.
-
-![The window: many tabs that shrink, the active one in full, Files with icons](screenshots/window-files.png)
-
 ## Install
+
+Also on [herdr.dev/layouts](https://herdr.dev/layouts), under Community, as **Mirko**.
+herdr.dev lists it by itself through this repo's `herdr-layout` topic, within an hour of each push.
 
 You need macOS and the Herdr desktop app, opened at least once.
 `gh` (GitHub panels) and `jq` (omp cost) are optional.
@@ -38,6 +34,15 @@ The script copies everything into `~/.config/herdr-app` and switches to the
 ```sh
 cd ~/herdr-app-config && git pull && ./install.sh
 ```
+
+## About
+
+A keyboard-first setup for the [Herdr](https://herdr.dev) desktop app, made for
+a day spent with many coding agents: one key shows every key, tabs never hide
+the one you are on, and the bottom bar only talks about the agent in front of
+you.
+
+![The window: many tabs that shrink, the active one in full, Files with icons](screenshots/window-files.png)
 
 ## What you get
 
