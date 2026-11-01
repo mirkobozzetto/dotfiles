@@ -4,13 +4,14 @@ import { View, div } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { exec, theme, settings } from "herdr";
 
-const EVERY = 3000, HISTORY = 12;
+const EVERY = 3000, HISTORY = 8;
 // One shell call per read. `iostat` samples the CPU over 1 s; the first report line is the average since boot.
 const SCRIPT = [
   "iostat -n 0 -c 2 -w 1 | tail -1",
   "echo ---", "vm_stat",
   "echo ---", "sysctl -n hw.memsize",
   "echo ---", "ioreg -r -d 1 -c IOAccelerator | grep -o '\"Device Utilization %\"=[0-9]*'",
+  "echo ---", "sysctl -n kern.memorystatus_level",
 ].join("; ");
 
 // Same scale as the quota bars: green, amber from 60%, orange from 80%, red from 92%.
@@ -25,7 +26,7 @@ const gb = bytes => `${(bytes / 2 ** 30).toFixed(1)} GB`;
 async function read() {
   const r = await exec("sh", ["-c", SCRIPT]);
   if (r.code !== 0 && !r.stdout) throw new Error((r.stderr || `exit ${r.code}`).trim());
-  const [cpuOut, vmOut, memOut, gpuOut] = r.stdout.split("---\n");
+  const [cpuOut, vmOut, memOut, gpuOut, freeOut] = r.stdout.split("---\n");
   const [user, sys, idle] = cpuOut.trim().split(/\s+/).map(Number);
   // Activity Monitor's "Memory Used": app memory (anonymous minus purgeable) + wired + compressed.
   const page = Number(/page size of (\d+)/.exec(vmOut)?.[1] ?? 16384);
@@ -36,7 +37,13 @@ async function read() {
   const gpus = [...gpuOut.matchAll(/=(\d+)/g)].map(m => Number(m[1]));
   return {
     cpu: { pct: 100 - idle, tip: `CPU ${Math.round(100 - idle)}% · user ${Math.round(user)}%, system ${Math.round(sys)}%` },
-    ram: { pct: total ? used / total * 100 : 0, tip: `Memory ${gb(used)} of ${gb(total)} used` },
+    // The gauge is macOS's own pressure (`memory_pressure`, CleanMyMac): what it can't
+    // give back. Activity Monitor's figure also counts compressed and idle memory.
+    ram: (() => {
+      const free = Number(freeOut?.trim());
+      const pct = Number.isFinite(free) && free > 0 ? 100 - free : total ? used / total * 100 : 0;
+      return { pct, tip: `Memory pressure ${Math.round(pct)}% · ${gb(used)} of ${gb(total)} held (Activity Monitor)` };
+    })(),
     gpu: gpus.length ? { pct: Math.max(...gpus), tip: `GPU ${Math.max(...gpus)}% busy` } : null,
   };
 }
@@ -85,7 +92,7 @@ export default class System extends View {
         .child(graph(this.history[key], t))
         .child(div().min_w(26).text_size(11).text_color(m && m.pct >= 60 ? level(m.pct) : t.muted).child(m ? `${Math.round(m.pct)}%` : "–"));
     };
-    return h_flex().id("system").size_full().px(12).gap(12).items_center().justify_end().overflow_hidden()
+    return h_flex().id("system").size_full().px(8).gap(9).items_center().justify_end().overflow_hidden()
       .bg(t.chrome).border_t(1).border_color(t.border).text_size(11.5).text_color(t.muted).cursor_pointer()
       .on_click(() => exec("open", ["-a", "Activity Monitor"]).catch(() => {}))
       .when(Boolean(this.error) && !now, el => el.child(div().text_color(t.dim).tooltip(this.error).child("System load unavailable")))

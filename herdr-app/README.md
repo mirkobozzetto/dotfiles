@@ -28,6 +28,24 @@ custom one on again (a line at the end of `zsh/.zshrc`).
 It also clears the Dock's own icon cache, which a Dock restart keeps. launchd can't do it:
 macOS refuses it the app's bundle.
 
+## Try it
+
+| Feature | Do | You should see |
+|---|---|---|
+| Ctrl+Space menu | `ctrl+space` | every key at once, in two columns |
+| All shortcuts | `cmd+/`, type "model" | the model keys of Claude Code, pi, omp and Prime Agent |
+| Agent that needs you | `ctrl+space enter` | the blocked or finished agent; `enter` again: the next one |
+| Peek | `ctrl+space a` | that agent over the current tab; `esc` closes it |
+| Model in Claude Code | `option+p` | the model picker, not a `π` |
+| Tab bar | many tabs, then hover one | every tab fits, the active one keeps its size, the name shows on hover |
+| Middle click | on a tab | Herdr asks, then closes it |
+| + menu | click + | omp, Prime Agent and Hermes (VPS) |
+| Panels | `ctrl+space` then `f`, `d`, `I`, `u`, `v` | Files with icons, review a diff, GitHub issues, omp usage, Blueprint |
+| Bottom bar | look at it | CPU, RAM and GPU load |
+| Copy on select | select text in a terminal | a "Copied" note |
+| Float space | `ctrl+shift+space` | a floating window with a terminal and notes |
+| Icon | look at the Dock | the black ram on white, also after a Herdr update |
+
 ## Keys
 
 ### Ctrl+Space menu (`mods/tmux-prefix`)
@@ -103,7 +121,7 @@ They no longer type `π`, `†`, `µ` and the characters of `option+1..3`.
 | `file-icons` | the Files panel with VS Code's Material icons (amster93/herdr-file-icons) |
 | `token-usage` | omp tokens and cost, `ctrl+space u` (nakamotosai/herdr-agent-panels; lists sessions with BSD `stat`) |
 | `blueprint` | a live diagram of what the agent builds, `ctrl+space v` (chappse6/herdr-blueprint-app; never run its add-button) |
-| `system` | CPU, RAM and GPU load in the bottom bar (Lakris2407/herdr-quota, system part only) |
+| `system` | CPU, RAM and GPU load in the bottom bar; RAM is macOS's memory pressure, as CleanMyMac shows it (Lakris2407/herdr-quota, system part only) |
 | `copy-on-select` | a terminal selection is copied when the mouse comes up (jspoynor/herdr-copy-on-select) |
 | `float-space` | a floating scratch window with its own tabs and notes, `ctrl+shift+space` (thuanlm215/herdr-float-space) |
 

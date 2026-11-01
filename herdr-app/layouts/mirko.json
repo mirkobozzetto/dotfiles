@@ -213,7 +213,7 @@
               "id": "system",
               "type": "block",
               "size": {
-                "px": 260
+                "px": 292
               },
               "content": {
                 "mod": "system"
