@@ -1,12 +1,45 @@
-# Herdr app
+# Mirko's Herdr setup
 
-> **Source:** this folder lives in [mirkobozzetto/dotfiles](https://github.com/mirkobozzetto/dotfiles/tree/main/herdr-app).
-> [herdr-app-config](https://github.com/mirkobozzetto/herdr-app-config) is its mirror, updated on every push.
-> To install it, give that repo's link to your agent, as herdr.dev/layouts explains.
-
-## Screenshots
+A keyboard-first setup for the [Herdr](https://herdr.dev) desktop app, made for
+a day spent with many coding agents: one key shows every key, tabs never hide
+the one you are on, and the bottom bar only talks about the agent in front of
+you.
 
 ![The window: many tabs that shrink, the active one in full, Files with icons](screenshots/window-files.png)
+
+## Install
+
+You need macOS and the Herdr desktop app, opened at least once.
+`gh` (GitHub panels) and `jq` (omp cost) are optional.
+
+**With your agent**, the herdr.dev way. In a Claude Code (or other agent)
+session inside Herdr, paste:
+
+```text
+Install the Herdr layout from https://github.com/mirkobozzetto/herdr-app-config
+```
+
+The agent reads `RECIPE.md` and Herdr's own instructions, copies the layout and
+its mods, and keeps your current layout next to it.
+
+**By hand:**
+
+```sh
+git clone https://github.com/mirkobozzetto/herdr-app-config ~/herdr-app-config
+~/herdr-app-config/install.sh
+```
+
+The script copies everything into `~/.config/herdr-app` and switches to the
+`mirko` layout. Whatever it replaces is saved first in
+`~/.config/herdr-app/backup-<date>/`. Your own layout stays in the layout list.
+
+## Update
+
+```sh
+cd ~/herdr-app-config && git pull && ./install.sh
+```
+
+## What you get
 
 | Ctrl+Space: every key at once | Cmd+/: every shortcut, searchable |
 |---|---|
@@ -16,188 +49,117 @@
 
 ![Bottom bar: agents by state, CPU, RAM and GPU, then the Claude account with its gauges and reset countdowns](screenshots/bottom-bar.png)
 
-Config for the Herdr desktop app (0.1.10) and its terminal server, herdr-core
-(`hc`). The app reads `~/.config/herdr-app` and does not follow symlinks, so
-this folder holds copies.
-
-```sh
-bash herdr-app/sync.sh          # copy the app's personal files here, then commit
-bash herdr-app/sync.sh restore  # copy them back into the app on a new machine
-```
-
-Only what Herdr did not ship is copied: `settings.json`, `keys.json`, the
-`mirko` layout, the Catppuccin themes and the mods below.
-
-## Look
-
-- `settings.json`: font, zoom, Catppuccin theme, sound alerts off.
-- `layouts/mirko.json`: the only layout kept; pane headers show on hover.
-  `ctrl+shift+l` switches back to it.
-
-## Icon
-
-`icon/herdr-icon.png` is Herdr's ram recolored, black on white.
-`icon/apply.sh` puts it on `/Applications/Herdr.app` as a Finder custom icon,
-the same as Get Info > paste, so the app's signed bundle stays untouched.
-A Herdr update brings the original icon back; the next Herdr terminal puts the
-custom one on again (a line at the end of `zsh/.zshrc`).
-It also clears the Dock's own icon cache, which a Dock restart keeps. launchd can't do it:
-macOS refuses it the app's bundle.
-
-## Try it
-
-| Feature | Do | You should see |
+| Try | Do | You should see |
 |---|---|---|
-| Ctrl+Space menu | `ctrl+space` | every key at once, in two columns |
+| Every key | `ctrl+space` | the whole menu, in two columns |
 | All shortcuts | `cmd+/`, type "model" | the model keys of Claude Code, pi, omp and Prime Agent |
 | Agent that needs you | `ctrl+space enter` | the blocked or finished agent; `enter` again: the next one |
-| Peek | `ctrl+space a` | that agent over the current tab; `esc` closes it |
-| Model in Claude Code | `option+p` | the model picker, not a `π` |
-| Tab bar | many tabs, then hover one | every tab fits, the active one keeps its size, the name shows on hover |
-| Middle click | on a tab | Herdr asks, then closes it |
-| + menu | click + | omp, Prime Agent and Hermes (VPS) |
-| Panels | `ctrl+space` then `f`, `d`, `I`, `u`, `v` | Files with icons, review a diff, GitHub issues, omp usage, Blueprint |
-| Bottom bar | look at it | CPU, RAM and GPU load |
-| Copy on select | select text in a terminal | the text is in the clipboard, without a note |
-| Float space | `ctrl+shift+space` | a floating window with a terminal and notes |
-| Icon | look at the Dock | the black ram on white, also after a Herdr update |
+| Peek | `ctrl+space a` | that agent over your tab; `esc` closes it |
+| Tab bar | open many tabs, hover one | every tab fits, the active one keeps its size, the name shows on hover |
+| Middle click | on a tab or an agent row | Herdr asks, then closes that tab |
+| Panels | `ctrl+space` then `f`, `d`, `G`, `b`, `I`, `u`, `v` | Files, review, graph, GitHub, issues, omp usage, Blueprint |
+| Bottom bar | look at it | agents by state, CPU, RAM, GPU; Claude gauges on a Claude terminal only |
+| Copy on select | select text in a terminal | it is in the clipboard |
+| Float space | `ctrl+shift+space` | a floating window with its own terminal and notes |
 
 ## Keys
 
-### Ctrl+Space menu (`mods/tmux-prefix`)
+### Ctrl+Space menu
 
-Press `ctrl+space`, then one key. Every key shows at once, in two columns.
+Press `ctrl+space`, then one key.
 
 | Group | Keys |
 |---|---|
 | Tabs | `c` new, `X` close, `n`/`p` next/previous, `t` rename, `<`/`>` move |
 | Panes | `\|` split right, `-` split down, `x` close, `z` zoom |
 | Spaces | `)`/`(` and `J`/`K` next/previous, `T` rename |
-| Panels | `f` Files, `d` Changes, `G` Graph, `b` GitHub, `e` sidebar |
-| Agents | `enter` the next agent that needs you, `g` next agent, `y` its last answer, `r` walk through the diff, `i` Linear issues |
-| App | `s`/`w` go to anything, `o` launcher, `:` palette, `?` all shortcuts, `m` sound alerts on/off, `S` settings, `q` minimize |
+| Panels | `f` Files, `d` Changes, `G` Graph, `b` GitHub, `I` issues, `u` omp usage, `v` Blueprint, `e` sidebar |
+| Agents | `enter` the agent that needs you, `a` peek at it, `g` next agent, `y` its last answer, `r` walk through the diff, `i` Linear |
+| App | `s`/`w` go to anything, `o` launcher, `:` palette, `?` all shortcuts, `m` sound alerts, `S` settings, `q` minimize |
 
-`0-9` select a tab, `h j k l` or the arrows move between panes. Repeatable keys
-stay live for 500 ms. `ctrl+space` twice sends it to the program.
+`0-9` select a tab, `h j k l` or the arrows move between panes, and
+`ctrl+space` twice sends it to the program.
 
-`enter` goes to agents waiting for an answer first, then to finished ones;
-pressing it again walks through all of them.
-
-### All shortcuts (`mods/keys-help`)
-
-`cmd+/` (or `ctrl+space ?`) lists every shortcut with a search field:
-Herdr's `keys.json`, the Ctrl+Space menu (read from
-`mods/tmux-prefix/bindings.js`) and the agents' own keys
-(`mods/keys-help/agents.js`).
-
-### Option keys for the agents
-
-On a Belgian layout Herdr keeps Option for typing (`option+p` types `π`), so
-`keys.json` sends these chords as Alt instead:
-
-| Keys | Used by |
-|---|---|
-| `option+p`, `option+t` | Claude Code: pick a model, thinking on/off |
-| `option+m` | omp: pick a model |
-| `option+shift+p`, `option+1..3` | Prime Agent shortcuts patch |
-
-They no longer type `π`, `†`, `µ` and the characters of `option+1..3`.
-
-### Other global keys
+### Other keys
 
 | Keys | Action |
 |---|---|
-| `cmd+1..9` / `ctrl+1..9` | nth space / nth agent, as listed |
-| `cmd+p`, `ctrl+shift+k` | launcher |
+| `cmd+/` | all shortcuts |
+| `cmd+1..9` / `ctrl+1..9` | nth space / nth agent |
+| `cmd+p` | launcher |
 | `cmd+o` | space picker |
 | `cmd+shift+t` | reopen the last closed tab |
-| `cmd+shift+e` / `cmd+shift+c` / `cmd+g` / `cmd+shift+u` | Files / Changes / Graph / GitHub panel |
-| `cmd+shift+k` | walkthrough of the diff |
-| `cmd+shift+f`, `cmd+alt+f`, `cmd+shift+y` | Fleece: last answer, dock, copy |
-| `ctrl+shift+y` | Linear issues |
+| `cmd+shift+k` | walk through the diff |
+| `cmd+shift+f`, `cmd+alt+f` | the agent's last answer, as a window or a dock |
+| `ctrl+shift+space` | float space |
+| `ctrl+shift+l` | back to the `mirko` layout |
+
+On a keyboard where Option types characters (Belgian, French…), `option+p`,
+`option+t`, `option+m` and `option+1..3` are sent as Alt, so the agents get
+their model and thinking keys.
 
 ## Mods
 
-| Mod | What it does |
-|---|---|
-| `tmux-prefix` | the Ctrl+Space menu |
-| `keys-help` | the all-shortcuts window |
-| `my-tabs` | tab bar with the panel buttons; names tabs after what runs in them, keeps a name you gave |
-| `agents-jump`, `spaces-jump` | Herdr's agents and spaces lists with numbered jumps |
-| `claude-usage` | Claude usage gauges per account in the bottom bar |
-| `github`, `git-graph` | GitHub and commit graph panels |
-| `launcher`, `space-picker`, `path-menu` | open a program, a folder as a space, context menus |
-| `reopen-tab` | reopen closed tabs |
-| `ntfy` | iPhone ping when an agent needs you |
-| `walkthrough` | a diff explained step by step |
-| `fleece`, `fleece-dock` | the focused agent's last answer |
-| `linear`, `linear-agent`, `issue-agent` | issues, and an agent started on one in a worktree |
-| `herdr-migration` | moves tabs over from the terminal herdr |
-| `reviewer` | the Changes panel: comment a diff line by line and send the review to the agent (vytasgavelis/herdr-reviewer) |
-| `file-icons` | the Files panel with VS Code's Material icons (amster93/herdr-file-icons) |
-| `token-usage` | omp tokens and cost, `ctrl+space u` (nakamotosai/herdr-agent-panels; lists sessions with BSD `stat`) |
-| `blueprint` | a live diagram of what the agent builds, `ctrl+space v` (chappse6/herdr-blueprint-app; never run its add-button) |
-| `system` | CPU, RAM and GPU load in the bottom bar; RAM is macOS's memory pressure, as CleanMyMac shows it (Lakris2407/herdr-quota, system part only) |
-| `copy-on-select` | a terminal selection is copied when the mouse comes up, silently (jspoynor/herdr-copy-on-select) |
-| `float-space` | a floating scratch window with its own tabs and notes, `ctrl+shift+space` (thuanlm215/herdr-float-space) |
+| Mod | What it does | From | License |
+|---|---|---|---|
+| `tmux-prefix` | the Ctrl+Space menu | this repo | |
+| `keys-help` | the all-shortcuts window | clone of Herdr's `help` | Apache-2.0 |
+| `my-tabs` | tab bar that shrinks, names on hover, panel buttons | clone of Herdr's `tabs` | Apache-2.0 |
+| `custom-status` | agents by state in the bottom bar | clone of Herdr's `workspace-status` | Apache-2.0 |
+| `custom-omp-cost` | omp's cost today, on an omp terminal | this repo | |
+| `agents-jump`, `spaces-jump` | agents and spaces lists with numbered jumps | [jorgeorejas/herdr-jump](https://github.com/jorgeorejas/herdr-jump) | Apache-2.0 |
+| `reviewer` | review a diff like a pull request | [vytasgavelis/herdr-reviewer](https://github.com/vytasgavelis/herdr-reviewer) | none yet |
+| `file-icons` | Files panel with Material icons | [amster93/herdr-file-icons](https://github.com/amster93/herdr-file-icons) | Apache-2.0 |
+| `git-graph` | commit graph panel | [rabeeh-ta/herdr-git-graph](https://github.com/rabeeh-ta/herdr-git-graph) | MIT |
+| `github` | GitHub panel and CI status | this repo | |
+| `issues` | GitHub issues panel | [jankeesvw/herdr-issues](https://github.com/jankeesvw/herdr-issues) | none yet |
+| `token-usage` | omp tokens and cost panel | [nakamotosai/herdr-agent-panels](https://github.com/nakamotosai/herdr-agent-panels) | MIT |
+| `blueprint` | a live diagram of what the agent builds | [chappse6/herdr-blueprint-app](https://github.com/chappse6/herdr-blueprint-app) | MIT |
+| `system` | CPU, RAM (memory pressure) and GPU | [Lakris2407/herdr-quota](https://github.com/Lakris2407/herdr-quota) | MIT |
+| `claude-usage` | Claude gauges with reset countdowns | rewritten from [dev-gvs/herdr-claude-usage](https://github.com/dev-gvs/herdr-claude-usage) | none yet |
+| `copy-on-select` | copy a selection on mouse up | [jspoynor/herdr-copy-on-select](https://github.com/jspoynor/herdr-copy-on-select) | none yet |
+| `float-space` | floating scratch window | [thuanlm215/herdr-float-space](https://github.com/thuanlm215/herdr-float-space) | MIT |
+| `fleece`, `fleece-dock` | the agent's last answer | [dmazlum/herdr-fleece](https://github.com/dmazlum/herdr-fleece) | MIT |
+| `walkthrough` | a diff explained step by step | [dmazlum/herdr-walkthrough](https://github.com/dmazlum/herdr-walkthrough) | MIT |
+| `launcher` | open a program | [EkeMinusYou/herdr-launcher](https://github.com/EkeMinusYou/herdr-launcher) | MIT |
+| `space-picker` | open a folder as a space | [iqthink/herdr-space-picker](https://github.com/iqthink/herdr-space-picker) | MIT |
+| `reopen-tab` | reopen closed tabs | [mustafaTokmak/herdr-reopen-tab](https://github.com/mustafaTokmak/herdr-reopen-tab) | MIT |
+| `linear`, `linear-agent` | Linear issues, an agent per issue | [dantech99/herdr-linear](https://github.com/dantech99/herdr-linear) | MIT |
+| `issue-agent` | an agent on a GitHub issue | [obrunogonzaga/herdr-mods](https://github.com/obrunogonzaga/herdr-mods) | MIT |
+| `herdr-migration` | move tabs over from the terminal herdr | [CiprianSpiridon/herdr-migration](https://github.com/CiprianSpiridon/herdr-migration) | MIT |
+| `ntfy` | phone ping when an agent needs you | this repo | |
+| `path-menu` | context menus | clone of Herdr's `menu-plus` | Apache-2.0 |
 
-Middle click on a tab or an agent row closes its tab (ported from ayayaQ/herdr-quick-close).
-`programs.json` adds omp and Prime Agent to the + menu; personal entries are named `custom-*`.
+Middle click to close is ported from
+[ayayaQ/herdr-quick-close](https://github.com/ayayaQ/herdr-quick-close)
+(Apache-2.0). Each author was told about this repo.
 
-Linear reads its key from the macOS keychain (`hop:<account>:LINEAR_API_KEY`).
-The account sits in `~/.config/herdr-app/custom.json` (`hop_account`), kept out of this repo.
+## Personal parts
 
-## Credits
+These work here because of my own setup; on yours they stay quiet.
 
-Mods copied from other people, with their license (`sources.tsv`).
-`bash herdr-app/upstream.sh` lists the ones changed upstream since the copy.
-
-| Mod | From | License |
-|---|---|---|
-| `reviewer` | [vytasgavelis/herdr-reviewer](https://github.com/vytasgavelis/herdr-reviewer) | no license |
-| `file-icons` | [amster93/herdr-file-icons](https://github.com/amster93/herdr-file-icons) | Apache-2.0 |
-| `token-usage` | [nakamotosai/herdr-agent-panels](https://github.com/nakamotosai/herdr-agent-panels) | MIT |
-| `blueprint` | [chappse6/herdr-blueprint-app](https://github.com/chappse6/herdr-blueprint-app) | MIT |
-| `system` | [Lakris2407/herdr-quota](https://github.com/Lakris2407/herdr-quota) | MIT |
-| `copy-on-select` | [jspoynor/herdr-copy-on-select](https://github.com/jspoynor/herdr-copy-on-select) | no license |
-| `float-space` | [thuanlm215/herdr-float-space](https://github.com/thuanlm215/herdr-float-space) | MIT |
-| `issues` | [jankeesvw/herdr-issues](https://github.com/jankeesvw/herdr-issues) | no license |
-| `my-tabs, agents-jump (middle click)` | [ayayaQ/herdr-quick-close](https://github.com/ayayaQ/herdr-quick-close) | Apache-2.0 |
-| `agents-jump` | [jorgeorejas/herdr-jump](https://github.com/jorgeorejas/herdr-jump) | Apache-2.0 |
-| `spaces-jump` | [jorgeorejas/herdr-jump](https://github.com/jorgeorejas/herdr-jump) | Apache-2.0 |
-| `fleece` | [dmazlum/herdr-fleece](https://github.com/dmazlum/herdr-fleece) | MIT |
-| `fleece-dock` | [dmazlum/herdr-fleece](https://github.com/dmazlum/herdr-fleece) | MIT |
-| `walkthrough` | [dmazlum/herdr-walkthrough](https://github.com/dmazlum/herdr-walkthrough) | MIT |
-| `git-graph` | [rabeeh-ta/herdr-git-graph](https://github.com/rabeeh-ta/herdr-git-graph) | MIT |
-| `herdr-migration` | [CiprianSpiridon/herdr-migration](https://github.com/CiprianSpiridon/herdr-migration) | MIT |
-| `issue-agent` | [obrunogonzaga/herdr-mods](https://github.com/obrunogonzaga/herdr-mods) | MIT |
-| `launcher` | [EkeMinusYou/herdr-launcher](https://github.com/EkeMinusYou/herdr-launcher) | MIT |
-| `linear` | [dantech99/herdr-linear](https://github.com/dantech99/herdr-linear) | MIT |
-| `linear-agent` | [dantech99/herdr-linear](https://github.com/dantech99/herdr-linear) | MIT |
-| `reopen-tab` | [mustafaTokmak/herdr-reopen-tab](https://github.com/mustafaTokmak/herdr-reopen-tab) | MIT |
-| `space-picker` | [iqthink/herdr-space-picker](https://github.com/iqthink/herdr-space-picker) | MIT |
-| `claude-usage (rewritten)` | [dev-gvs/herdr-claude-usage](https://github.com/dev-gvs/herdr-claude-usage) | no license |
-
-Clones of Herdr's shipped mods (Apache-2.0): `my-tabs`, `path-menu`, `keys-help`, `custom-status`.
-
-## Outside this folder
-
-- `~/.claude/bin/herdr-app-tab <label> <cwd> <prompt.md>`: opens a Claude
-  session in a background tab. The app's `tab.new` moves the view to the new
-  tab; a terminal started by herdr-core with the `herdr.space` and
-  `herdr.tab` labels lands without moving it.
-- `~/.claude/bin/pane-run`: agent commands run in a "cmd" tab per space, two
-  panes at most, started the same quiet way.
-- Claude sessions come back after a reboot or an app quit:
-  `~/.claude/hooks/hc-claude-session.sh` records the session of each terminal,
-  and the end of `zsh/.zshrc` (linked to `~/.zshrc`) resumes it in the shell Herdr gives back. Test:
-  `~/.claude/hooks/tests/hc-claude-resume.test.sh`.
+- `claude-usage` reads files written by my Claude Code status line.
+- `issues` and `linear` read `~/.config/herdr-app/custom.json`, which is not in
+  this repo: `{ "gh_users": { "<hop account>": "<GitHub login>" },
+  "hop_account": "<account>" }`.
+- The `+` menu adds omp and Prime Agent (`programs.json`).
+- `icon/` holds my app icon and the script that puts it back after updates.
 
 ## Known limits
 
-- The corner note when an agent finishes can't be turned off: Settings >
-  Alerts says it shows either way, and an edit of the shipped `toast` mod is
-  restored at the next start.
-- The terminals don't draw font ligatures (checked with FiraCode).
-- A space can list a tab twice, once unnamed; `my-tabs` keeps the named entry
-  so a renamed tab keeps its name.
+- Herdr can't turn off its corner notes, draw font ligatures, show a terminal
+  scrollbar or select a rectangle.
+- A space can list a tab twice; the tab bar shows each tab once.
+
+## Maintaining
+
+This repo is a mirror: the source is
+[mirkobozzetto/dotfiles/herdr-app](https://github.com/mirkobozzetto/dotfiles/tree/main/herdr-app),
+copied here on every push of the dotfiles.
+
+```sh
+bash herdr-app/sync.sh        # copy the app's files into the dotfiles
+bash herdr-app/upstream.sh    # which borrowed mods changed upstream
+```
+
+`sources.tsv` lists each borrowed mod with the commit it was copied from.
