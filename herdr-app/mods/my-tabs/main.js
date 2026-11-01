@@ -6,8 +6,8 @@ import { syncNames } from "./names.js";
 const PANELS = ["files", "changes", "github", "graph"];
 const NAMES_MS = 3000;
 const MINUTE_MS = 60000;
-// The narrowest a tab gets when many share the bar: its icon and a letter or two.
-const MIN_TAB = 48;
+// The narrowest a tab gets when many share the bar: its icon and a few letters.
+const MIN_TAB = 72;
 
 // Short "how long it has been working": 45s, 12m, 1h05.
 function elapsed(since) {
@@ -96,6 +96,8 @@ export default class Tabs extends View {
       return fit(h_flex().id(`tab-${c.id}`).h(29).px(10).gap(7).rounded(7).items_center().text_size(12.8))
         .border(1).border_color(c.active ? t.border : t.chrome).bg(c.active ? t.raised : t.chrome).text_color(c.active ? t.foreground : t.muted)
         .hover(s => s.bg(t.hover))
+        // A shrunk tab shows its full name on hover.
+        .tooltip(c.zoomed ? `${name} (zoomed)` : name)
         .on_mouse_down("left", (e, cx) => { cx.stop_propagation(); this.pressed = i; if (e.click_count === 2) run("tab.rename", { id: c.id }); })
         // Middle click closes the tab, with Herdr's usual confirmation (herdr-quick-close).
         .on_mouse_down("middle", (_e, cx) => { cx.stop_propagation(); this.pressed = null; run("tab.close", { id: c.id }); })
