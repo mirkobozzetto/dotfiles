@@ -5,7 +5,7 @@
 // press this asks macOS when the button comes back up (one short osascript
 // that exits on release), and copies then, once. terminal.copy does nothing
 // when nothing is selected. Hold Cmd, Ctrl or Option while pressing to skip it.
-// After a copy, Herdr's own notification (the toast mod) says "Copied".
+// The copy is silent: no note on every selection.
 
 import { View, div } from "gpui-kit";
 import { focused, run, exec } from "herdr";
