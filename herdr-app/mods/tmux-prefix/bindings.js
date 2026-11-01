@@ -7,11 +7,22 @@ const WAITING = ["blocked", "done"];
 
 // The next agent that needs you; from one of them, the one after it, so
 // pressing again walks through all of them.
-async function nextWaiting() {
+function waitingNext() {
   const waiting = WAITING.flatMap((status) => agents().filter((a) => a.status === status));
-  if (!waiting.length) return;
+  if (!waiting.length) return null;
   const at = waiting.findIndex((a) => a.focused);
-  run("agent.focus", { terminal: waiting[(at + 1) % waiting.length].address });
+  return waiting[(at + 1) % waiting.length].address;
+}
+
+async function nextWaiting() {
+  const terminal = waitingNext();
+  if (terminal) run("agent.focus", { terminal });
+}
+
+// The same agent, over the current tab: you stay where you are.
+async function peekWaiting() {
+  const terminal = waitingNext();
+  if (terminal) run("terminal.peek", { terminal });
 }
 
 function find(node, id) {
@@ -79,10 +90,13 @@ export const GROUPS = [
     ["d", "Changes", () => togglePanel("changes")],
     ["G", "Graph", () => togglePanel("graph")],
     ["b", "GitHub", () => togglePanel("github")],
+    ["u", "omp usage", () => togglePanel("usage-omp")],
+    ["v", "Blueprint", () => togglePanel("blueprint")],
     ["e", "Sidebar", "layout.toggle", { id: "sidebar" }],
   ]],
   ["Agents", [
     ["enter", "Agent that needs you", nextWaiting],
+    ["a", "Peek at it, stay here", peekWaiting],
     ["g", "Next agent", "agent.next", {}, true],
     ["y", "Agent's last answer", "mod.open", { name: "fleece" }],
     ["r", "Walk through the diff", "mod.open", { name: "walkthrough" }],

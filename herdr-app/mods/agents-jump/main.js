@@ -368,6 +368,8 @@ export default class Agents extends View {
       const n = number.get(a.address), pill = flashing() && n <= 9 ? numberPill(n, t, 16) : null;
       // An agent on another machine (`vps/t7`) says which.
       const machine = a.address.includes("/") ? a.address.split("/")[0] : null;
+      // Middle click closes the agent's tab, with Herdr's usual confirmation (herdr-quick-close).
+      const closeTab = (_e, cx) => { cx.stop_propagation(); run("tab.close", { id: a.tab }); };
       if (collapsed) {
         return h_flex()
           .id(`ag-${a.address}`)
@@ -378,6 +380,7 @@ export default class Agents extends View {
           .gap(4)
           .hover((s) => s.bg(t.hover))
           .on_click(() => run("pane.focus", { pane: a.pane }))
+          .on_mouse_down("middle", closeTab)
           .child(div().flex_1().min_w(0).whitespace_nowrap().text_right().text_color(t.muted).child(String(i + 1)))
           .child(h_flex().w(14).flex_none().items_center().justify_center().child(this.status(t, a, true)));
       }
@@ -434,6 +437,7 @@ export default class Agents extends View {
           cx.notify();
         })
         .on_click(() => run("pane.focus", { pane: a.pane }))
+          .on_mouse_down("middle", closeTab)
         .child(h_flex().id(`agent-fold-${a.address}`).w(16).flex_none().self_start().mt(3).justify_center()
           .when(subs.length > 0, el => el.on_click((_e, cx) => {
             cx.stop_propagation();

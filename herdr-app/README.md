@@ -99,6 +99,16 @@ They no longer type `π`, `†`, `µ` and the characters of `option+1..3`.
 | `fleece`, `fleece-dock` | the focused agent's last answer |
 | `linear`, `linear-agent`, `issue-agent` | issues, and an agent started on one in a worktree |
 | `herdr-migration` | moves tabs over from the terminal herdr |
+| `reviewer` | the Changes panel: comment a diff line by line and send the review to the agent (vytasgavelis/herdr-reviewer) |
+| `file-icons` | the Files panel with VS Code's Material icons (amster93/herdr-file-icons) |
+| `token-usage` | omp tokens and cost, `ctrl+space u` (nakamotosai/herdr-agent-panels; lists sessions with BSD `stat`) |
+| `blueprint` | a live diagram of what the agent builds, `ctrl+space v` (chappse6/herdr-blueprint-app; never run its add-button) |
+| `system` | CPU, RAM and GPU load in the bottom bar (Lakris2407/herdr-quota, system part only) |
+| `copy-on-select` | a terminal selection is copied when the mouse comes up (jspoynor/herdr-copy-on-select) |
+| `float-space` | a floating scratch window with its own tabs and notes, `ctrl+shift+space` (thuanlm215/herdr-float-space) |
+
+Middle click on a tab or an agent row closes its tab (ported from ayayaQ/herdr-quick-close).
+`programs.json` adds omp and Prime Agent to the + menu; personal entries are named `custom-*`.
 
 Linear reads its key from the macOS keychain (`hop:<account>:LINEAR_API_KEY`).
 The account sits in `~/.config/herdr-app/custom.json` (`hop_account`), kept out of this repo.

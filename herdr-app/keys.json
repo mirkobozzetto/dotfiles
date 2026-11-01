@@ -86,7 +86,8 @@
     "cmd-alt-f": "mod.open:fleece-dock",
     "cmd-shift-y": "fleece.copy",
     "ctrl-shift-y": "mod.open:linear",
-    "ctrl-shift-l": "layout.switch:mirko"
+    "ctrl-shift-l": "layout.switch:mirko",
+    "ctrl-shift-space": "mod.open:float-space"
   },
   "terminal": {
     "ctrl-space": "mod.open:tmux-prefix",
@@ -114,7 +115,8 @@
     "alt-m": "send:\u001bm",
     "alt-1": "send:\u001b1",
     "alt-2": "send:\u001b2",
-    "alt-3": "send:\u001b3"
+    "alt-3": "send:\u001b3",
+    "ctrl-shift-space": "mod.open:float-space"
   },
   "mod:tmux-prefix": {
     "ctrl-space": "tmux-prefix.send-prefix"
@@ -130,5 +132,8 @@
     "ctrl-1": "launcher.launcher",
     "ctrl-2": "launcher.panes",
     "ctrl-3": "launcher.spaces"
+  },
+  "mod:float-space": {
+    "ctrl-shift-space": "mod.open:float-space"
   }
 }

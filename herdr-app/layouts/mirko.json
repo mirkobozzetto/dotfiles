@@ -131,14 +131,14 @@
                       "id": "files",
                       "type": "block",
                       "content": {
-                        "mod": "files"
+                        "mod": "file-icons"
                       }
                     },
                     {
                       "id": "changes",
                       "type": "block",
                       "content": {
-                        "mod": "changes"
+                        "mod": "reviewer"
                       }
                     },
                     {
@@ -153,6 +153,23 @@
                       "type": "block",
                       "content": {
                         "mod": "git-graph"
+                      }
+                    },
+                    {
+                      "id": "usage-omp",
+                      "type": "block",
+                      "content": {
+                        "mod": "token-usage"
+                      }
+                    },
+                    {
+                      "id": "blueprint",
+                      "type": "block",
+                      "content": {
+                        "mod": "blueprint",
+                        "props": {
+                          "panel": true
+                        }
                       }
                     }
                   ],
@@ -183,6 +200,16 @@
               "type": "block",
               "content": {
                 "mod": "workspace-status"
+              }
+            },
+            {
+              "id": "system",
+              "type": "block",
+              "size": {
+                "px": 260
+              },
+              "content": {
+                "mod": "system"
               }
             },
             {
@@ -219,6 +246,16 @@
               },
               "content": {
                 "mod": "ntfy"
+              }
+            },
+            {
+              "id": "copy-on-select",
+              "type": "block",
+              "size": {
+                "px": 0
+              },
+              "content": {
+                "mod": "copy-on-select"
               }
             }
           ]

@@ -1,0 +1,7 @@
+{
+  "programs": {
+    "custom-omp": { "name": "omp", "run": ["omp"], "match": ["omp"], "tile": "#1c1d21", "color": "#ffffff" },
+    "custom-prime": { "name": "Prime Agent", "run": ["prime-agent"], "match": ["prime-agent"], "tile": "#1c1d21", "color": "#ffffff" },
+    "hermes": { "name": "Hermes (VPS)" }
+  }
+}
