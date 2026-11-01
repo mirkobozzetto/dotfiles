@@ -57,7 +57,9 @@ are looking at.
 - **Layout:** `layouts/mirko.json`, a root row (sidebar column, work column);
   the work column holds the tab bar, a row with the terminals and the right
   panel stack (`panel` > `panel-body`), and the `status-row`.
-- **Shipped mods used as-is:** `workspace-chrome`, `toast`, `menu`, `picker`.
+- **Shipped mods used as-is:** `workspace-chrome`, `menu`, `picker`.
+- **Silenced:** `toast` (no corner notifications). Herdr restores its own at
+  every start, so `toast/apply.sh` copies the silent one back from `~/.zshrc`.
 - **Clones of shipped mods:** `my-tabs` (tabs), `keys-help` (help),
   `custom-status` (workspace-status), `path-menu` (menu-plus), `agents-jump`
   and `spaces-jump` (agents and spaces, via jorgeorejas/herdr-jump).

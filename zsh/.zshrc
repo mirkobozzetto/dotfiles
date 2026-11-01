@@ -312,3 +312,5 @@ fi
 # pink ram on again; launchd can't, macOS refuses it the app's bundle.
 [[ -n $HC_TERMINAL_ID && -d /Applications/Herdr.app && ! -e /Applications/Herdr.app/Icon$'\r' ]] &&
   ~/dotfiles/herdr-app/icon/apply.sh >/dev/null 2>&1 &!
+# Herdr app: every start puts its toast mod back; a Herdr terminal silences it.
+[[ -n $HC_TERMINAL_ID ]] && ~/dotfiles/herdr-app/toast/apply.sh >/dev/null 2>&1 &!
