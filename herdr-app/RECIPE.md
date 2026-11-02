@@ -77,6 +77,9 @@ are looking at.
 
 - `claude-usage` reads files written by the author's own Claude Code status
   line and hop accounts; without them it shows no limits.
+- `github` runs gh as the account hop picks for the folder (nearest `.hop`,
+  else `~/.gitconfig-active`, then the profile's `github.user`); without hop
+  it uses gh's default login.
 - `issues` and `linear` read private settings from
   `~/.config/herdr-app/custom.json` (`gh_users`, `hop_account`), kept out of
   this repo.

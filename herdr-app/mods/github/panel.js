@@ -1,7 +1,8 @@
 import { div } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
-import { spaces, panes, focused, exec, theme, nextCommand, openOverlay } from "herdr";
+import { spaces, panes, focused, theme, nextCommand, openOverlay } from "herdr";
 import { summarizeChecks, checksIcon } from "./checks.js";
+import { gh as run } from "./gh.js";
 import { openUrl } from "./open.js";
 
 const REFRESH_MS = 60000;
@@ -47,7 +48,7 @@ function friendlyError(output) {
 }
 
 async function gh(args, cwd, on) {
-  const r = await exec("gh", args, { cwd, on });
+  const r = await run(args, { cwd, on });
   if (r.code !== 0) throw new Error(friendlyError(r.stderr || r.stdout));
   return JSON.parse(r.stdout);
 }

@@ -1,7 +1,8 @@
 import { div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, panes, exec, theme, notify } from "herdr";
+import { spaces, panes, theme, notify } from "herdr";
 import { summarizeChecks, finishedState } from "./checks.js";
+import { gh } from "./gh.js";
 import { safeUrl } from "./urls.js";
 import { openUrl } from "./open.js";
 
@@ -28,7 +29,7 @@ const activeKey = () => targets().find((t) => t.space.active)?.key;
 
 // The PR of the folder's branch, or null: no PR, not a repo, or gh can't tell.
 async function loadPr(folder, on) {
-  const r = await exec("gh", ["pr", "view", "--json", "number,title,url,statusCheckRollup"], { cwd: folder, on });
+  const r = await gh(["pr", "view", "--json", "number,title,url,statusCheckRollup"], { cwd: folder, on });
   if (r.code !== 0) return null;
   const pr = JSON.parse(r.stdout);
   return { number: pr.number, title: pr.title, url: pr.url, checks: summarizeChecks(pr.statusCheckRollup) };
