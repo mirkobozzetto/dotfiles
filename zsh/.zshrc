@@ -283,13 +283,6 @@ export PATH="/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH"
 # hop account switcher
 source /Users/mirkobozzetto/code/hop/shell/hop.sh
 
-# Second Claude login for Gratiago. Not a .hop value: an account without a hop
-# profile falls back to the active GitHub account, which may be the personal one.
-claude-dev4() {
-  [ "${HOP_GH_ACCOUNT:-}" = gratiago ] || { echo "claude-dev4: run it inside ~/code/GRATIAGO" >&2; return 1; }
-  ( _hop_claude_dir dev4 && claude "$@" )
-}
-
 # Maestro (mobile UI tests). Android Studio's JDK 21: Homebrew's JDK 26 breaks Gradle.
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 export PATH="$PATH:$HOME/.maestro/bin"
