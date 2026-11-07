@@ -291,7 +291,7 @@ export PATH="$PATH:$HOME/.maestro/bin"
 # restart) comes back as a bare shell. Resume the Claude session it ran,
 # recorded by ~/.claude/hooks/hc-claude-session.sh, as if typed here.
 if [[ -o interactive && -n $HC_TERMINAL_ID && -n $HC_TERMINAL_SOCKET ]] &&
-   [[ $(ps -o comm= -p $PPID) == */herdr-core ]]; then
+   [[ $(ps -o comm= -p $PPID) == */(herdr-core|hc) ]]; then
   _hc_claude_file=${HC_TERMINAL_SOCKET:h}/claude-sessions/$HC_TERMINAL_ID
   [[ -r $_hc_claude_file ]] &&
     { read -r _hc_claude_id; read -r _hc_claude_dir } <$_hc_claude_file
