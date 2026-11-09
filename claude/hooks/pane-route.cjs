@@ -30,6 +30,27 @@ const SILENT = new Set([
 ]);
 const SILENT_GIT = new Set(['status', 'log', 'diff', 'show', 'branch']);
 
+// A session isolated in a linked worktree (EnterWorktree) refuses any git that
+// a launcher wraps: pane-run or rtk hide which tree it targets. There, git
+// runs as typed.
+const GIT_CALL = /(^|[;&|(]\s*|\s)(\S*\/)?git(\s|$)/;
+
+function callsGit(command) {
+  return GIT_CALL.test(command);
+}
+
+function inLinkedWorktree(dir) {
+  let current = path.resolve(dir || '.');
+  for (;;) {
+    try {
+      return fs.statSync(path.join(current, '.git')).isFile();
+    } catch {}
+    const parent = path.dirname(current);
+    if (parent === current) return false;
+    current = parent;
+  }
+}
+
 function quote(value) {
   return `'${String(value).replace(/'/g, `'\\''`)}'`;
 }
@@ -135,6 +156,16 @@ function main() {
   const original = typeof toolInput.command === 'string' ? toolInput.command : '';
   if (!original) return;
 
+  if (callsGit(original) && inLinkedWorktree(input.cwd)) {
+    const listed = permissionFor(original);
+    emit({
+      permissionDecision: listed || 'allow',
+      permissionDecisionReason:
+        listed === 'deny' ? 'Blocked by the Bash deny list in settings.json.' : 'git in a linked worktree runs as typed',
+    });
+    return;
+  }
+
   let command = original;
   const rtk = throughRtk(raw);
   if (rtk) {
@@ -185,4 +216,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { permissionFor, inPane, addressesPane };
+module.exports = { permissionFor, inPane, addressesPane, inLinkedWorktree, callsGit };
