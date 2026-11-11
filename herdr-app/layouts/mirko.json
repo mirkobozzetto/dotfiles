@@ -104,7 +104,6 @@
                     "height": 30,
                     "position": "top"
                   },
-                  "background": "background",
                   "border": {
                     "width": 1,
                     "color": "border"
@@ -115,7 +114,8 @@
                   },
                   "radius": 10,
                   "gap": 8,
-                  "lone": true
+                  "lone": true,
+                  "background": "background"
                 }
               }
             },
@@ -197,10 +197,6 @@
         {
           "id": "status-row",
           "type": "row",
-          "size": {
-            "px": 28
-          },
-          "resizable": false,
           "children": [
             {
               "id": "status",
@@ -212,70 +208,74 @@
             {
               "id": "system",
               "type": "block",
-              "size": {
-                "px": 292
-              },
               "content": {
                 "mod": "system"
+              },
+              "size": {
+                "px": 292
               }
             },
             {
               "id": "omp-cost",
               "type": "block",
-              "size": {
-                "px": 92
-              },
               "content": {
                 "mod": "custom-omp-cost"
+              },
+              "size": {
+                "px": 92
               }
             },
             {
               "id": "usage",
               "type": "block",
-              "size": {
-                "px": 380
-              },
               "content": {
                 "mod": "claude-usage",
                 "props": {
                   "border": "top"
                 }
+              },
+              "size": {
+                "px": 380
               }
             },
             {
               "id": "ci",
               "type": "block",
-              "size": {
-                "px": 220
-              },
               "content": {
                 "mod": "github",
                 "props": {
                   "view": "ci"
                 }
+              },
+              "size": {
+                "px": 220
               }
             },
             {
               "id": "ntfy",
               "type": "block",
-              "size": {
-                "px": 0
-              },
               "content": {
                 "mod": "ntfy"
+              },
+              "size": {
+                "px": 0
               }
             },
             {
               "id": "copy-on-select",
               "type": "block",
-              "size": {
-                "px": 0
-              },
               "content": {
                 "mod": "copy-on-select"
+              },
+              "size": {
+                "px": 0
               }
             }
-          ]
+          ],
+          "size": {
+            "px": 28
+          },
+          "resizable": false
         }
       ],
       "resizable": false
