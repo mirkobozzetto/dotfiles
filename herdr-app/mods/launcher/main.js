@@ -1,4 +1,4 @@
-import { View, div } from "gpui-kit";
+import { View, div, svg } from "gpui-kit";
 import { h_flex, v_flex, Input, InputState, v_virtual_list, VirtualListScrollHandle, Scrollbar } from "gpui-base";
 import { appHome, closeOverlay, exec, focused, hc, nextCommand, panes, props, readTextFile, run, spaces, theme } from "herdr";
 import { MODES, STATUSES, collectItems, commandTarget, filterItems, parseConfig, recordPick } from "./model.js";
@@ -250,11 +250,12 @@ export default class Launcher extends View {
   row(item, t) {
     const selected = item.id === this.selected;
     const status = item.status;
-    return h_flex().h(56).px(10).gap(10).items_center().rounded(6)
+    // Virtual-list rows need an explicit width, or they lay out empty.
+    return h_flex().w_full().h(56).flex_none().px(10).gap(10).items_center().rounded(6)
       .bg(selected ? t.selected : t.popover).text_color(t.foreground)
       .child(div().w(14).flex_none().text_color(t[status] ?? t.dim)
-        .when(status === "working", el => el.frames(SPIN, 90))
-        .child(status === "working" ? SPIN[0] : status === "idle" ? "○" : status ? "●" : item.kind === "command" ? ">" : "·"))
+        .child(status === "working" ? svg("mods/workspace-chrome/spinner.svg").size(12).text_color(t.working).spin(900)
+          : status === "idle" ? "○" : status ? "●" : item.kind === "command" ? ">" : "·"))
       .child(v_flex().flex_1().min_w(0).gap(3)
         .child(div().truncate().font_semibold().child(`${item.title}${item.current ? "  ‹ current" : ""}`))
         .child(div().truncate().text_size(11).text_color(t.muted).child(item.subtitle)))
@@ -285,7 +286,7 @@ export default class Launcher extends View {
         .child(div().text_size(11).text_color(t.dim).child(`${rows.length} items`)))
       .when(Boolean(this.error), el => el.child(div().text_size(12).text_color(t.blocked).child(this.error)))
       .child(h_flex().flex_1().min_h(0).items_stretch().gap(12)
-        .child(v_flex().flex_1().min_w(0).min_h(0).relative()
+        .child(div().flex_1().min_w(0).min_h(0).relative()
           .when(rows.length > 0, el => el
             .child(v_virtual_list("launcher-list", rows.length, 56, index => rows[index].id,
               range => rows.slice(range.start, range.end).map(row => this.row(row, t)))
