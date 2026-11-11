@@ -106,7 +106,7 @@ export const GROUPS = [
   ["App", [
     ["s", "Go to anything", "mod.open", { name: "picker" }],
     ["w", "Go to anything", "mod.open", { name: "picker" }],
-    ["o", "Launcher", "mod.open", { name: "launcher" }],
+    ["o", "Open a folder", "mod.open", { name: "space-picker" }],
     [":", "Command palette", "app.palette"],
     ["?", "All shortcuts", "mod.open", { name: "keys-help" }],
     ["m", "Sound alerts on/off", toggleSound],
