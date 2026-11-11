@@ -138,10 +138,11 @@ export default class Tabs extends View {
     this.syncPanel(space, panel, body, enabled);
     const panelButton = (id, label, icon) => {
       const on = panel && !panel.hidden && body?.active === id;
-      return h_flex().id(`panel-${id}`).h(26).px(8).gap(5).flex_none().items_center().rounded(6)
-        .text_size(12).bg(on ? t.selected : t.chrome).text_color(on ? t.foreground : t.muted)
-        .hover(s => s.bg(t.hover)).on_mouse_down("left", stop)
-        .on_click(() => togglePanel(id)).child(svg(icon).size(14)).child(label);
+      // Icon only, the name in a tooltip: four labels crowded the tab strip.
+      return h_flex().id(`panel-${id}`).size(26).flex_none().items_center().justify_center().rounded(6)
+        .bg(on ? t.selected : t.chrome).text_color(on ? t.foreground : t.muted)
+        .hover(s => s.bg(t.hover)).on_mouse_down("left", stop).tooltip(label)
+        .on_click(() => togglePanel(id)).child(svg(icon).size(14));
     };
     return h_flex().size_full().min_w(0).px(10).pl(lightsPadding).gap(3).items_center().bg(t.chrome).border_b(1).border_color(t.border)
       .on_mouse_up("left", () => { this.pressed = null; })
