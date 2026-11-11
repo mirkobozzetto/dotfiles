@@ -80,7 +80,7 @@ Press `ctrl+space`, then one key.
 | Spaces | `)`/`(` and `J`/`K` next/previous, `T` rename |
 | Panels | `f` Files, `d` Changes, `G` Graph, `b` GitHub, `I` issues, `u` omp usage, `v` Blueprint, `e` sidebar |
 | Agents | `enter` the agent that needs you, `a` peek at it, `g` next agent, `y` its last answer, `r` walk through the diff, `i` Linear |
-| App | `s`/`w` go to anything, `o` launcher, `:` palette, `?` all shortcuts, `m` sound alerts, `S` settings, `q` minimize |
+| App | `s`/`w` go to anything, `o` open a folder, `:` palette, `?` all shortcuts, `m` sound alerts, `S` settings, `q` minimize |
 
 `0-9` select a tab, `h j k l` or the arrows move between panes, and
 `ctrl+space` twice sends it to the program.
@@ -91,8 +91,8 @@ Press `ctrl+space`, then one key.
 |---|---|
 | `cmd+/` | all shortcuts |
 | `cmd+1..9` / `ctrl+1..9` | nth space / nth agent |
-| `cmd+p` | launcher |
-| `cmd+o` | space picker |
+| `cmd+p` | open a folder as a space (space picker) |
+| `cmd+o` | launcher |
 | `cmd+shift+t` | reopen the last closed tab |
 | `cmd+shift+k` | walk through the diff |
 | `cmd+shift+f`, `cmd+alt+f` | the agent's last answer, as a window or a dock |
