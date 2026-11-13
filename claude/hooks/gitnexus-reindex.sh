@@ -11,6 +11,9 @@ cd "$root" || exit 0
 # turn, under the MCP servers of every open session, which then crashed.
 grep -q "\"lastCommit\": \"$(git rev-parse HEAD)\"" .gitnexus/meta.json 2>/dev/null && exit 0
 pgrep -f "gitnexus analyze" >/dev/null 2>&1 && exit 0
+# A commit of Markdown only (journal, rules, docs) changes no symbol: a full
+# rebuild for it took 2 GB and two cores during device tests on 13/11.
+git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -qv '\.md$' || exit 0
 # 2 parse workers, lowest priority, no embedding pass: the default (cores-1,
 # up to 16) plus --embeddings after every commit froze the Mac on 12/11.
 # Without --embeddings, analyze keeps the embeddings already in the index.
