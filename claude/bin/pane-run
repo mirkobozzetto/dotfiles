@@ -300,7 +300,13 @@ while [ ! -f "$rc" ]; do
   ticks=$((ticks + 1))
   if [ "$ticks" -gt "$limit" ]; then
     cat "$out" 2>/dev/null
-    echo "[pane-run] timed out after 1800s, still running in $backend pane $target" >&2
+    # Free the pane: a job that never ends (a polling loop) kept both cmd panes
+    # busy for over an hour on 13/11 and every later command queued behind it.
+    case "$backend" in
+      hc) "$HC" keys "$target" ctrl+c >/dev/null 2>&1 ;;
+      tmux) tmux send-keys -t "$target" C-c 2>/dev/null ;;
+    esac
+    echo "[pane-run] timed out after 1800s, stopped in $backend pane $target" >&2
     exit 124
   fi
   sleep 0.1
