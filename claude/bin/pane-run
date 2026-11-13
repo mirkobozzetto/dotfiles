@@ -230,7 +230,9 @@ hc_target() {
 }
 
 hc_send() {
-  "$HC" send "$1" " bash '$2'" >/dev/null 2>&1
+  # Without the sender id, hc pastes the line as is: with it, hc wraps it in an
+  # <hc from> tag meant for agents, and zsh never runs the job.
+  env -u HC_TERMINAL_ID "$HC" send "$1" " bash '$2'" >/dev/null 2>&1
 }
 
 # ------------------------------------------------------------------- dispatch
