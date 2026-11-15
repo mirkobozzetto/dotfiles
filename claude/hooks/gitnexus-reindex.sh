@@ -6,6 +6,7 @@
 root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 [ -d "$root/.gitnexus" ] || exit 0
 command -v gitnexus >/dev/null 2>&1 || exit 0
+command -v timeout >/dev/null 2>&1 || exit 0
 cd "$root" || exit 0
 # Only after a commit: a dirty tree used to rebuild the whole graph after every
 # turn, under the MCP servers of every open session, which then crashed.
@@ -17,5 +18,9 @@ git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -qv '\.md$' || exit 0
 # 2 parse workers, lowest priority, no embedding pass: the default (cores-1,
 # up to 16) plus --embeddings after every commit froze the Mac on 12/11.
 # Without --embeddings, analyze keeps the embeddings already in the index.
-nohup nice -n 19 gitnexus analyze --index-only --workers 2 >.gitnexus/reindex.log 2>&1 &
+# Capped: a normal refresh takes 3 s to 3 min, but one hung for 30 min at 100%
+# CPU on 16/11. GNU timeout signals its whole process group, so the node the
+# CLI respawns with a bigger heap dies with it. The next commit retries.
+cap=${GITNEXUS_REINDEX_CAP_S:-300}
+nohup nice -n 19 timeout -k 15 "$cap" gitnexus analyze --index-only --workers 2 >.gitnexus/reindex.log 2>&1 &
 exit 0
