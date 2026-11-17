@@ -287,7 +287,9 @@ printf '%s\n' "$CMD" > "$cmd"
   # holding the pane lock.
   printf 'cd %q || { echo 1 > %q; exit 1; }\n' "$CWD" "$rc"
   printf 'printf "\\033[1;36m$ %%s\\033[0m\\n" %q\n' "$CMD"
-  printf 'zsh %q 2>&1 | tee %q\n' "$cmd" "$out"
+  # Input from /dev/null: a command reading the pane's keyboard (grep with no
+  # file) swallowed every job typed after it and froze the pane on 17/11.
+  printf 'zsh %q </dev/null 2>&1 | tee %q\n' "$cmd" "$out"
   printf 'echo "${PIPESTATUS[0]}" > %q.tmp\n' "$rc"
   printf 'mv %q.tmp %q\n' "$rc" "$rc"
 } > "$job"
